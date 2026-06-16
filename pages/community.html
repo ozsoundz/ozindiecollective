@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Community — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.feed-layout{display:grid;grid-template-columns:1fr 300px;gap:2rem}
+.post-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.35rem;margin-bottom:1rem;transition:.2s}
+.post-card:hover{border-color:var(--border-hi)}
+.post-header{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem}
+.post-body{font-size:.88rem;color:rgba(240,237,230,.8);line-height:1.7;margin-bottom:.85rem}
+.post-actions{display:flex;gap:1rem}
+.post-action{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s;padding:0}
+.post-action:hover{color:var(--marigold)}
+.compose-box{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+@media(max-width:900px){.feed-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Community</div>
+    <h1 class="section-title">The OIC <em>Community Feed</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Share updates, ask questions, celebrate wins, post calls for collaborators and connect with fellow members.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="feed-layout">
+      <div>
+        <!-- Compose -->
+        <div class="compose-box" id="composeArea">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="avatar avatar-sm av-gold" data-user-initials>?</div>
+            <textarea id="postInput" placeholder="Share something with the Collective…" style="flex:1;background:transparent;border:none;color:var(--cream);font-family:var(--font-body);font-size:.88rem;resize:none;outline:none;line-height:1.6" rows="2"></textarea>
+          </div>
+          <div class="flex justify-between items-center">
+            <div class="flex gap-2">
+              <button class="post-action" onclick="showToast('Image upload coming soon','info')">📷 Photo</button>
+              <button class="post-action" onclick="showToast('Link sharing coming soon','info')">🔗 Link</button>
+            </div>
+            <button class="btn-primary" style="font-size:.65rem;padding:.45rem 1rem" onclick="submitPost()">Post</button>
+          </div>
+        </div>
+
+        <div id="guestPrompt" class="alert alert-info hidden mb-3"><span>👋</span><span><a href="login.html" class="text-gold">Sign in</a> or <a href="join.html" class="text-gold">join</a> to post and comment.</span></div>
+
+        <!-- Feed -->
+        <div id="feedPosts">
+          <div class="post-card fade-in">
+            <div class="post-header"><div class="avatar avatar-sm av-gold">JM</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">Jordan Mackay</div><div class="text-xs mono text-muted">Audio Engineer · Sydney · 2h ago</div></div><span class="tag tag-gold" style="margin-left:auto;font-size:.55rem">Win 🎉</span></div>
+            <div class="post-body">Just wrapped mixing on the new Rogue Satellites album — 10 tracks, all analogue chain. Honestly the best work I've done. Huge shoutout to Ochre Sound Studios for the space and to Priya for the late nights. Album drops September. 🎚️</div>
+            <div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 24 Likes</button><button class="post-action">💬 8 Comments</button><button class="post-action">↗ Share</button></div>
+          </div>
+          <div class="post-card fade-in">
+            <div class="post-header"><div class="avatar avatar-sm av-rust">SP</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">Sarah Papadimitriou</div><div class="text-xs mono text-muted">Lighting Designer · Melbourne · 5h ago</div></div><span class="tag tag-rust" style="margin-left:auto;font-size:.55rem">Seeking</span></div>
+            <div class="post-body">Anyone have experience with Avolites Titan on a Robe-heavy rig? Jumping onto a show next week where the LD is unavailable and I've always been a GrandMA person. Any tips or happy to chat through it!</div>
+            <div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 7 Likes</button><button class="post-action">💬 12 Comments</button><button class="post-action">↗ Share</button></div>
+          </div>
+          <div class="post-card fade-in">
+            <div class="post-header"><div class="avatar avatar-sm av-sage">TC</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">Tomas Crowe</div><div class="text-xs mono text-muted">Music Producer · Brisbane · 1d ago</div></div></div>
+            <div class="post-body">Reminder that the Australia Council Quick Response grant is rolling — I just got $8,500 approved for studio time and equipment. The application is surprisingly straightforward if you frame it around your artistic practice. Happy to help anyone draft theirs. DM me.</div>
+            <div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 41 Likes</button><button class="post-action">💬 19 Comments</button><button class="post-action">↗ Share</button></div>
+          </div>
+          <div class="post-card fade-in">
+            <div class="post-header"><div class="avatar avatar-sm av-blue">NR</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">Nina Rashid</div><div class="text-xs mono text-muted">Videographer · Perth · 2d ago</div></div><span class="tag tag-blue" style="margin-left:auto;font-size:.55rem">Resource</span></div>
+            <div class="post-body">PSA for Perth people: the Spacecubed creative hub has free desk space for freelancers on Tuesdays and Thursdays. No need to book, just show up. Great for getting out of the home office and bumping into other creatives.</div>
+            <div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 18 Likes</button><button class="post-action">💬 4 Comments</button><button class="post-action">↗ Share</button></div>
+          </div>
+          <div class="post-card fade-in">
+            <div class="post-header"><div class="avatar avatar-sm av-purple">ZT</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">Zara Thompson</div><div class="text-xs mono text-muted">Content Creator · Brisbane · 3d ago</div></div></div>
+            <div class="post-body">Just hit 100K on TikTok from my studio process content 🥹 If anyone wants to talk about building an audience from behind-the-scenes creative content — I've figured out a few things. Would love to do a community chat sometime.</div>
+            <div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 92 Likes</button><button class="post-action">💬 34 Comments</button><button class="post-action">↗ Share</button></div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.35rem;margin-bottom:1.25rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Community Stats</h3>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div class="flex justify-between"><span class="text-sm text-muted">Members</span><span class="text-sm" style="color:var(--cream);font-weight:600">4,284</span></div>
+            <div class="flex justify-between"><span class="text-sm text-muted">Online Now</span><span class="text-sm" style="color:var(--sage);font-weight:600">● 127</span></div>
+            <div class="flex justify-between"><span class="text-sm text-muted">Posts Today</span><span class="text-sm" style="color:var(--cream);font-weight:600">48</span></div>
+            <div class="flex justify-between"><span class="text-sm text-muted">New This Week</span><span class="text-sm" style="color:var(--cream);font-weight:600">+32 members</span></div>
+          </div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.35rem;margin-bottom:1.25rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Trending Topics</h3>
+          <div style="display:flex;flex-direction:column;gap:.55rem">
+            <div class="text-sm text-muted"># Grant Writing Tips</div>
+            <div class="text-sm text-muted"># AI in Music Production</div>
+            <div class="text-sm text-muted"># Byron Bay Festival 2026</div>
+            <div class="text-sm text-muted"># Studio Rate Cards</div>
+            <div class="text-sm text-muted"># Social Media for Creatives</div>
+          </div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.35rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">New Members</h3>
+          <div style="display:flex;flex-direction:column;gap:.75rem">
+            <div class="flex items-center gap-2"><div class="avatar avatar-sm av-gold">KO</div><div><div class="text-sm" style="color:var(--cream)">Keiko Ota</div><div class="text-xs text-muted">Composer · Melbourne</div></div></div>
+            <div class="flex items-center gap-2"><div class="avatar avatar-sm av-rust">BR</div><div><div class="text-sm" style="color:var(--cream)">Ben Rodriguez</div><div class="text-xs text-muted">Stage Mgr · Gold Coast</div></div></div>
+            <div class="flex items-center gap-2"><div class="avatar avatar-sm av-sage">LC</div><div><div class="text-sm" style="color:var(--cream)">Layla Chen</div><div class="text-xs text-muted">Photographer · Sydney</div></div></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()) {
+    document.getElementById('composeArea').style.display='none';
+    document.getElementById('guestPrompt').classList.remove('hidden');
+  }
+});
+function submitPost() {
+  const val = document.getElementById('postInput').value.trim();
+  if(!val) return;
+  const user = Auth.get();
+  const card = document.createElement('div');
+  card.className='post-card';
+  card.innerHTML=`<div class="post-header"><div class="avatar avatar-sm av-gold">${initials(user?.name||'Me')}</div><div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">${user?.name||'You'}</div><div class="text-xs mono text-muted">${user?.role||''} · Just now</div></div></div><div class="post-body">${val.replace(/</g,'&lt;')}</div><div class="post-actions"><button class="post-action" onclick="likePost(this)">♥ 0 Likes</button><button class="post-action">💬 0 Comments</button></div>`;
+  document.getElementById('feedPosts').prepend(card);
+  document.getElementById('postInput').value='';
+  showToast('Posted to the community!','success');
+}
+function likePost(btn) {
+  const m = btn.textContent.match(/\d+/);
+  const n = m ? parseInt(m[0])+1 : 1;
+  btn.textContent='♥ '+n+' Likes';
+  btn.style.color='var(--marigold)';
+}
+</script>
+</body>
+</html>

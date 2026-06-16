@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Member Profile — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.profile-header{background:var(--mid);border-bottom:1px solid var(--border);padding:calc(var(--nav-h) + 3rem) 4rem 3rem}
+.profile-hero{max-width:1200px;margin:0 auto;display:flex;gap:2.5rem;align-items:flex-start}
+.profile-body-wrap{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:2.5rem;padding:2.5rem 4rem}
+.profile-tab-nav{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.ptab{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:.75rem 1.25rem;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:.2s}
+.ptab:hover{color:var(--cream)}
+.ptab.active{color:var(--marigold);border-bottom-color:var(--marigold)}
+.edit-form-wrap{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:2rem}
+@media(max-width:900px){.profile-header{padding:calc(var(--nav-h) + 2rem) 1.5rem 2rem}.profile-hero{flex-direction:column;gap:1.5rem}.profile-body-wrap{grid-template-columns:1fr;padding:2rem 1.5rem}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<!-- PROFILE HEADER -->
+<div class="profile-header">
+  <div class="profile-hero">
+    <div class="avatar avatar-xl av-gold" data-user-initials style="flex-shrink:0">JM</div>
+    <div style="flex:1">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="tag tag-approved">✓ Approved Member</span>
+        <span class="tag tag-gold">Professional</span>
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:.35rem" data-user-name>Jordan Mackay</h1>
+      <div style="font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem" data-user-role>Audio Engineer</div>
+      <div class="flex items-center gap-3 text-muted text-sm" style="flex-wrap:wrap">
+        <span data-user-location>📍 Sydney, NSW</span>
+        <span>🎯 8 Years Experience</span>
+        <span class="flex items-center gap-1"><span class="avail-dot"></span>Available for work</span>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <a href="#" class="btn-ghost" style="font-size:.65rem;padding:.45rem .9rem">Connect</a>
+        <a href="#" class="btn-primary" style="font-size:.65rem;padding:.45rem .9rem">Message</a>
+        <button class="btn-secondary" style="font-size:.65rem;padding:.45rem .9rem" onclick="toggleEdit()">Edit Profile</button>
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div class="text-xs mono text-muted mb-1">Member Since</div>
+      <div class="text-sm" style="color:var(--cream)">March 2024</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE BODY -->
+<div style="background:var(--ink)">
+  <div class="profile-body-wrap">
+    <div>
+      <!-- View Mode -->
+      <div id="viewMode">
+        <div class="profile-tab-nav">
+          <button class="ptab active" onclick="showTab('about')">About</button>
+          <button class="ptab" onclick="showTab('portfolio')">Portfolio</button>
+          <button class="ptab" onclick="showTab('credits')">Credits</button>
+          <button class="ptab" onclick="showTab('reviews')">Reviews</button>
+        </div>
+
+        <div id="tab-about">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">About</h3>
+          <p class="text-muted" style="line-height:1.8;margin-bottom:2rem">Mixing and tracking engineer with 8 years experience across studio and live environments. Specialising in indie, alternative and electronic music. Comfortable with both analogue and digital workflows. Based in Sydney but available to travel for the right project.</p>
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Skills &amp; Specialisations</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem">
+            <span class="tag tag-gold">Mixing</span><span class="tag tag-gold">Tracking</span><span class="tag tag-sage">Live Sound</span><span class="tag tag-sage">Mastering</span><span class="tag tag-blue">Pro Tools</span><span class="tag tag-blue">Ableton</span><span class="tag tag-rust">Analogue</span><span class="tag tag-purple">Electronic</span>
+          </div>
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Equipment &amp; Studio</h3>
+          <p class="text-muted text-sm" style="line-height:1.7">SSL G-Series console · Pro Tools Ultimate · Neve 1073 preamps · Waves Mercury bundle · Universal Audio interfaces · Yamaha NS10 + Genelec monitoring</p>
+        </div>
+
+        <div id="tab-portfolio" class="hidden">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Portfolio</h3>
+          <div class="grid-3">
+            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#1a0a00,#3d1f00);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎵</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Neon Satellite — LP Mix</div><div class="text-xs text-muted">Indie Rock · 2024</div></div>
+            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#001a0d,#004d29);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎚️</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Byrne &amp; Co Live — FOH</div><div class="text-xs text-muted">Live Sound · 2024</div></div>
+            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#0a001a,#2d0052);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎹</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Priya Nair — EP Tracking</div><div class="text-xs text-muted">Electronic · 2023</div></div>
+          </div>
+        </div>
+
+        <div id="tab-credits" class="hidden">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Credits</h3>
+          <table class="data-table"><thead><tr><th>Project</th><th>Artist</th><th>Role</th><th>Year</th></tr></thead><tbody>
+            <tr><td>Neon Satellite LP</td><td>The Rogue Satellites</td><td>Mix Engineer</td><td>2024</td></tr>
+            <tr><td>Somewhere Else</td><td>Mara James</td><td>Recording &amp; Mix</td><td>2024</td></tr>
+            <tr><td>National Tour 2023</td><td>Byrne &amp; Co</td><td>FOH Engineer</td><td>2023</td></tr>
+            <tr><td>First Light EP</td><td>Priya Nair</td><td>Tracking Engineer</td><td>2023</td></tr>
+            <tr><td>Dust &amp; Gold Album</td><td>Various Artists</td><td>Assistant Engineer</td><td>2022</td></tr>
+          </tbody></table>
+        </div>
+
+        <div id="tab-reviews" class="hidden">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Reviews</h3>
+          <div style="display:flex;flex-direction:column;gap:1.25rem">
+            <div style="border:1px solid var(--border);border-radius:4px;padding:1.25rem"><div class="flex items-center gap-2 mb-1"><div class="avatar avatar-sm av-rust" style="font-size:.55rem">MJ</div><div><div class="text-sm" style="color:var(--cream);font-weight:600">Mara James</div><div class="text-xs text-muted">Singer-Songwriter</div></div><div style="margin-left:auto;color:var(--marigold);font-size:.9rem">★★★★★</div></div><p class="text-sm text-muted mt-1" style="line-height:1.6">"Jordan is exactly the kind of engineer you want on your record. Patient, creative and incredibly skilled. The mixes were stunning."</p></div>
+            <div style="border:1px solid var(--border);border-radius:4px;padding:1.25rem"><div class="flex items-center gap-2 mb-1"><div class="avatar avatar-sm av-sage" style="font-size:.55rem">TR</div><div><div class="text-sm" style="color:var(--cream);font-weight:600">Tom Russo</div><div class="text-xs text-muted">Band Manager</div></div><div style="margin-left:auto;color:var(--marigold);font-size:.9rem">★★★★★</div></div><p class="text-sm text-muted mt-1" style="line-height:1.6">"Had Jordan on FOH for our national tour. Rock solid the whole way through. The band sounded incredible every night."</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT MODE -->
+      <div id="editMode" class="hidden">
+        <div class="edit-form-wrap">
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Edit Your Profile</h2>
+          <div class="form-row"><div class="form-group"><label>First Name</label><input type="text" name="firstName" value="Jordan"></div><div class="form-group"><label>Last Name</label><input type="text" name="lastName" value="Mackay"></div></div>
+          <div class="form-group"><label>Primary Role</label><select name="role"><option selected>Audio Engineer (Studio)</option><option>Audio Engineer (Live)</option><option>Music Producer</option></select></div>
+          <div class="form-group"><label>Tagline / One-liner</label><input type="text" name="tagline" value="Mixing &amp; tracking engineer · Studio &amp; live · Sydney" data-max-chars="80"></div>
+          <div class="form-group"><label>Bio</label><textarea name="bio" data-max-chars="600" rows="4">Mixing and tracking engineer with 8 years experience across studio and live environments.</textarea></div>
+          <div class="form-row"><div class="form-group"><label>City</label><input type="text" name="city" value="Sydney"></div><div class="form-group"><label>State</label><select name="state"><option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option><option>WA</option></select></div></div>
+          <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolio" placeholder="https://yoursite.com"></div>
+          <div class="form-group"><label>Social — Instagram</label><input type="text" name="instagram" placeholder="@yourhandle"></div>
+          <div class="form-group"><label>Availability</label><select name="availability"><option>Available for work</option><option>Selectively available</option><option>Not currently available</option></select></div>
+          <div class="form-group"><label>Profile Photo</label><div class="file-upload-box">Click to upload or drag here · JPG, PNG · Max 5MB<br><span>Browse files</span></div></div>
+          <div class="flex gap-2 mt-3">
+            <button class="btn-primary btn-lg" onclick="saveProfile()">Save Changes</button>
+            <button class="btn-secondary btn-lg" onclick="toggleEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+      <div class="sidebar-card mb-3" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Contact</h3>
+        <div class="flex flex-col gap-2">
+          <a href="#" class="btn-primary w-full text-center" style="font-size:.65rem;padding:.6rem">Send Message</a>
+          <a href="#" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">Connect</a>
+        </div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Details</h3>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div><div class="text-xs mono text-muted mb-1">Location</div><div class="text-sm" style="color:var(--cream)" data-user-location>Sydney, NSW</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">8 years</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Member Since</div><div class="text-sm" style="color:var(--cream)">March 2024</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Plan</div><div><span class="tag tag-gold">Professional</span></div></div>
+          <div><div class="text-xs mono text-muted mb-1">Status</div><div><span class="tag tag-approved">✓ Approved</span></div></div>
+        </div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Links</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🌐 jordanmackay.com.au</a>
+          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🎵 soundcloud.com/jordanmackay</a>
+          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">📷 @jordanmackay_audio</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+function showTab(name) {
+  ['about','portfolio','credits','reviews'].forEach(t => {
+    document.getElementById('tab-'+t).classList.add('hidden');
+  });
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('.ptab').forEach((btn,i) => {
+    btn.classList.toggle('active', ['about','portfolio','credits','reviews'][i] === name);
+  });
+}
+function toggleEdit() {
+  const view = document.getElementById('viewMode');
+  const edit = document.getElementById('editMode');
+  view.classList.toggle('hidden');
+  edit.classList.toggle('hidden');
+}
+function saveProfile() {
+  showToast('Profile updated successfully!','success');
+  toggleEdit();
+}
+</script>
+</body>
+</html>

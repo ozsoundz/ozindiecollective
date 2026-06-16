@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oz Indie Collective — Australia's Independent Creative Community</title>
+<meta name="description" content="A vetted community connecting artists, musicians, engineers, managers, technicians and creative professionals across Australia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.hero{min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:var(--ink)}
+.hero-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 50%,rgba(196,98,58,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 30%,rgba(122,158,135,.15) 0%,transparent 55%),radial-gradient(ellipse 50% 70% at 50% 80%,rgba(245,166,35,.08) 0%,transparent 50%);z-index:1}
+.film-strips{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;opacity:.5}
+.film-strip{height:100%;overflow:hidden;display:flex;flex-direction:column}
+.film-frame{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.5rem;color:rgba(240,237,230,.3);border-bottom:1px solid rgba(240,237,230,.05);padding:.4rem;text-align:center;line-height:1.4}
+.film-frame.lit{background:rgba(240,237,230,.04);color:rgba(240,237,230,.45)}
+.hero-overlay{position:absolute;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(13,17,23,.4) 0%,rgba(13,17,23,.6) 50%,rgba(13,17,23,.95) 100%)}
+.hero-content{position:relative;z-index:3;text-align:center;padding:0 2rem;max-width:860px}
+.hero-eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--marigold);margin-bottom:1.4rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';height:1px;width:36px;background:var(--marigold);opacity:.5}
+.hero-headline{font-family:var(--font-display);font-size:clamp(3rem,8vw,6rem);font-weight:900;line-height:1.02;color:var(--cream);margin-bottom:1.4rem;letter-spacing:-.02em}
+.hero-headline em{font-style:italic;color:var(--marigold)}
+.hero-sub{font-size:1.05rem;line-height:1.75;font-weight:300;color:rgba(240,237,230,.72);max-width:620px;margin:0 auto 2.4rem}
+.hero-btns{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap}
+.scroll-cue{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,transparent,var(--marigold));animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.why-quote{font-family:var(--font-display);font-size:1.4rem;font-style:italic;color:rgba(240,237,230,.65);line-height:1.5;padding-left:1.4rem;border-left:3px solid var(--rust);margin:1.5rem 0 2rem}
+.pillars{display:flex;flex-direction:column;gap:1.2rem}
+.pillar{display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;border:1px solid var(--border);border-radius:4px;transition:.2s}
+.pillar:hover{border-color:rgba(245,166,35,.35)}
+.pillar-icon{width:42px;height:42px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.6rem;font-weight:700}
+.pi-c{background:rgba(122,158,135,.2);color:var(--sage)}
+.pi-co{background:rgba(245,166,35,.15);color:var(--marigold)}
+.pi-cr{background:rgba(196,98,58,.2);color:var(--rust)}
+.pillar-name{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.3rem}
+.pillar-desc{font-size:.86rem;color:var(--muted);line-height:1.6}
+.orbit-wrap{position:relative;height:420px;display:flex;align-items:center;justify-content:center}
+.vinyl{width:240px;height:240px;border-radius:50%;background:conic-gradient(from 0deg,#1a1a2e,#16213e,#0f3460,#1a1a2e);position:relative;display:flex;align-items:center;justify-content:center;animation:spin 22s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.vinyl::before{content:'';position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#c4623a,#8B3A1A);z-index:1}
+.vinyl::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:var(--ink);z-index:2}
+.orbit{position:absolute;border-radius:50%;border:1px dashed rgba(240,237,230,.1);animation:spin linear infinite}
+.orbit1{width:320px;height:320px;animation-duration:28s}
+.orbit2{width:400px;height:400px;animation-duration:38s;animation-direction:reverse}
+.odot{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--mid);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.5rem;color:var(--marigold);font-weight:700;text-transform:uppercase;white-space:nowrap;line-height:1.1;text-align:center;padding:2px}
+.members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.9rem;margin-top:3rem}
+.mcard{background:rgba(240,237,230,.04);border:1px solid var(--border);border-radius:4px;padding:1.4rem 1rem;text-align:center;cursor:pointer;transition:.2s;text-decoration:none;display:block}
+.mcard:hover{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.4);transform:translateY(-3px)}
+.mcard-icon{font-size:1.6rem;margin-bottom:.65rem;display:block}
+.mcard-name{font-size:.8rem;font-weight:600;color:var(--cream)}
+.mcard-sub{font-size:.68rem;color:var(--muted);margin-top:.2rem;font-family:var(--font-mono)}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.4rem;margin-top:3rem}
+.pcard{background:var(--ink);border:1px solid var(--border);border-radius:4px;padding:1.6rem;position:relative;overflow:hidden;transition:.2s}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pcard.pm::before{background:var(--marigold)}.pcard.pp::before{background:var(--rust)}.pcard.pv::before{background:var(--sage)}.pcard.pe::before{background:#9b59b6}
+.pcard:hover{border-color:rgba(240,237,230,.22);transform:translateY(-3px)}
+.pcard-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--cream);margin:.75rem 0 .4rem;line-height:1.25}
+.pcard-meta{font-size:.78rem;color:var(--muted);margin-bottom:.85rem}
+.pcard-desc{font-size:.85rem;color:rgba(240,237,230,.68);line-height:1.6;margin-bottom:1.25rem}
+.apply-link{font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:.2s}
+.apply-link:hover{gap:.6rem}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.istat{padding:2.25rem;border-right:1px solid var(--border);text-align:center}
+.istat:last-child{border-right:none}
+.istat:nth-child(n+4){border-top:1px solid var(--border)}
+.istat-num{font-family:var(--font-display);font-size:3.2rem;font-weight:900;color:var(--marigold);line-height:1;margin-bottom:.4rem}
+.istat-lbl{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.4rem;margin-top:3rem}
+.story-card{border-radius:4px;overflow:hidden;border:1px solid var(--border);transition:.2s}
+.story-card:hover{border-color:var(--border-hi);transform:translateY(-3px)}
+.story-thumb{height:160px;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.s1{background:linear-gradient(135deg,#1a0a00,#3d1f00)}.s2{background:linear-gradient(135deg,#001a0d,#004d29)}.s3{background:linear-gradient(135deg,#0a001a,#2d0052)}.s4{background:linear-gradient(135deg,#1a1000,#4a3000)}
+.story-body{padding:1.4rem;background:rgba(240,237,230,.03)}
+.story-role{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--marigold);margin-bottom:.4rem}
+.story-name{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--cream);margin-bottom:.3rem}
+.story-desc{font-size:.83rem;color:var(--muted);line-height:1.6}
+.events-list{margin-top:3rem;display:flex;flex-direction:column;gap:1px}
+.erow{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:2rem;padding:1.4rem 0;border-bottom:1px solid var(--border);transition:.2s}
+.erow:hover{background:rgba(240,237,230,.025)}
+.erow:last-child{border-bottom:none}
+.edate{text-align:center}
+.emon{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold)}
+.eday{font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--cream);line-height:1}
+.einfo h3{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.25rem}
+.emeta{font-size:.78rem;color:var(--muted);display:flex;gap:.9rem;flex-wrap:wrap}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:3rem}
+.plan{border:1px solid var(--border);border-radius:4px;padding:1.9rem;position:relative;transition:.2s}
+.plan:hover{border-color:var(--border-hi)}
+.plan.featured{border-color:var(--marigold)}
+.plan-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--marigold);color:var(--ink);font-family:var(--font-mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.28rem .9rem;border-radius:0 0 4px 4px}
+.plan-name{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.7rem;margin-top:.5rem}
+.plan-price{font-family:var(--font-display);font-size:2.4rem;font-weight:900;color:var(--cream);line-height:1;margin-bottom:.3rem}
+.plan-price span{font-size:.95rem;font-weight:400;color:var(--muted)}
+.plan-tag{font-size:.8rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.75rem}
+.plan-feats li{display:flex;align-items:center;gap:.6rem;font-size:.83rem;color:rgba(240,237,230,.72)}
+.plan-feats li::before{content:'✓';color:var(--sage);font-weight:700;flex-shrink:0}
+.plan-cta-outline{display:block;width:100%;text-align:center;padding:.85rem;border-radius:2px;font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(240,237,230,.28);color:var(--cream);transition:.2s}
+.plan-cta-outline:hover{border-color:var(--cream);background:rgba(240,237,230,.06)}
+.plan-cta-filled{display:block;width:100%;text-align:center;padding:.85rem;border-radius:2px;font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;background:var(--marigold);color:var(--ink);border:none;transition:.2s;cursor:pointer}
+.plan-cta-filled:hover{background:#ffb83f}
+@media(max-width:900px){
+  .why-grid{grid-template-columns:1fr;gap:2.5rem}
+  .orbit-wrap{display:none}
+  .impact-grid{grid-template-columns:1fr 1fr}
+  .plans-grid{grid-template-columns:1fr}
+  .erow{grid-template-columns:70px 1fr;gap:1rem}
+  .erow .tag{display:none}
+  .film-strips{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="film-strips">
+      <div class="film-strip"><div class="film-frame lit">Musicians<br>recording</div><div class="film-frame">live mix</div><div class="film-frame lit">studio</div><div class="film-frame">touring</div><div class="film-frame lit">rehearsal</div><div class="film-frame">tracking</div><div class="film-frame lit">overdubs</div></div>
+      <div class="film-strip"><div class="film-frame">sound<br>design</div><div class="film-frame lit">Engineers</div><div class="film-frame">FOH mix</div><div class="film-frame lit">monitors</div><div class="film-frame">festival</div><div class="film-frame lit">rigging</div><div class="film-frame">crew</div></div>
+      <div class="film-strip"><div class="film-frame lit">lighting<br>design</div><div class="film-frame">programming</div><div class="film-frame lit">LD vision</div><div class="film-frame">rigs</div><div class="film-frame lit">concert</div><div class="film-frame">visuals</div><div class="film-frame lit">beam show</div></div>
+      <div class="film-strip"><div class="film-frame">artists<br>painting</div><div class="film-frame lit">sculpture</div><div class="film-frame">gallery</div><div class="film-frame lit">illustration</div><div class="film-frame">murals</div><div class="film-frame lit">print</div><div class="film-frame">media</div></div>
+      <div class="film-strip"><div class="film-frame lit">content<br>filming</div><div class="film-frame">creator<br>economy</div><div class="film-frame lit">reel shoots</div><div class="film-frame">editing</div><div class="film-frame lit">directors</div><div class="film-frame">DOP</div><div class="film-frame lit">grade</div></div>
+      <div class="film-strip"><div class="film-frame">managers<br>planning</div><div class="film-frame lit">tour<br>logistics</div><div class="film-frame">booking</div><div class="film-frame lit">deal making</div><div class="film-frame">promo</div><div class="film-frame lit">strategy</div><div class="film-frame">artist dev</div></div>
+      <div class="film-strip"><div class="film-frame lit">producers<br>in studios</div><div class="film-frame">beat making</div><div class="film-frame lit">mixing</div><div class="film-frame">mastering</div><div class="film-frame lit">A&amp;R</div><div class="film-frame">labels</div><div class="film-frame lit">releases</div></div>
+      <div class="film-strip"><div class="film-frame">luthiers<br>building</div><div class="film-frame lit">instrument<br>craft</div><div class="film-frame">repair</div><div class="film-frame lit">custom<br>builds</div><div class="film-frame">workshop</div><div class="film-frame lit">strings</div><div class="film-frame">woodwork</div></div>
+    </div>
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Australia's Indie Creative Community</div>
+    <h1 class="hero-headline">Where Creativity<br><em>Comes Together.</em></h1>
+    <p class="hero-sub">A vetted community connecting artists, musicians, engineers, managers, technicians, creators and industry professionals across Australia.</p>
+    <div class="hero-btns">
+      <a href="pages/join.html" class="btn-primary btn-lg">Join The Collective</a>
+      <a href="pages/opportunities.html" class="btn-secondary btn-lg">Explore Opportunities</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><div class="scroll-line"></div></div>
+</section>
+
+<!-- WHY WE EXIST -->
+<section style="background:var(--mid)">
+  <div class="inner">
+    <div class="why-grid">
+      <div>
+        <div class="section-label">Why We Exist</div>
+        <h2 class="section-title">Built for the<br><em>creative class.</em></h2>
+        <p class="why-quote">"Most creatives work in isolation."</p>
+        <p style="color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:2rem">The Oz Indie Collective exists to change that. We connect talent, create opportunities and build a stronger, more resilient creative industry — from bedroom studios to festival stages, across every city and region in Australia. Every member is personally vetted.</p>
+        <div class="pillars">
+          <div class="pillar fade-in"><div class="pillar-icon pi-c">CNT</div><div><div class="pillar-name">Connect</div><p class="pillar-desc">Meet the people who can help bring your ideas to life. Build real relationships across every discipline in the creative industry.</p></div></div>
+          <div class="pillar fade-in"><div class="pillar-icon pi-co">COL</div><div><div class="pillar-name">Collaborate</div><p class="pillar-desc">Find projects, gigs and creative partnerships. Whether you're seeking or offering, the right match is here.</p></div></div>
+          <div class="pillar fade-in"><div class="pillar-icon pi-cr">CRE</div><div><div class="pillar-name">Create</div><p class="pillar-desc">Build careers, businesses and creative ventures with the community, resources and tools to make it real.</p></div></div>
+        </div>
+      </div>
+      <div class="orbit-wrap">
+        <div class="orbit orbit2">
+          <div class="odot" style="top:-13px;left:50%;transform:translateX(-50%)">ARTIST</div>
+          <div class="odot" style="bottom:-13px;left:50%;transform:translateX(-50%)">TECH</div>
+          <div class="odot" style="top:50%;right:-13px;transform:translateY(-50%)">PROD</div>
+          <div class="odot" style="top:50%;left:-13px;transform:translateY(-50%)">MGR</div>
+        </div>
+        <div class="orbit orbit1">
+          <div class="odot" style="top:-13px;right:55px">ENG</div>
+          <div class="odot" style="bottom:25px;right:-13px">LD</div>
+          <div class="odot" style="bottom:-13px;left:35px">VID</div>
+        </div>
+        <div class="vinyl"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO BELONGS -->
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="section-label">Who Belongs Here</div>
+    <h2 class="section-title">Every creative<br><em>discipline. One community.</em></h2>
+    <div class="members-grid">
+      <a href="pages/directory.html?type=musician" class="mcard fade-in"><span class="mcard-icon">🎸</span><div class="mcard-name">Musicians</div><div class="mcard-sub">All genres</div></a>
+      <a href="pages/directory.html?type=artist" class="mcard fade-in"><span class="mcard-icon">🎨</span><div class="mcard-name">Artists</div><div class="mcard-sub">Visual &amp; fine art</div></a>
+      <a href="pages/directory.html?type=engineer" class="mcard fade-in"><span class="mcard-icon">🎚️</span><div class="mcard-name">Audio Engineers</div><div class="mcard-sub">Studio &amp; live</div></a>
+      <a href="pages/directory.html?type=ld" class="mcard fade-in"><span class="mcard-icon">💡</span><div class="mcard-name">Lighting Designers</div><div class="mcard-sub">Stage &amp; events</div></a>
+      <a href="pages/directory.html?type=stage" class="mcard fade-in"><span class="mcard-icon">📋</span><div class="mcard-name">Stage Managers</div><div class="mcard-sub">Live production</div></a>
+      <a href="pages/directory.html?type=manager" class="mcard fade-in"><span class="mcard-icon">🤝</span><div class="mcard-name">Artist Managers</div><div class="mcard-sub">Career &amp; business</div></a>
+      <a href="pages/directory.html?type=producer" class="mcard fade-in"><span class="mcard-icon">🎛️</span><div class="mcard-name">Producers</div><div class="mcard-sub">Music &amp; creative</div></a>
+      <a href="pages/directory.html?type=video" class="mcard fade-in"><span class="mcard-icon">🎬</span><div class="mcard-name">Videographers</div><div class="mcard-sub">Film &amp; content</div></a>
+      <a href="pages/directory.html?type=photo" class="mcard fade-in"><span class="mcard-icon">📷</span><div class="mcard-name">Photographers</div><div class="mcard-sub">Live &amp; studio</div></a>
+      <a href="pages/directory.html?type=content" class="mcard fade-in"><span class="mcard-icon">📱</span><div class="mcard-name">Content Creators</div><div class="mcard-sub">Social &amp; digital</div></a>
+      <a href="pages/directory.html?type=design" class="mcard fade-in"><span class="mcard-icon">🖥️</span><div class="mcard-name">Graphic Designers</div><div class="mcard-sub">Brand &amp; identity</div></a>
+      <a href="pages/directory.html?type=luthier" class="mcard fade-in"><span class="mcard-icon">🎻</span><div class="mcard-name">Luthiers</div><div class="mcard-sub">Instrument craft</div></a>
+      <a href="pages/directory.html?type=event" class="mcard fade-in"><span class="mcard-icon">🎪</span><div class="mcard-name">Event Professionals</div><div class="mcard-sub">Production &amp; ops</div></a>
+      <a href="pages/directory.html?type=entrepreneur" class="mcard fade-in"><span class="mcard-icon">🚀</span><div class="mcard-name">Creative Entrepreneurs</div><div class="mcard-sub">Build &amp; scale</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PROJECTS -->
+<section style="background:var(--mid)">
+  <div class="inner">
+    <div class="section-label">Featured Projects</div>
+    <h2 class="section-title">Real collaborations.<br><em>Real opportunities.</em></h2>
+    <div class="projects-grid">
+      <div class="pcard pm fade-in"><div class="tag tag-gold">Music / Live</div><div class="pcard-title">Indie Band Seeking Lighting Designer — National Tour</div><div class="pcard-meta">📍 Melbourne → Sydney → Brisbane &nbsp;·&nbsp; Paid &nbsp;·&nbsp; Oct 2025</div><div class="pcard-desc">Six-piece indie rock band heading on their biggest tour. Looking for an experienced LD who can bring an atmospheric visual identity to 12+ shows.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+      <div class="pcard pp fade-in"><div class="tag tag-rust">Podcast / Media</div><div class="pcard-title">Creative Business Podcast Seeks Ongoing Producer</div><div class="pcard-meta">📍 Remote / Australia-wide &nbsp;·&nbsp; Paid &nbsp;·&nbsp; Ongoing</div><div class="pcard-desc">Weekly podcast interviewing founders and artists. Need a producer comfortable with editing, show notes and audience growth strategy.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+      <div class="pcard pv fade-in"><div class="tag tag-sage">Tour / Visual</div><div class="pcard-title">Touring Artist Seeks Videographer for Album Cycle</div><div class="pcard-meta">📍 Adelaide, Perth, Brisbane &nbsp;·&nbsp; Paid &nbsp;·&nbsp; 4 Months</div><div class="pcard-desc">Singer-songwriter on first headline run needs a creative videographer for live footage and behind-the-scenes social content.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+      <div class="pcard pm fade-in"><div class="tag tag-gold">Studio / Recording</div><div class="pcard-title">Independent Studio Seeking Resident Engineer</div><div class="pcard-meta">📍 Melbourne, VIC &nbsp;·&nbsp; Full-time &nbsp;·&nbsp; Immediate</div><div class="pcard-desc">Boutique recording studio in Collingwood has immediate availability for a tracking and mixing engineer. Pro Tools essential.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+      <div class="pcard pe fade-in"><div class="tag tag-purple">Festival / Crew</div><div class="pcard-title">Regional Festival Seeking Full Production Crew</div><div class="pcard-meta">📍 Byron Bay, NSW &nbsp;·&nbsp; Paid &nbsp;·&nbsp; March 2026</div><div class="pcard-desc">3-day boutique festival seeking stage managers, audio techs, riggers and FOH engineers. Accommodation and transport provided.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+      <div class="pcard pv fade-in"><div class="tag tag-sage">Visual / Brand</div><div class="pcard-title">Record Label Seeks Graphic Designer for Rebrand</div><div class="pcard-meta">📍 Remote &nbsp;·&nbsp; Contract &nbsp;·&nbsp; 6 Weeks</div><div class="pcard-desc">Independent hip-hop label refreshing its visual identity for 2026. Need a designer fluent in music culture and digital-first brand systems.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+    </div>
+    <div class="text-center mt-4"><a href="pages/projects.html" class="btn-secondary">View All Projects</a></div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section style="background:var(--ink);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 4rem">
+  <div class="inner">
+    <div class="section-label">Community Impact</div>
+    <h2 class="section-title mb-4">Numbers that <em>matter.</em></h2>
+    <div class="impact-grid">
+      <div class="istat fade-in"><div class="istat-num">4,200+</div><div class="istat-lbl">Members</div></div>
+      <div class="istat fade-in"><div class="istat-num">890</div><div class="istat-lbl">Projects Created</div></div>
+      <div class="istat fade-in"><div class="istat-num">1,340</div><div class="istat-lbl">Jobs Posted</div></div>
+      <div class="istat fade-in"><div class="istat-num">2,100+</div><div class="istat-lbl">Collaborations Formed</div></div>
+      <div class="istat fade-in"><div class="istat-num">78</div><div class="istat-lbl">Events Hosted</div></div>
+      <div class="istat fade-in"><div class="istat-num">$340K</div><div class="istat-lbl">Sponsorships Funded</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SUCCESS STORIES -->
+<section style="background:var(--deep)">
+  <div class="inner">
+    <div class="section-label">Success Stories</div>
+    <h2 class="section-title">Real people.<br><em>Real breakthroughs.</em></h2>
+    <div class="stories-grid">
+      <div class="story-card fade-in"><div class="story-thumb s1">🎸</div><div class="story-body"><div class="story-role">Guitarist → Touring Artist</div><div class="story-name">Jordan Mackay</div><div class="story-desc">Found a manager through the directory, recorded an EP with a community producer, and landed their first national support slot — all within 8 months of joining.</div></div></div>
+      <div class="story-card fade-in"><div class="story-thumb s2">🎚️</div><div class="story-body"><div class="story-role">Home Studio → Commercial Studio</div><div class="story-name">Priya Nair</div><div class="story-desc">Used OIC's business resources to structure her freelance mixing business and grew from 2 clients to a 14-client roster with a studio lease in 12 months.</div></div></div>
+      <div class="story-card fade-in"><div class="story-thumb s3">💡</div><div class="story-body"><div class="story-role">Freelance LD → Company Director</div><div class="story-name">Marcus Chen</div><div class="story-desc">Connected with two other lighting designers through OIC events. Together they launched a production company now crewing major Australian festivals.</div></div></div>
+      <div class="story-card fade-in"><div class="story-thumb s4">🎤</div><div class="story-body"><div class="story-role">Unsigned → Label Deal</div><div class="story-name">Sienna Walsh</div><div class="story-desc">Met her manager at an OIC Melbourne meetup. Six months later she signed with an independent label and released her debut album to national press.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section style="background:var(--mid)">
+  <div class="inner">
+    <div class="section-label">Upcoming Events</div>
+    <h2 class="section-title">Where the industry<br><em>gathers.</em></h2>
+    <div class="events-list">
+      <div class="erow fade-in"><div class="edate"><div class="emon">Jul</div><div class="eday">18</div></div><div class="einfo"><h3>Sydney Creative Networking Night</h3><div class="emeta"><span>📍 The Chippo Hotel, Chippendale</span><span>6:30 PM – 10 PM</span></div></div><span class="tag tag-gold">Networking</span></div>
+      <div class="erow fade-in"><div class="edate"><div class="emon">Jul</div><div class="eday">25</div></div><div class="einfo"><h3>Music Business Fundamentals — Workshop</h3><div class="emeta"><span>📍 Online / Zoom</span><span>7 PM AEST</span></div></div><span class="tag tag-sage">Workshop</span></div>
+      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">02</div></div><div class="einfo"><h3>Melbourne Industry Panel: The Future of Live Music</h3><div class="emeta"><span>📍 The Toff, Melbourne CBD</span><span>7 PM – 9:30 PM</span></div></div><span class="tag tag-rust">Panel</span></div>
+      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">15</div></div><div class="einfo"><h3>Brisbane Showcase Night — Members Open Mic</h3><div class="emeta"><span>📍 The Triffid, Newstead</span><span>7 PM Doors</span></div></div><span class="tag tag-purple">Showcase</span></div>
+      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">22</div></div><div class="einfo"><h3>Grant Writing for Creatives — Virtual Workshop</h3><div class="emeta"><span>📍 Online / Zoom</span><span>12 PM AEST</span></div></div><span class="tag tag-blue">Virtual</span></div>
+    </div>
+    <div class="mt-4"><a href="pages/events.html" class="btn-secondary">See All Events</a></div>
+  </div>
+</section>
+
+<!-- MEMBERSHIP -->
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="section-label">Membership</div>
+    <h2 class="section-title">Find your<br><em>place here.</em></h2>
+    <div class="plans-grid">
+      <div class="plan fade-in">
+        <div class="plan-name">Free Member</div>
+        <div class="plan-price">$0 <span>/ forever</span></div>
+        <div class="plan-tag">Get started and explore the community.</div>
+        <ul class="plan-feats"><li>Create your member profile</li><li>Access the community feed</li><li>View all project listings</li><li>Browse the member directory</li><li>Attend free events</li></ul>
+        <a href="pages/join.html" class="plan-cta-outline">Apply Free</a>
+      </div>
+      <div class="plan featured fade-in">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Professional Member</div>
+        <div class="plan-price">$12 <span>/ month</span></div>
+        <div class="plan-tag">For active creatives building their career and network.</div>
+        <ul class="plan-feats"><li>Featured profile placement</li><li>Advanced networking tools</li><li>Priority on all opportunities</li><li>Full resource &amp; grant library</li><li>Member-only events &amp; panels</li><li>Portfolio showcase</li></ul>
+        <a href="pages/join.html?plan=pro" class="plan-cta-filled">Get Professional</a>
+      </div>
+      <div class="plan fade-in">
+        <div class="plan-name">Industry Partner</div>
+        <div class="plan-price">$89 <span>/ month</span></div>
+        <div class="plan-tag">For studios, agencies, venues and labels hiring talent.</div>
+        <ul class="plan-feats"><li>Business / studio profile</li><li>Unlimited job &amp; project posts</li><li>Direct recruitment tools</li><li>Event promotion &amp; sponsorship</li><li>Featured in the directory</li><li>Industry Partner badge</li></ul>
+        <a href="pages/join.html?plan=partner" class="plan-cta-outline">Become a Partner</a>
+      </div>
+    </div>
+    <div class="alert alert-info mt-4"><span class="alert-icon">🛡️</span><span>All membership applications are personally reviewed. We keep the Collective high-quality and spam-free. Expect a response within 48 hours of applying.</span></div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    <div class="modal-title">Welcome back</div>
+    <div class="modal-sub">Sign in to your Oz Indie Collective account.</div>
+    <div class="form-group"><label>Email Address</label><input type="email" name="email" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="••••••••"></div>
+    <button class="btn-primary w-full" style="margin-bottom:1rem" onclick="demoLogin()">Sign In</button>
+    <p class="text-sm text-muted text-center">Don't have an account? <a href="pages/join.html" class="text-gold">Apply to join</a></p>
+  </div>
+</div>
+
+<script>
+function demoLogin(){
+  Auth.set({name:'Demo Member',role:'Audio Engineer',location:'Sydney, NSW',status:'approved',email:'demo@oic.com.au',plan:'pro'});
+  showToast('Welcome back, Demo Member!','success');
+  closeModal('loginModal');
+  setTimeout(()=>{window.location.href='pages/dashboard.html';},1000);
+}
+</script>
+<script src="assets/js/nav-inject.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

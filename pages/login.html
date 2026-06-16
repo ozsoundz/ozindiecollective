@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign In — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.login-wrap{min-height:calc(100vh - var(--nav-h));display:flex;align-items:center;justify-content:center;padding:2rem;margin-top:var(--nav-h)}
+.login-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.75rem;width:100%;max-width:440px}
+.login-logo{text-align:center;margin-bottom:2rem}
+.demo-accounts{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.18);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.demo-accounts h4{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem}
+.demo-btn{display:block;width:100%;text-align:left;background:rgba(240,237,230,.04);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;margin-bottom:.5rem;cursor:pointer;transition:.2s;font-size:.82rem;color:var(--cream)}
+.demo-btn:hover{border-color:var(--marigold);background:rgba(245,166,35,.08)}
+.demo-btn small{display:block;font-family:var(--font-mono);font-size:.6rem;color:var(--muted);margin-top:.15rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-mark" style="margin:0 auto 1rem;width:44px;height:44px;font-size:.72rem">OIC</div>
+      <h1 style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--cream);margin-bottom:.35rem">Welcome back</h1>
+      <p class="text-muted text-sm">Sign in to your Oz Indie Collective account</p>
+    </div>
+
+    <div class="demo-accounts">
+      <h4>🎭 Demo Accounts</h4>
+      <button class="demo-btn" onclick="loginAs('member')">Approved Member — Dashboard &amp; Profile access<small>Jordan Mackay · Audio Engineer · Sydney, NSW</small></button>
+      <button class="demo-btn" onclick="loginAs('pending')">Pending Member — Application under review<small>Sam Rivers · Videographer · Brisbane, QLD</small></button>
+      <button class="demo-btn" onclick="loginAs('admin')">Admin — Vetting queue &amp; management<small>Admin Account · Oz Indie Collective</small></button>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group"><label>Email Address</label><input type="email" name="email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="••••••••"></div>
+      <div class="flex justify-between items-center mb-3">
+        <label class="checkbox-pill" style="border:none;padding:0;font-size:.8rem;color:var(--muted)"><input type="checkbox"> Remember me</label>
+        <a href="#" class="text-sm text-gold">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn-primary btn-lg w-full">Sign In</button>
+    </form>
+    <div class="divider"></div>
+    <p class="text-sm text-muted text-center">Don't have an account? <a href="join.html" class="text-gold">Apply to join</a></p>
+  </div>
+</div>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+const DEMO_USERS = {
+  member: {name:'Jordan Mackay',role:'Audio Engineer',location:'Sydney, NSW',state:'NSW',city:'Sydney',status:'approved',email:'jordan@example.com',plan:'pro',bio:'Mixing and tracking engineer with 8 years experience across studio and live environments.',skills:['mixing','live-sound','mastering'],portfolio:'soundcloud.com/jordanmackay'},
+  pending: {name:'Sam Rivers',role:'Videographer',location:'Brisbane, QLD',state:'QLD',city:'Brisbane',status:'pending',email:'sam@example.com',plan:'free',bio:'Music videographer specialising in live performance and behind-the-scenes content.',skills:['video-edit','photography'],portfolio:'vimeo.com/samrivers'},
+  admin: {name:'OIC Admin',role:'Administrator',status:'admin',email:'admin@oic.com.au',plan:'admin',isAdmin:true}
+};
+
+function loginAs(type) {
+  const user = DEMO_USERS[type];
+  Auth.set(user);
+  showToast('Signed in as '+user.name,'success');
+  setTimeout(() => {
+    if(user.isAdmin) window.location.href = '../admin/index.html';
+    else window.location.href = 'dashboard.html';
+  }, 800);
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email = this.querySelector('[name=email]').value;
+  const pw = this.querySelector('[name=password]').value;
+  if(!email || !pw) { showToast('Please enter your email and password.','danger'); return; }
+  // Demo: any credentials log in as approved member
+  loginAs('member');
+});
+</script>
+</body>
+</html>

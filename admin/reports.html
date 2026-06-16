@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reports — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.chart-bar-wrap{display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem}
+.chart-bar-row{display:flex;align-items:center;gap:.85rem}
+.chart-bar-label{font-size:.78rem;color:var(--muted);width:120px;flex-shrink:0;text-align:right}
+.chart-bar-track{flex:1;height:10px;background:rgba(240,237,230,.06);border-radius:5px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:5px;background:var(--marigold);transition:width 1s ease}
+.chart-bar-val{font-family:var(--font-mono);font-size:.68rem;color:var(--marigold);width:40px;flex-shrink:0}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
+    <a href="reports.html" class="admin-nav-item active">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Platform Reports</h1>
+      <p class="text-muted text-sm mt-1">Growth, engagement and platform health metrics.</p>
+    </div>
+
+    <div class="grid-4 mb-4">
+      <div class="stat-box"><div class="stat-num">4,284</div><div class="stat-lbl">Total Members</div></div>
+      <div class="stat-box"><div class="stat-num">+32</div><div class="stat-lbl">New This Week</div></div>
+      <div class="stat-box"><div class="stat-num">78%</div><div class="stat-lbl">Approval Rate</div></div>
+      <div class="stat-box"><div class="stat-num">48h</div><div class="stat-lbl">Avg Review Time</div></div>
+    </div>
+
+    <div class="grid-2" style="gap:1.5rem;margin-bottom:1.5rem">
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.5rem">Members by State</h3>
+        <div class="chart-bar-wrap">
+          <div class="chart-bar-row"><div class="chart-bar-label">NSW</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:38%"></div></div><div class="chart-bar-val">1,628</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">VIC</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:28%"></div></div><div class="chart-bar-val">1,200</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">QLD</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:17%"></div></div><div class="chart-bar-val">729</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">WA</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%"></div></div><div class="chart-bar-val">343</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">SA</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:var(--sage)"></div></div><div class="chart-bar-val">214</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Other</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:4%;background:var(--rust)"></div></div><div class="chart-bar-val">170</div></div>
+        </div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.5rem">Members by Role</h3>
+        <div class="chart-bar-wrap">
+          <div class="chart-bar-row"><div class="chart-bar-label">Musicians</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:24%"></div></div><div class="chart-bar-val">1,028</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Audio Engineers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:19%"></div></div><div class="chart-bar-val">814</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Producers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:14%"></div></div><div class="chart-bar-val">600</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Videographers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:10%;background:var(--sage)"></div></div><div class="chart-bar-val">429</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Designers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:9%;background:var(--sage)"></div></div><div class="chart-bar-val">386</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Other</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:24%;background:var(--rust)"></div></div><div class="chart-bar-val">1,027</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem">
+      <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Monthly Growth (Members)</h3>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.2);border-radius:2px 2px 0 0;min-height:8px;height:25%"></div><div class="text-xs text-muted">Jan</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.25);border-radius:2px 2px 0 0;height:32%"></div><div class="text-xs text-muted">Feb</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.3);border-radius:2px 2px 0 0;height:40%"></div><div class="text-xs text-muted">Mar</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.35);border-radius:2px 2px 0 0;height:45%"></div><div class="text-xs text-muted">Apr</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.4);border-radius:2px 2px 0 0;height:55%"></div><div class="text-xs text-muted">May</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.5);border-radius:2px 2px 0 0;height:62%"></div><div class="text-xs text-muted">Jun</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:var(--marigold);border-radius:2px 2px 0 0;height:80%"></div><div class="text-xs text-muted">Jul</div></div>
+      </div>
+      <div class="flex gap-4 mt-2">
+        <div><div class="text-xs mono text-gold">This Month</div><div class="text-sm" style="color:var(--cream);font-weight:600">+284 members</div></div>
+        <div><div class="text-xs mono text-gold">MoM Growth</div><div class="text-sm" style="color:var(--sage);font-weight:600">↑ 24%</div></div>
+        <div><div class="text-xs mono text-gold">Approval Rate</div><div class="text-sm" style="color:var(--cream);font-weight:600">78%</div></div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:1.5rem">
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Listings Performance</h3>
+        <div style="display:flex;flex-direction:column;gap:.65rem">
+          <div class="flex justify-between"><span class="text-sm text-muted">Live Listings</span><span class="text-sm" style="color:var(--cream)">48</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Total Applications</span><span class="text-sm" style="color:var(--cream)">1,340</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Avg per Listing</span><span class="text-sm" style="color:var(--cream)">27.9</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Jobs Filled</span><span class="text-sm" style="color:var(--sage)">312</span></div>
+        </div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Revenue</h3>
+        <div style="display:flex;flex-direction:column;gap:.65rem">
+          <div class="flex justify-between"><span class="text-sm text-muted">Pro Members (MRR)</span><span class="text-sm" style="color:var(--cream)">$1,944/mo</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Partners (MRR)</span><span class="text-sm" style="color:var(--cream)">$267/mo</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Total MRR</span><span class="text-sm" style="color:var(--marigold);font-weight:700">$2,211/mo</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">ARR (projected)</span><span class="text-sm" style="color:var(--marigold);font-weight:700">$26,532</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
+</script>
+</body>
+</html>

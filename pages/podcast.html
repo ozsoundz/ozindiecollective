@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Podcast — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.pod-hero{display:grid;grid-template-columns:260px 1fr;gap:3rem;align-items:center;margin-bottom:4rem}
+.pod-cover{aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#1a0d00,#3d2000,#1a0a05);display:flex;align-items:center;justify-content:center}
+.pod-cover-inner{width:75%;aspect-ratio:1;border-radius:50%;background:linear-gradient(135deg,var(--rust),#8B3A1A);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:900;font-style:italic;color:var(--cream);text-align:center;line-height:1.2}
+.ep-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;display:flex;gap:1.1rem;align-items:center;transition:.2s;cursor:pointer}
+.ep-card:hover{border-color:rgba(245,166,35,.35);background:rgba(240,237,230,.05)}
+.ep-play-btn{width:40px;height:40px;border-radius:50%;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);display:flex;align-items:center;justify-content:center;color:var(--marigold);font-size:.85rem;flex-shrink:0;transition:.2s}
+.ep-card:hover .ep-play-btn{background:var(--marigold);color:var(--ink)}
+.ep-num{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.ep-title{font-size:.9rem;font-weight:600;color:var(--cream);line-height:1.35;margin-bottom:.2rem}
+.ep-guest{font-size:.75rem;color:var(--muted)}
+.ep-dur{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);margin-left:auto;white-space:nowrap;flex-shrink:0}
+@media(max-width:700px){.pod-hero{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Podcast</div>
+    <h1 class="section-title">The OIC Podcast — <em>Inside the Industry</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Honest conversations with artists, engineers, managers, producers and entrepreneurs. New episodes every Tuesday.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="pod-hero">
+      <div class="pod-cover"><div class="pod-cover-inner">OIC<br>Podcast</div></div>
+      <div>
+        <div class="section-label">Latest Episode</div>
+        <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--cream);line-height:1.15;margin-bottom:.75rem">Ep. 042 — From Open Mics to Arena Tours: The Long Game</h2>
+        <p class="text-muted mb-3" style="line-height:1.7">Lena Marr has managed some of Australia's most successful independent artists. In this conversation she gets brutally honest about what separates artists who make it from those who don't — and it has nothing to do with talent.</p>
+        <div class="flex gap-2 flex-wrap">
+          <button class="btn-primary" onclick="showToast('Playing Ep. 042…','info')">▶ Play Episode</button>
+          <a href="#" class="btn-secondary">Spotify</a>
+          <a href="#" class="btn-ghost">Apple Podcasts</a>
+        </div>
+        <div class="flex gap-3 mt-3">
+          <div class="text-xs mono text-muted">⏱ 58 min</div>
+          <div class="text-xs mono text-muted">📅 Jul 15, 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1.25rem">All Episodes</h2>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <div class="ep-card" onclick="showToast('Playing Ep. 042…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 042</div><div class="ep-title">From Open Mics to Arena Tours: The Long Game</div><div class="ep-guest">with Lena Marr, Artist Manager</div></div><div class="ep-dur">58 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 041…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 041</div><div class="ep-title">What Festival Producers Actually Look For in a Crew</div><div class="ep-guest">with Brendan Sousa, Production Director</div></div><div class="ep-dur">52 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 040…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 040</div><div class="ep-title">Building a Six-Figure Freelance Engineering Business</div><div class="ep-guest">with Yuki Tanaka, Mix Engineer</div></div><div class="ep-dur">61 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 039…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 039</div><div class="ep-title">The Honest Truth About Running an Independent Label</div><div class="ep-guest">with Callie Norton, Founder — Dusk Records</div></div><div class="ep-dur">67 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 038…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 038</div><div class="ep-title">Lighting Design as a Career in Australia</div><div class="ep-guest">with Marcus Chen, LD &amp; Company Director</div></div><div class="ep-dur">49 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 037…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 037</div><div class="ep-title">Getting Sync Deals Without a Label or Manager</div><div class="ep-guest">with Dan Hirst, Sync Supervisor</div></div><div class="ep-dur">55 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 036…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 036</div><div class="ep-title">Tour Management: The Unglamorous Reality</div><div class="ep-guest">with Priya Nair, Tour Manager</div></div><div class="ep-dur">44 min</div></div>
+      <div class="ep-card" onclick="showToast('Playing Ep. 035…','info')"><div class="ep-play-btn">▶</div><div style="flex:1"><div class="ep-num">Ep. 035</div><div class="ep-title">Building a Creative Agency from Scratch</div><div class="ep-guest">with Jordan Mackay, Founder — Blacksalt Creative</div></div><div class="ep-dur">63 min</div></div>
+    </div>
+    <div class="text-center mt-4"><button class="btn-secondary" onclick="showToast('Loading more episodes…','info')">Load More Episodes</button></div>
+    <div class="divider"></div>
+    <div class="alert alert-info"><span>🎙️</span><span>Want to be a guest on the OIC Podcast? <a href="contact.html" class="text-gold">Submit a pitch</a> — we're always looking for genuine industry stories.</span></div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

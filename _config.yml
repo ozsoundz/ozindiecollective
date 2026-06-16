@@ -1,0 +1,28 @@
+# Oz Indie Collective — GitHub Pages Configuration
+# Deploy: push to main branch, enable GitHub Pages in repo settings
+
+title: "Oz Indie Collective"
+description: "Australia's Independent Creative Community — connecting artists, musicians, engineers, managers and creative professionals."
+url: "https://yourusername.github.io"
+baseurl: "/oz-indie-collective"
+
+# Build settings
+theme: null
+plugins: []
+
+# Exclude from build
+exclude:
+  - README.md
+  - "*.sh"
+  - node_modules/
+
+# Include 404 page
+include:
+  - 404.html
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: null
