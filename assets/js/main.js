@@ -14,6 +14,9 @@
   isApproved(){const u=this.get();return u&&u.status==='approved'}
 }; */
 
+/* ====================================
+SUPABASE AUTH 
+=================== */
 <script type="module">
   import { getCurrentProfile, signIn, signOut } from '../assets/js/supabase.js'
 
