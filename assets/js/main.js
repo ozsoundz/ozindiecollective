@@ -5,14 +5,24 @@
 'use strict';
 
 /* AUTH (localStorage simulation — replace with real backend) */
-const Auth={
+/* const Auth={
   key:'oic_user',
   get(){try{return JSON.parse(localStorage.getItem(this.key))}catch{return null}},
   set(u){localStorage.setItem(this.key,JSON.stringify(u))},
   clear(){localStorage.removeItem(this.key)},
   isLoggedIn(){return!!this.get()},
   isApproved(){const u=this.get();return u&&u.status==='approved'}
-};
+}; */
+
+<script type="module">
+  import { getCurrentProfile, signIn, signOut } from '../assets/js/supabase.js'
+
+  const profile = await getCurrentProfile()
+  if (!profile || profile.status !== 'approved') {
+    window.location.href = 'login.html'
+  }
+</script>
+
 window.Auth=Auth;
 
 function initials(name=''){
