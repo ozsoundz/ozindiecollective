@@ -24,6 +24,14 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+-- Drop-then-create so this script is safe to rerun (Postgres has no
+-- CREATE POLICY IF NOT EXISTS).
+drop policy if exists "Public can view approved profiles" on public.profiles;
+drop policy if exists "Users can view own profile" on public.profiles;
+drop policy if exists "Users can update own profile" on public.profiles;
+drop policy if exists "Admins can view all profiles" on public.profiles;
+drop policy if exists "Admins can update all profiles" on public.profiles;
+
 -- Anyone can read APPROVED profiles (needed for the public directory page)
 create policy "Public can view approved profiles"
   on public.profiles for select
