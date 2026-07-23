@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job Listings — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item active">Job Listings <span class="admin-badge">3</span></a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Job Listings</h1>
+      <p class="text-muted text-sm mt-1">Review and moderate all job and project listings.</p>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
+      <button class="btn-primary" style="font-size:.62rem;padding:.4rem .9rem">Pending Review (3)</button>
+      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Live (48)</button>
+      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Expired (112)</button>
+      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Denied (7)</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+
+      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-gold">Full-time</span><span class="tag tag-blue">Audio Engineering</span></div>
+            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Senior Sound Engineer — Corporate AV</h3>
+            <div class="text-sm text-muted">Posted by Blue Ant Productions · Sydney, NSW · Submitted 3h ago</div>
+          </div>
+          <div class="flex gap-1">
+            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
+            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
+          </div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+          <p class="text-sm text-muted" style="line-height:1.6">Seeking experienced FOH/audio engineer for corporate events and conferences. Full-time role with major event production company. Must have 5+ years live AV experience. Digico and Avid proficiency essential.</p>
+        </div>
+        <div class="flex gap-3 mt-2 text-xs text-muted">
+          <span>💰 $85K–$100K pa</span>
+          <span>📍 Sydney, NSW</span>
+          <span>🔗 <a href="#" class="text-gold">blueant.com.au</a></span>
+        </div>
+      </div>
+
+      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-rust">Contract</span><span class="tag tag-blue">Content Creation</span></div>
+            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Content Creator — Independent Label</h3>
+            <div class="text-sm text-muted">Posted by Dusk Records · Melbourne, VIC · Submitted 8h ago</div>
+          </div>
+          <div class="flex gap-1">
+            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
+            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
+          </div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+          <p class="text-sm text-muted" style="line-height:1.6">Fast-growing indie label needs a content creator to manage social across our artist roster. TikTok, Instagram Reels and YouTube Shorts focus. Music industry knowledge essential.</p>
+        </div>
+        <div class="flex gap-3 mt-2 text-xs text-muted">
+          <span>💰 $4,500/month</span><span>📍 Remote / Melbourne</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-rust">Contract</span><span class="tag tag-sage">Photography</span></div>
+            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Photographer — Album Campaign &amp; Tour</h3>
+            <div class="text-sm text-muted">Posted by Sienna Walsh (Artist) · National · Submitted 1d ago</div>
+          </div>
+          <div class="flex gap-1">
+            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
+            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
+          </div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+          <p class="text-sm text-muted" style="line-height:1.6">Indie-pop artist seeking a photographer for a 3-month album campaign including EPK shoot, live photography across 8 shows and press material. Creative collaboration welcome.</p>
+        </div>
+        <div class="flex gap-3 mt-2 text-xs text-muted">
+          <span>💰 $3,000 total</span><span>📍 National Tour</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Live Listings (Recent)</h2>
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+      <table class="data-table">
+        <thead><tr><th>Title</th><th>Posted By</th><th>Category</th><th>Live Since</th><th>Applications</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--cream)">Live Sound Engineer — National Support Tour</td><td>Venue Productions</td><td>Audio Engineering</td><td>3 days ago</td><td>14</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
+          <tr><td style="color:var(--cream)">Studio Mix Engineer — Boutique Studio</td><td>Ochre Sound Studios</td><td>Music Production</td><td>5 days ago</td><td>9</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
+          <tr><td style="color:var(--cream)">Lighting Designer — Boutique Festival</td><td>Byron Roots Festival</td><td>Lighting Design</td><td>1 week ago</td><td>22</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
+function approveListing(btn){ const card=btn.closest('[style]'); card.style.opacity='.5'; showToast('Listing approved and now live!','success'); btn.disabled=true; btn.nextElementSibling.disabled=true; }
+function denyListing(btn){ const card=btn.closest('[style]'); card.style.opacity='.5'; showToast('Listing denied.','danger'); btn.disabled=true; btn.previousElementSibling.disabled=true; }
+</script>
+</body>
+</html>

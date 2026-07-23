@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.about-hero-text{max-width:760px}
+.manifesto{font-family:var(--font-display);font-size:clamp(1.5rem,3vw,2.2rem);font-style:italic;color:rgba(240,237,230,.85);line-height:1.45;border-left:4px solid var(--marigold);padding-left:2rem;margin:3rem 0}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;margin-top:2.5rem}
+.team-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.75rem;text-align:center;transition:.2s}
+.team-card:hover{border-color:rgba(245,166,35,.35);transform:translateY(-3px)}
+.team-avatar{width:70px;height:70px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:1rem;font-weight:700}
+.team-name{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.25rem}
+.team-role{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--marigold);margin-bottom:.6rem}
+.team-bio{font-size:.8rem;color:var(--muted);line-height:1.6}
+.values-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;margin-top:2rem}
+.value-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;transition:.2s}
+.value-card:hover{border-color:rgba(245,166,35,.3)}
+.value-icon{font-size:1.6rem;margin-bottom:.75rem;display:block}
+.value-name{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.4rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="page-hero">
+  <div class="inner">
+    <div class="about-hero-text">
+      <div class="section-label">About Us</div>
+      <h1 class="section-title">We Built What We <em>Wished Existed.</em></h1>
+      <p class="text-muted mt-3" style="font-size:1.05rem;line-height:1.8;max-width:640px">The Oz Indie Collective was founded by a group of Australian musicians, engineers and creative professionals who were tired of working in isolation — and tired of the industry's gatekeeping. We decided to build the community we always wanted.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<section style="background:var(--mid)">
+  <div class="inner">
+    <div class="section-label">Our Belief</div>
+    <div class="manifesto fade-in">"Australia's creative industry is full of extraordinary talent. What it lacks is infrastructure — the networks, resources and community that make careers possible. We're building that infrastructure."</div>
+    <div class="grid-2 mt-4" style="gap:3rem;align-items:start">
+      <div>
+        <h2 class="section-title mb-3">Why We <em>Vet Everyone</em></h2>
+        <p class="text-muted" style="line-height:1.8;margin-bottom:1.25rem">Most creative platforms are open to anyone. That means spam, fake profiles, time-wasters and bad actors — noise that drowns out genuine connection.</p>
+        <p class="text-muted" style="line-height:1.8;margin-bottom:1.25rem">We personally review every single application. Not because we want to be exclusive — but because we want every person you connect with here to be real, genuine and worthy of your time.</p>
+        <p class="text-muted" style="line-height:1.8">Vetting isn't gatekeeping. It's curation. It's quality control. It's how we make sure the Collective stays valuable for everyone in it.</p>
+      </div>
+      <div>
+        <h2 class="section-title mb-3">What We <em>Stand For</em></h2>
+        <div class="values-grid" style="grid-template-columns:1fr">
+          <div class="value-card fade-in"><span class="value-icon">🤝</span><div class="value-name">Genuine Connection</div><p class="text-sm text-muted" style="line-height:1.6">Real relationships between real professionals — not follower counts and vanity metrics.</p></div>
+          <div class="value-card fade-in"><span class="value-icon">🌏</span><div class="value-name">Australian First</div><p class="text-sm text-muted" style="line-height:1.6">Built for and by the Australian creative community. Every decision reflects our industry's needs.</p></div>
+          <div class="value-card fade-in"><span class="value-icon">⚖️</span><div class="value-name">Fair &amp; Inclusive</div><p class="text-sm text-muted" style="line-height:1.6">Emerging artists and seasoned pros are both welcome here. Experience isn't a barrier.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section style="background:var(--ink);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:4rem">
+  <div class="inner">
+    <div class="grid-4">
+      <div class="stat-box fade-in"><div class="stat-num">4,200+</div><div class="stat-lbl">Vetted Members</div></div>
+      <div class="stat-box fade-in"><div class="stat-num">2025</div><div class="stat-lbl">Founded</div></div>
+      <div class="stat-box fade-in"><div class="stat-num">8</div><div class="stat-lbl">States &amp; Territories</div></div>
+      <div class="stat-box fade-in"><div class="stat-num">48hrs</div><div class="stat-lbl">Avg Review Time</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section style="background:var(--deep)">
+  <div class="inner">
+    <div class="section-label">The Team</div>
+    <h2 class="section-title">The people <em>behind the Collective.</em></h2>
+    <div class="team-grid">
+      <div class="team-card fade-in">
+        <div class="team-avatar av-gold">RS</div>
+        <div class="team-name">Rhys Sullivan</div>
+        <div class="team-role">Founder &amp; CEO</div>
+        <p class="team-bio">Former touring musician turned music industry operator. 15 years across live production, management and label strategy.</p>
+      </div>
+      <div class="team-card fade-in">
+        <div class="team-avatar av-rust">JN</div>
+        <div class="team-name">Jana Nguyen</div>
+        <div class="team-role">Head of Community</div>
+        <p class="team-bio">Artist manager and community builder. Spent 8 years developing artists across Melbourne and nationally before joining OIC.</p>
+      </div>
+      <div class="team-card fade-in">
+        <div class="team-avatar av-sage">ML</div>
+        <div class="team-name">Marcus Lee</div>
+        <div class="team-role">Head of Partnerships</div>
+        <p class="team-bio">Festival producer and events industry veteran. Brings industry relationships that help members connect with the right people.</p>
+      </div>
+      <div class="team-card fade-in">
+        <div class="team-avatar av-blue">AK</div>
+        <div class="team-name">Anika Khan</div>
+        <div class="team-role">Member Experience</div>
+        <p class="team-bio">Trained audio engineer who transitioned into community management. She personally reviews every application that comes in.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:var(--mid);text-align:center">
+  <div class="inner">
+    <div class="section-label" style="justify-content:center">Get Involved</div>
+    <h2 class="section-title mb-3">Ready to join the <em>Collective?</em></h2>
+    <p class="text-muted mb-4" style="max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7">Applications take about 10 minutes. We review within 48 hours. There are no wrong answers — just be genuine.</p>
+    <div class="flex gap-2" style="justify-content:center;flex-wrap:wrap">
+      <a href="join.html" class="btn-primary btn-lg">Apply to Join</a>
+      <a href="contact.html" class="btn-secondary btn-lg">Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

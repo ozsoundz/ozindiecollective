@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="dash-layout">
+  <!-- SIDEBAR -->
+  <aside class="dash-sidebar">
+    <div style="padding:1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="flex items-center gap-2">
+        <div class="avatar avatar-md av-gold" data-user-initials>JM</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:600;color:var(--cream)" data-user-name>Member</div>
+          <div style="font-family:var(--font-mono);font-size:.6rem;color:var(--marigold);text-transform:uppercase;letter-spacing:.08em" data-user-role></div>
+        </div>
+      </div>
+    </div>
+    <a href="dashboard.html" class="dash-nav-item active"><span class="dash-nav-icon">⌂</span> Overview</a>
+    <a href="profile.html" class="dash-nav-item"><span class="dash-nav-icon">◉</span> My Profile</a>
+    <a href="dashboard.html#opportunities" class="dash-nav-item"><span class="dash-nav-icon">◈</span> My Applications</a>
+    <a href="post-job.html" class="dash-nav-item"><span class="dash-nav-icon">✦</span> Post Opportunity</a>
+    <a href="dashboard.html#connections" class="dash-nav-item"><span class="dash-nav-icon">◇</span> Connections</a>
+    <a href="dashboard.html#messages" class="dash-nav-item"><span class="dash-nav-icon">✉</span> Messages</a>
+    <a href="dashboard.html#saved" class="dash-nav-item"><span class="dash-nav-icon">♡</span> Saved</a>
+    <a href="dashboard.html#settings" class="dash-nav-item"><span class="dash-nav-icon">⚙</span> Settings</a>
+    <div style="margin-top:auto;padding:1.5rem;border-top:1px solid var(--border);margin-top:2rem">
+      <a href="#" data-action="logout" class="text-sm text-muted" style="text-decoration:none">← Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <!-- Pending notice -->
+    <div id="pendingNotice" class="alert alert-info hidden mb-4">
+      <span class="alert-icon">⏳</span>
+      <div><strong>Application Under Review</strong><br><span class="text-sm">Your application is being reviewed by our team. You'll receive an email within 48 hours. Some features are locked until approved.</span></div>
+    </div>
+
+    <div class="dash-header">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Good to see you, <span data-user-name>Member</span> 👋</h1>
+      <p class="text-muted text-sm mt-1">Here's what's happening in the Collective.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-4 mb-4">
+      <div class="stat-box"><div class="stat-num">12</div><div class="stat-lbl">Profile Views</div></div>
+      <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Applications</div></div>
+      <div class="stat-box"><div class="stat-num">8</div><div class="stat-lbl">Connections</div></div>
+      <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">Saved Items</div></div>
+    </div>
+
+    <!-- Two-col layout -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:2rem">
+      <div>
+        <!-- Recommended Opportunities -->
+        <div style="margin-bottom:2rem">
+          <div class="flex justify-between items-center mb-3">
+            <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Recommended for You</h2>
+            <a href="opportunities.html" class="text-sm text-gold" style="text-decoration:none">View all →</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="job-card card-accent-gold">
+              <div class="job-card-header"><div><a href="opportunities.html" class="job-title">Live Sound Engineer — National Support Tour</a><div class="job-company">Venue Productions Pty Ltd</div></div><span class="tag tag-gold">Full-time</span></div>
+              <div class="job-tags"><span class="tag tag-sage">Live Sound</span><span class="tag tag-blue">Touring</span><span class="tag tag-gold">Pro Tools</span></div>
+              <div class="job-footer"><span class="job-location">📍 Sydney, NSW + touring</span><span class="job-pay">$75K–$90K</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">Apply</a></div>
+            </div>
+            <div class="job-card card-accent-rust">
+              <div class="job-card-header"><div><a href="opportunities.html" class="job-title">Studio Mix Engineer — Boutique Studio</a><div class="job-company">Ochre Sound Studios</div></div><span class="tag tag-rust">Contract</span></div>
+              <div class="job-tags"><span class="tag tag-sage">Mixing</span><span class="tag tag-blue">Analogue</span><span class="tag tag-gold">Studio</span></div>
+              <div class="job-footer"><span class="job-location">📍 Melbourne, VIC</span><span class="job-pay">$500–$700/day</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">Apply</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Applications -->
+        <div id="opportunities">
+          <div class="flex justify-between items-center mb-3">
+            <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">My Applications</h2>
+          </div>
+          <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+            <table class="data-table" style="min-width:0">
+              <thead><tr><th>Opportunity</th><th>Applied</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Live Sound Engineer — National Tour</td><td>2 days ago</td><td><span class="tag tag-gold">Pending</span></td></tr>
+                <tr><td>Studio Engineer — Ochre Sound</td><td>1 week ago</td><td><span class="tag tag-sage">Shortlisted</span></td></tr>
+                <tr><td>FOH Engineer — Byron Roots Festival</td><td>2 weeks ago</td><td><span class="tag tag-rust">Not Progressed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right sidebar -->
+      <div>
+        <!-- Profile Completeness -->
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Profile Strength</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><span class="text-sm">72% complete</span><a href="profile.html" class="text-xs text-gold" style="text-decoration:none">Edit →</a></div>
+          <div style="height:6px;background:rgba(240,237,230,.08);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:var(--marigold);border-radius:3px"></div></div>
+          <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.5rem">
+            <div class="text-xs text-muted">✓ Name &amp; role set</div>
+            <div class="text-xs text-muted">✓ Location set</div>
+            <div class="text-xs text-muted">✓ Bio written</div>
+            <div class="text-xs" style="color:var(--rust)">✗ Portfolio link missing</div>
+            <div class="text-xs" style="color:var(--rust)">✗ Profile photo missing</div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Upcoming Events</h3>
+          <div style="display:flex;flex-direction:column;gap:.85rem">
+            <div style="border-bottom:1px solid var(--border);padding-bottom:.85rem"><div class="text-xs mono text-gold">Jul 18 · Sydney</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Creative Networking Night</div></div>
+            <div style="border-bottom:1px solid var(--border);padding-bottom:.85rem"><div class="text-xs mono text-gold">Jul 25 · Online</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Music Business Fundamentals</div></div>
+            <div><div class="text-xs mono text-gold">Aug 02 · Melbourne</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Industry Panel: Future of Live Music</div></div>
+          </div>
+          <a href="events.html" class="text-xs text-gold mt-2 d-block" style="text-decoration:none;display:block;margin-top:1rem">View all events →</a>
+        </div>
+
+        <!-- Quick Links -->
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Quick Actions</h3>
+          <div style="display:flex;flex-direction:column;gap:.6rem">
+            <a href="directory.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">Browse Directory</a>
+            <a href="opportunities.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">View Opportunities</a>
+            <a href="post-job.html" class="btn-ghost w-full text-center" style="font-size:.65rem;padding:.6rem">Post an Opportunity</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const user = Auth.get();
+  if(!user) { window.location.href = 'login.html'; return; }
+  if(user.isAdmin) { window.location.href = '../admin/index.html'; return; }
+  if(user.status === 'pending') {
+    document.getElementById('pendingNotice').classList.remove('hidden');
+  }
+});
+</script>
+</body>
+</html>

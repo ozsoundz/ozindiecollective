@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem}
+.pcard{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;position:relative;overflow:hidden;transition:.2s}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pcard.c-gold::before{background:var(--marigold)}.pcard.c-rust::before{background:var(--rust)}.pcard.c-sage::before{background:var(--sage)}.pcard.c-purple::before{background:#9b59b6}
+.pcard:hover{border-color:var(--border-hi);transform:translateY(-3px)}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Projects Board</div>
+    <h1 class="section-title">Collaborations &amp; <em>Creative Projects</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Members seeking collaborators, co-creators and creative partners. Paid and unpaid projects posted by verified OIC members.</p>
+    <div class="flex gap-2 mt-4"><a href="#" onclick="requireAuth(event,'post-job.html')" class="btn-primary">Post a Project</a><a href="#board" class="btn-secondary">Browse Projects</a></div>
+  </div>
+</div>
+<section style="background:var(--ink)" id="board">
+  <div class="inner">
+    <div class="filter-bar">
+      <div class="form-group"><label>Type</label>
+        <select onchange="filterProj(this)">
+          <option value="">All Types</option>
+          <option>Paid</option><option>Unpaid / Collab</option><option>Rev Share</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Discipline Needed</label>
+        <select onchange="filterProj(this)">
+          <option value="">Any Discipline</option>
+          <option>Audio Engineer</option><option>Lighting Designer</option><option>Videographer</option>
+          <option>Producer</option><option>Graphic Designer</option><option>Photographer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Location</label>
+        <select><option value="">Australia-wide</option><option>NSW</option><option>VIC</option><option>QLD</option><option>Remote</option></select>
+      </div>
+    </div>
+    <div class="proj-grid">
+      <div class="pcard c-gold fade-in"><div class="tag tag-gold mb-2">Music / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Indie Band Seeking Lighting Designer — National Tour</h3><p class="text-xs text-muted mb-2">📍 Melbourne → Sydney → Brisbane · Oct 2025</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Six-piece indie rock band heading on their biggest tour. Looking for an experienced LD who can bring an atmospheric visual identity to 12+ shows.</p><a href="#" onclick="applyProj(event,'Band needs LD')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-rust fade-in"><div class="tag tag-rust mb-2">Podcast / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Creative Business Podcast Seeks Ongoing Producer</h3><p class="text-xs text-muted mb-2">📍 Remote · Ongoing</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Weekly podcast interviewing founders and artists. Need a producer comfortable with editing, show notes and audience growth strategy.</p><a href="#" onclick="applyProj(event,'Podcast Producer')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-sage fade-in"><div class="tag tag-sage mb-2">Tour / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Touring Artist Seeks Videographer for Album Cycle</h3><p class="text-xs text-muted mb-2">📍 Adelaide, Perth, Brisbane · 4 Months</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Singer-songwriter on first headline run needs a creative videographer for live footage and behind-the-scenes social content.</p><a href="#" onclick="applyProj(event,'Videographer for Tour')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-gold fade-in"><div class="tag tag-gold mb-2">Studio / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Independent Studio Seeking Resident Engineer</h3><p class="text-xs text-muted mb-2">📍 Melbourne, VIC · Immediate</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Boutique recording studio in Collingwood has immediate availability for a tracking and mixing engineer. Pro Tools essential.</p><a href="#" onclick="applyProj(event,'Resident Engineer')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-purple fade-in"><div class="tag tag-purple mb-2">Festival / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Regional Festival Seeking Full Production Crew</h3><p class="text-xs text-muted mb-2">📍 Byron Bay, NSW · March 2026</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">3-day boutique festival seeking stage managers, audio techs, riggers and FOH engineers. Accommodation and transport provided.</p><a href="#" onclick="applyProj(event,'Festival Crew')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-sage fade-in"><div class="tag tag-sage mb-2">Visual / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Record Label Seeks Graphic Designer for Rebrand</h3><p class="text-xs text-muted mb-2">📍 Remote · 6 Weeks</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Independent hip-hop label refreshing its visual identity for 2026. Need a designer fluent in music culture and digital-first brand systems.</p><a href="#" onclick="applyProj(event,'Label Rebrand Designer')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-gold fade-in"><div class="tag tag-gold mb-2">Music / Collab</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Singer-Songwriter Seeking Co-Writer &amp; Producer</h3><p class="text-xs text-muted mb-2">📍 Sydney, NSW · Rev Share</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Emerging pop artist with strong fanbase (80K+ followers) looking for a producer and co-writer to develop her next EP. Revenue share deal.</p><a href="#" onclick="applyProj(event,'Co-Writer & Producer')" class="apply-link">Apply Now →</a></div>
+      <div class="pcard c-rust fade-in"><div class="tag tag-rust mb-2">Film / Paid</div><h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">Music Doco Seeking Sound Designer</h3><p class="text-xs text-muted mb-2">📍 Melbourne, VIC · 8 Weeks</p><p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">Feature-length documentary about Australian independent music seeks a sound designer for post-production. Festival submission pending.</p><a href="#" onclick="applyProj(event,'Sound Designer — Doco')" class="apply-link">Apply Now →</a></div>
+    </div>
+    <div class="pagination"><a href="#" class="page-btn">‹</a><a href="#" class="page-btn active">1</a><a href="#" class="page-btn">2</a><a href="#" class="page-btn">›</a></div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="projectApplyModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('projectApplyModal')">✕</button>
+    <div class="modal-title" id="projModalTitle">Apply for Project</div>
+    <div class="modal-sub">Send a message to introduce yourself and your interest.</div>
+    <div class="form-group"><label>Message</label><textarea placeholder="Tell them why you're the right fit, relevant experience…" data-max-chars="500" rows="5"></textarea></div>
+    <div class="form-group"><label>Portfolio / Showreel Link</label><input type="url" placeholder="https://"></div>
+    <button class="btn-primary w-full btn-lg" onclick="submitProj()">Send Application</button>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+function requireAuth(e, dest) { e.preventDefault(); if(!Auth.get()) { window.location.href='login.html'; } else { window.location.href=dest; } }
+function applyProj(e, title) { e.preventDefault(); if(!Auth.get()){window.location.href='login.html';return;} document.getElementById('projModalTitle').textContent='Apply: '+title; openModal('projectApplyModal'); }
+function submitProj() { showToast('Application sent!','success'); closeModal('projectApplyModal'); }
+function filterProj() { /* future enhancement */ }
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apply to Join — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.join-layout{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 400px;gap:3rem;align-items:start}
+.join-form-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.5rem}
+.join-aside{position:sticky;top:calc(var(--nav-h) + 2rem)}
+.aside-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem}
+.aside-card h3{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem}
+.step{display:flex;gap:.85rem;align-items:flex-start;margin-bottom:1rem}
+.step-num{width:26px;height:26px;border-radius:50%;background:rgba(245,166,35,.15);color:var(--marigold);font-family:var(--font-mono);font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.15rem}
+.step-text{font-size:.83rem;color:var(--muted);line-height:1.5}
+.progress-bar{height:4px;background:rgba(240,237,230,.08);border-radius:2px;margin-bottom:2rem;overflow:hidden}
+.progress-fill{height:100%;background:var(--marigold);border-radius:2px;transition:width .4s ease;width:0%}
+.form-step{display:none}
+.form-step.active{display:block}
+.step-indicator{display:flex;gap:.5rem;margin-bottom:2rem}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(240,237,230,.15);transition:.3s}
+.step-dot.active{background:var(--marigold)}
+.step-dot.done{background:var(--sage)}
+@media(max-width:900px){.join-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Apply to Join</div>
+    <h1 class="section-title">Join the <em>Oz Indie Collective</em></h1>
+    <p class="text-muted mt-2" style="max-width:600px;font-size:1rem;line-height:1.7">We personally review every application to keep the Collective high-quality, genuine and spam-free. Tell us about yourself — we'll get back to you within 48 hours.</p>
+  </div>
+</div>
+
+<section style="background:var(--ink)">
+  <div class="join-layout">
+    <!-- FORM -->
+    <div class="join-form-card">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step-indicator" id="stepDots">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+
+      <form id="joinForm" novalidate>
+
+        <!-- STEP 1: Account -->
+        <div class="form-step active" data-step="1">
+          <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:.35rem">Your Account</h2>
+          <p class="text-muted text-sm mb-3">Basic account details to get you started.</p>
+          <div class="form-row">
+            <div class="form-group"><label>First Name <span class="required-star">*</span></label><input type="text" name="firstName" placeholder="Jordan"><div class="form-error" data-error="firstName"></div></div>
+            <div class="form-group"><label>Last Name <span class="required-star">*</span></label><input type="text" name="lastName" placeholder="Mackay"><div class="form-error" data-error="lastName"></div></div>
+          </div>
+          <div class="form-group"><label>Email Address <span class="required-star">*</span></label><input type="email" name="email" placeholder="you@example.com"><div class="form-error" data-error="email"></div></div>
+          <div class="form-row">
+            <div class="form-group"><label>Password <span class="required-star">*</span></label><input type="password" name="password" placeholder="Min. 8 characters"><div class="form-error" data-error="password"></div></div>
+            <div class="form-group"><label>Confirm Password <span class="required-star">*</span></label><input type="password" name="confirmPassword" placeholder="Repeat password"><div class="form-error" data-error="confirmPassword"></div></div>
+          </div>
+          <div class="form-group">
+            <label>Membership Plan</label>
+            <select name="plan">
+              <option value="free">Free Member — $0/month</option>
+              <option value="pro">Professional Member — $12/month</option>
+              <option value="partner">Industry Partner — $89/month</option>
+            </select>
+          </div>
+          <button type="button" class="btn-primary btn-lg w-full" onclick="nextStep(1)">Continue →</button>
+        </div>
+
+        <!-- STEP 2: Profile -->
+        <div class="form-step" data-step="2">
+          <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:.35rem">Your Profile</h2>
+          <p class="text-muted text-sm mb-3">This becomes your public profile in the directory.</p>
+          <div class="form-group">
+            <label>Primary Creative Role <span class="required-star">*</span></label>
+            <select name="role">
+              <option value="">Select your primary role…</option>
+              <option>Musician / Performer</option><option>Audio Engineer (Studio)</option><option>Audio Engineer (Live)</option>
+              <option>Music Producer</option><option>Lighting Designer</option><option>Stage Manager</option>
+              <option>Artist Manager</option><option>Videographer</option><option>Photographer</option>
+              <option>Content Creator</option><option>Graphic Designer</option><option>Luthier / Instrument Maker</option>
+              <option>Event Producer</option><option>Creative Entrepreneur</option><option>Visual Artist</option><option>Other</option>
+            </select>
+            <div class="form-error" data-error="role"></div>
+          </div>
+          <div class="form-group">
+            <label>Additional Skills</label>
+            <div class="checkbox-group">
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="mixing">Mixing</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="mastering">Mastering</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="songwriting">Songwriting</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="live-sound">Live Sound</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="video-edit">Video Editing</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="photography">Photography</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="social-media">Social Media</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="tour-mgmt">Tour Management</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="branding">Branding</label>
+              <label class="checkbox-pill"><input type="checkbox" name="skills" value="sync-licensing">Sync &amp; Licensing</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>State / Territory <span class="required-star">*</span></label>
+              <select name="state">
+                <option value="">Select…</option>
+                <option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option>
+                <option>WA</option><option>TAS</option><option>NT</option><option>ACT</option>
+              </select>
+              <div class="form-error" data-error="state"></div>
+            </div>
+            <div class="form-group"><label>City / Town <span class="required-star">*</span></label><input type="text" name="city" placeholder="e.g. Melbourne"><div class="form-error" data-error="city"></div></div>
+          </div>
+          <div class="form-group">
+            <label>Years of Experience</label>
+            <select name="experience">
+              <option value="">Select…</option>
+              <option>Less than 1 year</option><option>1–3 years</option><option>3–5 years</option>
+              <option>5–10 years</option><option>10+ years</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Short Bio <span class="required-star">*</span></label><textarea name="bio" placeholder="Tell us about yourself, your experience and what you create…" data-max-chars="500" rows="4"></textarea><div class="form-error" data-error="bio"></div></div>
+          <div class="flex gap-2"><button type="button" class="btn-secondary btn-lg" style="flex:0 0 auto" onclick="prevStep(2)">← Back</button><button type="button" class="btn-primary btn-lg w-full" onclick="nextStep(2)">Continue →</button></div>
+        </div>
+
+        <!-- STEP 3: Vetting -->
+        <div class="form-step" data-step="3">
+          <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:.35rem">Vetting Questions</h2>
+          <p class="text-muted text-sm mb-3">These help us maintain a high-quality, genuine community. Please answer honestly — there are no wrong answers.</p>
+          <div class="form-group">
+            <label>Portfolio / Work Website or Social Link <span class="required-star">*</span></label>
+            <input type="url" name="portfolio" placeholder="https://yourwebsite.com or instagram.com/you">
+            <div class="form-hint">Your primary showcase of work — website, Bandcamp, Behance, SoundCloud, Instagram, etc.</div>
+            <div class="form-error" data-error="portfolio"></div>
+          </div>
+          <div class="form-group">
+            <label>Tell us about a project you're proud of <span class="required-star">*</span></label>
+            <textarea name="proudProject" placeholder="Describe a piece of work, collaboration or project that reflects what you do…" data-max-chars="600" rows="4"></textarea>
+            <div class="form-error" data-error="proudProject"></div>
+          </div>
+          <div class="form-group">
+            <label>What are you hoping to get from the Oz Indie Collective? <span class="required-star">*</span></label>
+            <textarea name="goals" placeholder="e.g. Find collaborators, get gig leads, connect with peers, grow my business…" data-max-chars="400" rows="3"></textarea>
+            <div class="form-error" data-error="goals"></div>
+          </div>
+          <div class="form-group">
+            <label>How did you hear about us?</label>
+            <select name="referral">
+              <option value="">Select…</option>
+              <option>Referred by a member</option><option>Instagram</option><option>Facebook</option>
+              <option>TikTok</option><option>Google Search</option><option>Industry event</option>
+              <option>Podcast / media</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Member Referral (if applicable)</label>
+            <input type="text" name="referralName" placeholder="Name of the member who referred you">
+          </div>
+          <div class="flex gap-2"><button type="button" class="btn-secondary btn-lg" style="flex:0 0 auto" onclick="prevStep(3)">← Back</button><button type="button" class="btn-primary btn-lg w-full" onclick="nextStep(3)">Continue →</button></div>
+        </div>
+
+        <!-- STEP 4: Review & Submit -->
+        <div class="form-step" data-step="4">
+          <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:.35rem">Review &amp; Submit</h2>
+          <p class="text-muted text-sm mb-3">Almost there! Review then submit your application for review.</p>
+          <div class="alert alert-info"><span class="alert-icon">🛡️</span><span>Your application will be reviewed by our team within <strong>48 hours</strong>. We'll email you the outcome. Approved members get immediate access.</span></div>
+          <div id="reviewSummary" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem">
+            <p class="text-muted text-sm">Loading your details…</p>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-pill" style="width:100%;padding:.75rem 1rem"><input type="checkbox" name="terms" id="termsCheck"> &nbsp;I agree to the <a href="guidelines.html" class="text-gold" target="_blank">Community Guidelines</a> and <a href="privacy.html" class="text-gold" target="_blank">Privacy Policy</a></label>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-pill" style="width:100%;padding:.75rem 1rem"><input type="checkbox" name="ageCheck"> &nbsp;I confirm I am 18 years of age or older</label>
+          </div>
+          <div class="flex gap-2"><button type="button" class="btn-secondary btn-lg" style="flex:0 0 auto" onclick="prevStep(4)">← Back</button><button type="submit" class="btn-primary btn-lg w-full">Submit Application</button></div>
+        </div>
+
+      </form>
+
+      <!-- SUCCESS -->
+      <div id="joinSuccess" class="hidden text-center" style="padding:3rem 1rem">
+        <div style="font-size:3rem;margin-bottom:1.25rem">🎉</div>
+        <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--cream);margin-bottom:.75rem">Application Submitted!</h2>
+        <p class="text-muted" style="max-width:420px;margin:0 auto 2rem;line-height:1.7">Thanks for applying to the Oz Indie Collective. Our team will review your application and email you within 48 hours.</p>
+        <a href="../index.html" class="btn-secondary">Return to Home</a>
+      </div>
+    </div>
+
+    <!-- ASIDE -->
+    <aside class="join-aside">
+      <div class="aside-card">
+        <h3>How It Works</h3>
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong style="color:var(--cream)">Apply</strong> — Fill in your details and tell us about your creative work.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong style="color:var(--cream)">Review</strong> — Our team personally reviews every application within 48 hours.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong style="color:var(--cream)">Approved</strong> — You'll receive a welcome email with access to your member dashboard.</div></div>
+        <div class="step" style="margin-bottom:0"><div class="step-num">4</div><div class="step-text"><strong style="color:var(--cream)">Connect</strong> — Start exploring the directory, posting and collaborating.</div></div>
+      </div>
+      <div class="aside-card">
+        <h3>Why We Vet</h3>
+        <p class="text-sm text-muted" style="line-height:1.7">The Oz Indie Collective exists to serve <em>real creatives</em>. Vetting keeps out spam, fake profiles and bad actors — so every connection you make here is with someone genuine.</p>
+      </div>
+      <div class="aside-card">
+        <h3>What We Look For</h3>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.65rem">
+          <li class="text-sm text-muted">✓ Real creative experience (any level)</li>
+          <li class="text-sm text-muted">✓ Evidence of your work (portfolio, socials)</li>
+          <li class="text-sm text-muted">✓ Genuine interest in collaboration</li>
+          <li class="text-sm text-muted">✓ Respectful community participation</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+const formData = {};
+
+function updateProgress() {
+  document.getElementById('progressFill').style.width = ((currentStep-1)/(totalSteps-1)*100)+'%';
+  document.querySelectorAll('.step-dot').forEach((dot,i) => {
+    dot.classList.remove('active','done');
+    if(i === currentStep-1) dot.classList.add('active');
+    else if(i < currentStep-1) dot.classList.add('done');
+  });
+}
+
+function nextStep(step) {
+  if(!validateStep(step)) return;
+  captureStep(step);
+  document.querySelector(`[data-step="${step}"]`).classList.remove('active');
+  currentStep = step + 1;
+  const next = document.querySelector(`[data-step="${currentStep}"]`);
+  if(next) { next.classList.add('active'); updateProgress(); if(currentStep===4) buildReview(); }
+}
+
+function prevStep(step) {
+  document.querySelector(`[data-step="${step}"]`).classList.remove('active');
+  currentStep = step - 1;
+  document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+  updateProgress();
+}
+
+function validateStep(step) {
+  const s = document.querySelector(`[data-step="${step}"]`);
+  let ok = true;
+  s.querySelectorAll('input[required],select[required],textarea[required]').forEach(el => {
+    if(!el.value.trim()) { ok = false; el.style.borderColor = 'rgba(196,98,58,.6)'; }
+    else el.style.borderColor = '';
+  });
+  if(step===1) {
+    const pw = s.querySelector('[name=password]');
+    const cpw = s.querySelector('[name=confirmPassword]');
+    if(pw && cpw && pw.value !== cpw.value) {
+      ok = false;
+      cpw.style.borderColor = 'rgba(196,98,58,.6)';
+      showToast('Passwords do not match.','danger');
+    }
+    const em = s.querySelector('[name=email]');
+    if(em && em.value && !em.value.includes('@')) { ok=false; em.style.borderColor='rgba(196,98,58,.6)'; }
+  }
+  if(!ok) showToast('Please fill in all required fields.','danger');
+  return ok;
+}
+
+function captureStep(step) {
+  const s = document.querySelector(`[data-step="${step}"]`);
+  s.querySelectorAll('input,select,textarea').forEach(el => {
+    if(el.name) formData[el.name] = el.value;
+  });
+}
+
+function buildReview() {
+  const el = document.getElementById('reviewSummary');
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div><div class="text-xs mono text-gold mb-1">Name</div><div class="text-sm" style="color:var(--cream)">${formData.firstName||''} ${formData.lastName||''}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Email</div><div class="text-sm" style="color:var(--cream)">${formData.email||''}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${formData.role||'—'}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${formData.city||''}, ${formData.state||''}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Plan</div><div class="text-sm" style="color:var(--cream)">${formData.plan||'free'}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Portfolio</div><div class="text-sm text-muted" style="word-break:break-all">${formData.portfolio||'—'}</div></div>
+    </div>`;
+}
+
+document.getElementById('joinForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  captureStep(4);
+  const terms = document.querySelector('[name=terms]');
+  const age = document.querySelector('[name=ageCheck]');
+  if(!terms.checked || !age.checked) { showToast('Please accept the terms and confirm your age.','danger'); return; }
+  this.classList.add('hidden');
+  document.getElementById('joinSuccess').classList.remove('hidden');
+  // In production: POST formData to backend API
+  // Auth.set({name: formData.firstName+' '+formData.lastName, status:'pending', role:formData.role});
+});
+
+// Pre-select plan from URL param
+const urlPlan = new URLSearchParams(window.location.search).get('plan');
+if(urlPlan) { const sel = document.querySelector('[name=plan]'); if(sel) sel.value = urlPlan; }
+</script>
+</body>
+</html>

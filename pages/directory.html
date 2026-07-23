@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Member Directory — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Member Directory</div>
+    <h1 class="section-title">Find Your Next <em>Collaborator</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Browse 4,200+ vetted creative professionals across Australia. Every profile in the directory has been personally approved.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="search-bar">
+      <input type="text" id="dirSearch" placeholder="Search by name, skill, location or discipline…" oninput="filterDir()">
+      <button onclick="filterDir()">Search</button>
+    </div>
+    <div class="filter-bar">
+      <div class="form-group"><label>Discipline</label>
+        <select id="fRole" onchange="filterDir()">
+          <option value="">All Disciplines</option>
+          <option>Musician</option><option>Audio Engineer</option><option>Music Producer</option>
+          <option>Lighting Designer</option><option>Stage Manager</option><option>Artist Manager</option>
+          <option>Videographer</option><option>Photographer</option><option>Graphic Designer</option>
+          <option>Content Creator</option><option>Event Producer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>State</label>
+        <select id="fState" onchange="filterDir()">
+          <option value="">All States</option>
+          <option>NSW</option><option>VIC</option><option>QLD</option>
+          <option>SA</option><option>WA</option><option>TAS</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Availability</label>
+        <select id="fAvail" onchange="filterDir()">
+          <option value="">Any</option>
+          <option value="available">Available Now</option>
+          <option value="selective">Selectively Available</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Plan</label>
+        <select id="fPlan" onchange="filterDir()">
+          <option value="">All Members</option>
+          <option value="pro">Professional+</option>
+          <option value="partner">Industry Partners</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-3">
+      <div class="text-sm text-muted"><span id="dirCount">18</span> members found</div>
+    </div>
+
+    <div id="dirGrid" class="grid-3" style="gap:1.25rem">
+
+      <a href="profile.html" class="member-card fade-in" data-role="Audio Engineer" data-state="NSW" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-gold">JM</div><div><div class="member-name">Jordan Mackay</div><div class="member-role">Audio Engineer</div></div></div>
+        <div class="member-location">📍 Sydney, NSW</div>
+        <div class="member-skills"><span class="tag tag-gold">Mixing</span><span class="tag tag-sage">Live Sound</span><span class="tag tag-blue">Pro Tools</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">8 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Lighting Designer" data-state="VIC" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-rust">SP</div><div><div class="member-name">Sarah Papadimitriou</div><div class="member-role">Lighting Designer</div></div></div>
+        <div class="member-location">📍 Melbourne, VIC</div>
+        <div class="member-skills"><span class="tag tag-gold">GrandMA3</span><span class="tag tag-sage">Festival</span><span class="tag tag-blue">Programming</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">6 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Music Producer" data-state="QLD" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-sage">TC</div><div><div class="member-name">Tomas Crowe</div><div class="member-role">Music Producer</div></div></div>
+        <div class="member-location">📍 Brisbane, QLD</div>
+        <div class="member-skills"><span class="tag tag-gold">Ableton</span><span class="tag tag-rust">Electronic</span><span class="tag tag-blue">Mixing</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">10 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Videographer" data-state="WA" data-avail="selective">
+        <div class="member-card-top"><div class="avatar avatar-md av-blue">NR</div><div><div class="member-name">Nina Rashid</div><div class="member-role">Videographer</div></div></div>
+        <div class="member-location">📍 Perth, WA</div>
+        <div class="member-skills"><span class="tag tag-gold">Music Video</span><span class="tag tag-sage">Live Capture</span><span class="tag tag-blue">BTS</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">5 years exp.</span><span class="text-xs text-muted">Selective</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Graphic Designer" data-state="SA" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-purple">DL</div><div><div class="member-name">Daniel Lee</div><div class="member-role">Graphic Designer</div></div></div>
+        <div class="member-location">📍 Adelaide, SA</div>
+        <div class="member-skills"><span class="tag tag-gold">Branding</span><span class="tag tag-sage">Adobe CC</span><span class="tag tag-blue">Identity</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">7 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Artist Manager" data-state="NSW" data-avail="selective">
+        <div class="member-card-top"><div class="avatar avatar-md av-rust">AW</div><div><div class="member-name">Amy Walsh</div><div class="member-role">Artist Manager</div></div></div>
+        <div class="member-location">📍 Sydney, NSW</div>
+        <div class="member-skills"><span class="tag tag-gold">Artist Dev</span><span class="tag tag-sage">Booking</span><span class="tag tag-blue">Touring</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">9 years exp.</span><span class="text-xs text-muted">Selective</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Musician" data-state="VIC" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-gold">KO</div><div><div class="member-name">Keiko Ota</div><div class="member-role">Musician / Composer</div></div></div>
+        <div class="member-location">📍 Melbourne, VIC</div>
+        <div class="member-skills"><span class="tag tag-gold">Piano</span><span class="tag tag-sage">Composition</span><span class="tag tag-blue">Session Work</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">12 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Stage Manager" data-state="QLD" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-sage">BR</div><div><div class="member-name">Ben Rodriguez</div><div class="member-role">Stage Manager</div></div></div>
+        <div class="member-location">📍 Gold Coast, QLD</div>
+        <div class="member-skills"><span class="tag tag-gold">Festival</span><span class="tag tag-sage">Touring</span><span class="tag tag-blue">Crew Mgmt</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">11 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Photographer" data-state="NSW" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-blue">LC</div><div><div class="member-name">Layla Chen</div><div class="member-role">Photographer</div></div></div>
+        <div class="member-location">📍 Sydney, NSW</div>
+        <div class="member-skills"><span class="tag tag-gold">Live Music</span><span class="tag tag-sage">Portrait</span><span class="tag tag-blue">EPK</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">4 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Event Producer" data-state="VIC" data-avail="selective">
+        <div class="member-card-top"><div class="avatar avatar-md av-rust">MF</div><div><div class="member-name">Marcus Finch</div><div class="member-role">Event Producer</div></div></div>
+        <div class="member-location">📍 Melbourne, VIC</div>
+        <div class="member-skills"><span class="tag tag-gold">Production Mgmt</span><span class="tag tag-sage">Budget</span><span class="tag tag-blue">Logistics</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">15 years exp.</span><span class="text-xs text-muted">Selective</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Content Creator" data-state="QLD" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-purple">ZT</div><div><div class="member-name">Zara Thompson</div><div class="member-role">Content Creator</div></div></div>
+        <div class="member-location">📍 Brisbane, QLD</div>
+        <div class="member-skills"><span class="tag tag-gold">TikTok</span><span class="tag tag-sage">Reels</span><span class="tag tag-blue">Strategy</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">3 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+      <a href="profile.html" class="member-card fade-in" data-role="Audio Engineer" data-state="WA" data-avail="available">
+        <div class="member-card-top"><div class="avatar avatar-md av-gold">PK</div><div><div class="member-name">Pete Kowalski</div><div class="member-role">Audio Engineer (Live)</div></div></div>
+        <div class="member-location">📍 Perth, WA</div>
+        <div class="member-skills"><span class="tag tag-gold">FOH</span><span class="tag tag-sage">Monitors</span><span class="tag tag-blue">Yamaha CL</span></div>
+        <div class="member-foot"><span class="text-xs text-muted">7 years exp.</span><span class="text-xs"><span class="avail-dot"></span>Available</span></div>
+      </a>
+
+    </div>
+
+    <div class="pagination">
+      <a href="#" class="page-btn">‹</a>
+      <a href="#" class="page-btn active">1</a>
+      <a href="#" class="page-btn">2</a>
+      <a href="#" class="page-btn">3</a>
+      <a href="#" class="page-btn">›</a>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+function filterDir() {
+  const role = document.getElementById('fRole').value;
+  const state = document.getElementById('fState').value;
+  const avail = document.getElementById('fAvail').value;
+  const q = document.getElementById('dirSearch').value.toLowerCase();
+  let count = 0;
+  document.querySelectorAll('#dirGrid .member-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    const ok = (!role || card.dataset.role === role)
+      && (!state || card.dataset.state === state)
+      && (!avail || card.dataset.avail === avail)
+      && (!q || text.includes(q));
+    card.style.display = ok ? '' : 'none';
+    if(ok) count++;
+  });
+  document.getElementById('dirCount').textContent = count;
+}
+// Handle URL params for pre-filtering
+const urlType = new URLSearchParams(window.location.search).get('type');
+if(urlType) {
+  const map = {musician:'Musician',artist:'Graphic Designer',engineer:'Audio Engineer',ld:'Lighting Designer',stage:'Stage Manager',manager:'Artist Manager',producer:'Music Producer',video:'Videographer',photo:'Photographer',content:'Content Creator',design:'Graphic Designer',event:'Event Producer'};
+  const sel = document.getElementById('fRole');
+  if(map[urlType] && sel) { sel.value = map[urlType]; filterDir(); }
+}
+</script>
+</body>
+</html>

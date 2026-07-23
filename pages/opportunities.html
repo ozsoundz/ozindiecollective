@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opportunities — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Opportunities</div>
+    <h1 class="section-title">Jobs &amp; <em>Gig Listings</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Paid roles, contracts, touring gigs, studio sessions and creative partnerships — posted exclusively by vetted Collective members and industry partners.</p>
+    <div class="flex gap-2 mt-4" style="flex-wrap:wrap">
+      <a href="post-job.html" class="btn-primary">Post an Opportunity</a>
+      <a href="#listings" class="btn-secondary">Browse Listings</a>
+    </div>
+  </div>
+</div>
+
+<section style="background:var(--ink)" id="listings">
+  <div class="inner">
+    <div class="filter-bar">
+      <div class="form-group"><label>Category</label>
+        <select id="filterCat" onchange="filterJobs()">
+          <option value="">All Categories</option>
+          <option>Audio Engineering</option><option>Music Production</option>
+          <option>Lighting Design</option><option>Stage Management</option>
+          <option>Artist Management</option><option>Videography</option>
+          <option>Photography</option><option>Graphic Design</option>
+          <option>Event Production</option><option>Touring / Crew</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Type</label>
+        <select id="filterType" onchange="filterJobs()">
+          <option value="">All Types</option>
+          <option>Full-time</option><option>Part-time</option>
+          <option>Contract</option><option>Casual / Gig</option><option>Volunteer</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Location</label>
+        <select id="filterLoc" onchange="filterJobs()">
+          <option value="">All States</option>
+          <option>NSW</option><option>VIC</option><option>QLD</option>
+          <option>SA</option><option>WA</option><option>TAS</option><option>Remote</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Pay Range</label>
+        <select id="filterPay" onchange="filterJobs()">
+          <option value="">Any Pay</option>
+          <option>Under $500/day</option><option>$500–$1000/day</option>
+          <option>Under $60K</option><option>$60K–$90K</option><option>$90K+</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="jobSearch" placeholder="Search by keyword, skill or company…" oninput="filterJobs()">
+      <button onclick="filterJobs()">Search</button>
+    </div>
+
+    <div class="flex justify-between items-center mb-3">
+      <div class="text-sm text-muted"><span id="jobCount">12</span> opportunities found</div>
+      <select style="width:auto;padding:.4rem .8rem;font-size:.75rem;background:rgba(240,237,230,.05);border:1px solid var(--border);color:var(--cream);border-radius:3px">
+        <option>Newest First</option><option>Best Match</option><option>Highest Pay</option>
+      </select>
+    </div>
+
+    <div id="jobListings" style="display:flex;flex-direction:column;gap:1rem">
+
+      <div class="job-card card-accent-gold" data-cat="Audio Engineering" data-type="Full-time" data-loc="NSW">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="openJobModal(0);return false">Live Sound Engineer — National Support Tour</a>
+            <div class="job-company">Venue Productions Pty Ltd &nbsp;·&nbsp; <span class="tag tag-approved" style="font-size:.55rem">✓ Verified Partner</span></div>
+          </div>
+          <span class="tag tag-gold">Full-time</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Seeking an experienced FOH engineer for a 3-month national support tour. Must be proficient on Avid S6L and DiGiCo consoles. Touring experience essential. All travel and accommodation covered.</p>
+        <div class="job-tags"><span class="tag tag-sage">Live Sound</span><span class="tag tag-blue">Touring</span><span class="tag tag-gold">Avid S6L</span><span class="tag tag-gold">DiGiCo</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Sydney, NSW + Touring</span>
+          <span class="job-pay">$75,000–$90,000 pa</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Live Sound Engineer — National Support Tour')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-rust" data-cat="Music Production" data-type="Contract" data-loc="VIC">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Studio Mix Engineer — Boutique Studio</a>
+            <div class="job-company">Ochre Sound Studios &nbsp;·&nbsp; Melbourne</div>
+          </div>
+          <span class="tag tag-rust">Contract</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Boutique analogue studio seeking a talented mix engineer for ongoing contract work. SSL G-Series in-house. Predominantly indie, folk and alternative genres. Flexible scheduling.</p>
+        <div class="job-tags"><span class="tag tag-sage">Mixing</span><span class="tag tag-blue">Analogue</span><span class="tag tag-gold">SSL</span><span class="tag tag-rust">Indie</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Fitzroy, VIC</span>
+          <span class="job-pay">$500–$700/day</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Studio Mix Engineer — Boutique Studio')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-sage" data-cat="Lighting Design" data-type="Casual / Gig" data-loc="QLD">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Lighting Designer — Boutique Festival</a>
+            <div class="job-company">Byron Roots Festival &nbsp;·&nbsp; Byron Bay</div>
+          </div>
+          <span class="tag tag-sage">Casual / Gig</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">3-day boutique music festival seeking an experienced LD for the main stage. GrandMA3 preferred. Must be available for 2 prep days plus festival. Accommodation and meals provided on site.</p>
+        <div class="job-tags"><span class="tag tag-sage">GrandMA3</span><span class="tag tag-blue">Festival</span><span class="tag tag-gold">Main Stage</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Byron Bay, NSW</span>
+          <span class="job-pay">$1,200/day</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Lighting Designer — Boutique Festival')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-gold" data-cat="Artist Management" data-type="Part-time" data-loc="VIC">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Junior Artist Manager — Independent Label</a>
+            <div class="job-company">Dusk Records &nbsp;·&nbsp; Melbourne</div>
+          </div>
+          <span class="tag tag-blue">Part-time</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Growing independent label looking for a proactive junior manager to assist with artist development, scheduling, social media and tour coordination. 3 days/week with potential to go full-time.</p>
+        <div class="job-tags"><span class="tag tag-sage">Artist Dev</span><span class="tag tag-blue">Scheduling</span><span class="tag tag-gold">Social Media</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Richmond, VIC</span>
+          <span class="job-pay">$28–$34/hr</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Junior Artist Manager')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-rust" data-cat="Videography" data-type="Contract" data-loc="Remote">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Music Videographer — Album Cycle Content</a>
+            <div class="job-company">Sienna Walsh (Independent Artist)</div>
+          </div>
+          <span class="tag tag-rust">Contract</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Indie-pop artist seeking a creative videographer for a 4-month album cycle. Includes live show footage, behind-the-scenes content and 2x music videos. Travel to key shows required.</p>
+        <div class="job-tags"><span class="tag tag-sage">Music Video</span><span class="tag tag-blue">BTS Content</span><span class="tag tag-gold">Live Capture</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Remote / National</span>
+          <span class="job-pay">$4,000/month</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Music Videographer — Album Cycle Content')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-sage" data-cat="Graphic Design" data-type="Contract" data-loc="Remote">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Graphic Designer — Hip-Hop Label Rebrand</a>
+            <div class="job-company">Forward Motion Records</div>
+          </div>
+          <span class="tag tag-rust">Contract</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">6-week rebrand project for an established independent hip-hop label. Logo, brand identity, digital templates, social assets and release artwork. Fully remote. Strong music culture knowledge required.</p>
+        <div class="job-tags"><span class="tag tag-sage">Branding</span><span class="tag tag-blue">Identity</span><span class="tag tag-gold">Adobe CC</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Remote</span>
+          <span class="job-pay">$6,000 flat fee</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Graphic Designer — Label Rebrand')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-gold" data-cat="Touring / Crew" data-type="Casual / Gig" data-loc="NSW">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Stage Manager — 12-Show National Tour</a>
+            <div class="job-company">Black Iris Productions</div>
+          </div>
+          <span class="tag tag-sage">Casual / Gig</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Experienced stage manager needed for a 12-show run across 5 cities. Medium-capacity venues (500–1500 cap). 4-piece touring band. 2 days advance in each city. All travel covered.</p>
+        <div class="job-tags"><span class="tag tag-sage">Stage Management</span><span class="tag tag-blue">Touring</span><span class="tag tag-gold">Mid-cap Venues</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 National Tour</span>
+          <span class="job-pay">$850/day</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Stage Manager — National Tour')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="job-card card-accent-rust" data-cat="Event Production" data-type="Full-time" data-loc="SA">
+        <div class="job-card-header">
+          <div>
+            <a href="#" class="job-title" onclick="return false">Event Production Manager — Venue Permanent Role</a>
+            <div class="job-company">The Governor Hindmarsh &nbsp;·&nbsp; Adelaide</div>
+          </div>
+          <span class="tag tag-gold">Full-time</span>
+        </div>
+        <p class="text-sm text-muted mb-2" style="line-height:1.6">Iconic Adelaide venue seeking a full-time production manager to oversee all live events. Manage technical crew, liaise with touring production teams and maintain all venue systems.</p>
+        <div class="job-tags"><span class="tag tag-sage">Event Mgmt</span><span class="tag tag-blue">Crew Management</span><span class="tag tag-gold">Venues</span></div>
+        <div class="job-footer">
+          <span class="job-location">📍 Adelaide, SA</span>
+          <span class="job-pay">$80,000–$95,000 pa</span>
+          <div class="flex gap-1">
+            <button class="btn-secondary" style="font-size:.6rem;padding:.35rem .75rem" onclick="showToast('Saved!','success')">♡ Save</button>
+            <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="applyModal('Event Production Manager')">Apply Now</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pagination">
+      <a href="#" class="page-btn">‹</a>
+      <a href="#" class="page-btn active">1</a>
+      <a href="#" class="page-btn">2</a>
+      <a href="#" class="page-btn">›</a>
+    </div>
+  </div>
+</section>
+
+<!-- Apply Modal -->
+<div class="modal-overlay" id="applyModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('applyModal')">✕</button>
+    <div class="modal-title" id="applyModalTitle">Apply for Role</div>
+    <div class="modal-sub">Submit your application through the Oz Indie Collective. The poster will receive your profile and message.</div>
+    <div class="form-group"><label>Cover Message</label><textarea name="cover" placeholder="Briefly introduce yourself and why you're a great fit…" data-max-chars="500" rows="5"></textarea></div>
+    <div class="form-group"><label>Your Portfolio / Showreel Link</label><input type="url" name="portfolioLink" placeholder="https://"></div>
+    <div class="alert alert-info"><span>🔒</span><span class="text-sm">Your OIC profile will be shared with the poster when you apply.</span></div>
+    <button class="btn-primary w-full btn-lg" onclick="submitApplication()">Submit Application</button>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+function applyModal(title) {
+  const user = Auth.get();
+  if(!user) { window.location.href = 'login.html'; return; }
+  document.getElementById('applyModalTitle').textContent = 'Apply: ' + title;
+  openModal('applyModal');
+}
+function submitApplication() {
+  showToast('Application submitted! The poster will be in touch.','success');
+  closeModal('applyModal');
+}
+function filterJobs() {
+  const cat = document.getElementById('filterCat').value;
+  const type = document.getElementById('filterType').value;
+  const loc = document.getElementById('filterLoc').value;
+  const q = document.getElementById('jobSearch').value.toLowerCase();
+  let count = 0;
+  document.querySelectorAll('.job-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    const matchCat = !cat || card.dataset.cat === cat;
+    const matchType = !type || card.dataset.type === type;
+    const matchLoc = !loc || (card.dataset.loc||'').includes(loc);
+    const matchQ = !q || text.includes(q);
+    const show = matchCat && matchType && matchLoc && matchQ;
+    card.style.display = show ? '' : 'none';
+    if(show) count++;
+  });
+  document.getElementById('jobCount').textContent = count;
+}
+</script>
+</body>
+</html>

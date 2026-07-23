@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post an Opportunity — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.post-layout{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:2.5rem;align-items:start}
+.post-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.5rem}
+.preview-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;position:sticky;top:calc(var(--nav-h) + 1.5rem)}
+@media(max-width:900px){.post-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Post Opportunity</div>
+    <h1 class="section-title">List a Job or <em>Collaboration</em></h1>
+    <p class="text-muted mt-2" style="max-width:540px;line-height:1.7">Post paid roles, contracts, touring gigs, studio sessions or collaboration calls — visible to thousands of vetted creative professionals across Australia.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="post-layout">
+    <div class="post-card">
+      <form id="postJobForm" novalidate>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Opportunity Details</h2>
+
+        <div class="form-group"><label>Job / Opportunity Title <span class="required-star">*</span></label><input type="text" name="title" placeholder="e.g. Live Sound Engineer — National Tour" oninput="updatePreview()" data-max-chars="80"><div class="form-error" data-error="title"></div></div>
+
+        <div class="form-row">
+          <div class="form-group"><label>Category <span class="required-star">*</span></label>
+            <select name="category" onchange="updatePreview()">
+              <option value="">Select category…</option>
+              <option>Audio Engineering</option><option>Music Production</option><option>Lighting Design</option>
+              <option>Stage Management</option><option>Artist Management</option><option>Videography</option>
+              <option>Photography</option><option>Graphic Design</option><option>Event Production</option>
+              <option>Touring / Crew</option><option>Content Creation</option><option>Other</option>
+            </select>
+            <div class="form-error" data-error="category"></div>
+          </div>
+          <div class="form-group"><label>Employment Type <span class="required-star">*</span></label>
+            <select name="type" onchange="updatePreview()">
+              <option value="">Select type…</option>
+              <option>Full-time</option><option>Part-time</option><option>Contract</option>
+              <option>Casual / Gig</option><option>Volunteer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group"><label>Description <span class="required-star">*</span></label><textarea name="description" placeholder="Describe the role, what you're looking for, what's involved and any key requirements…" rows="6" data-max-chars="1500" oninput="updatePreview()"></textarea><div class="form-error" data-error="description"></div></div>
+
+        <div class="form-group"><label>Key Requirements</label><textarea name="requirements" placeholder="List skills, experience, equipment requirements, etc. (one per line)" rows="4"></textarea></div>
+
+        <div class="form-row">
+          <div class="form-group"><label>City / Location <span class="required-star">*</span></label><input type="text" name="city" placeholder="e.g. Sydney, Melbourne, Remote" oninput="updatePreview()"><div class="form-error" data-error="city"></div></div>
+          <div class="form-group"><label>State</label>
+            <select name="state">
+              <option value="">Select…</option>
+              <option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option>
+              <option>WA</option><option>TAS</option><option>NT</option><option>ACT</option><option>Remote / National</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label>Pay / Rate</label><input type="text" name="pay" placeholder="e.g. $500/day, $70,000 pa, Negotiable" oninput="updatePreview()"></div>
+          <div class="form-group"><label>Start Date</label><input type="text" name="startDate" placeholder="e.g. ASAP, October 2025"></div>
+        </div>
+
+        <div class="form-group"><label>Duration</label><input type="text" name="duration" placeholder="e.g. 3 months, Ongoing, One-off"></div>
+
+        <div class="form-group"><label>Skills Tags <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-family:var(--font-body)">(select all that apply)</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Pro Tools">Pro Tools</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Ableton">Ableton</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Live Sound">Live Sound</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="GrandMA3">GrandMA3</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Touring">Touring</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Studio">Studio</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Mixing">Mixing</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Video Editing">Video Editing</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Adobe CC">Adobe CC</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Branding">Branding</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Social Media">Social Media</label>
+            <label class="checkbox-pill"><input type="checkbox" name="tags" value="Festival">Festival</label>
+          </div>
+        </div>
+
+        <div class="form-group"><label>How to Apply</label>
+          <select name="applyMethod">
+            <option value="platform">Via OIC Platform (recommended)</option>
+            <option value="email">Direct Email</option>
+            <option value="external">External Link</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Application Deadline</label><input type="text" name="deadline" placeholder="e.g. 30 July 2025, Rolling"></div>
+        <div class="form-group"><label>Contact Email (private — not shown publicly)</label><input type="email" name="contactEmail" placeholder="your@email.com"></div>
+
+        <div class="divider"></div>
+        <div class="form-group"><label>Listing Visibility</label>
+          <select name="visibility">
+            <option value="all">All Members (Free + Professional + Partners)</option>
+            <option value="pro">Professional Members + Partners Only</option>
+          </select>
+        </div>
+
+        <div class="alert alert-info mt-2"><span>🔍</span><span class="text-sm">All listings are reviewed by our team before going live. Expect approval within 24 hours.</span></div>
+
+        <button type="submit" class="btn-primary btn-lg w-full mt-3">Submit Listing</button>
+      </form>
+    </div>
+
+    <!-- Live Preview -->
+    <aside>
+      <div class="preview-card">
+        <div class="text-xs mono text-gold mb-3">Live Preview</div>
+        <div id="previewTitle" style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.35rem">Your job title will appear here</div>
+        <div id="previewMeta" class="text-xs text-muted mb-2">Category · Type</div>
+        <div id="previewDesc" class="text-sm text-muted" style="line-height:1.6;margin-bottom:.85rem">Your description will appear here…</div>
+        <div id="previewLocation" class="text-xs mono text-muted">📍 Location</div>
+        <div id="previewPay" class="text-xs mono text-gold mt-1"></div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-top:1rem">
+        <div class="text-xs mono text-gold mb-2">Posting Tips</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem">
+          <li class="text-xs text-muted">✓ Clear, specific titles get more views</li>
+          <li class="text-xs text-muted">✓ Include pay — it increases applications by 3×</li>
+          <li class="text-xs text-muted">✓ List specific gear/software requirements</li>
+          <li class="text-xs text-muted">✓ Mention if travel/accommodation is covered</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()) { window.location.href = 'login.html'; }
+});
+function updatePreview() {
+  const f = document.getElementById('postJobForm');
+  const title = f.querySelector('[name=title]').value || 'Your job title will appear here';
+  const cat = f.querySelector('[name=category]').value;
+  const type = f.querySelector('[name=type]').value;
+  const desc = f.querySelector('[name=description]').value;
+  const city = f.querySelector('[name=city]').value;
+  const pay = f.querySelector('[name=pay]').value;
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewMeta').textContent = [cat,type].filter(Boolean).join(' · ') || 'Category · Type';
+  document.getElementById('previewDesc').textContent = desc ? desc.slice(0,140)+(desc.length>140?'…':'') : 'Your description will appear here…';
+  document.getElementById('previewLocation').textContent = city ? '📍 '+city : '📍 Location';
+  document.getElementById('previewPay').textContent = pay || '';
+}
+document.getElementById('postJobForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const title = this.querySelector('[name=title]').value;
+  const cat = this.querySelector('[name=category]').value;
+  const desc = this.querySelector('[name=description]').value;
+  const city = this.querySelector('[name=city]').value;
+  if(!title || !cat || !desc || !city) { showToast('Please fill in all required fields.','danger'); return; }
+  showToast('Listing submitted for review! You\'ll hear from us within 24 hours.','success');
+  setTimeout(() => { window.location.href = 'opportunities.html'; }, 1800);
+});
+</script>
+</body>
+</html>

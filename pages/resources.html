@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Industry Hub — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.hub-layout{display:grid;grid-template-columns:1fr 300px;gap:2.5rem}
+.article-card{border-bottom:1px solid var(--border);padding:1.5rem 0;display:flex;gap:1.25rem;align-items:flex-start;text-decoration:none;transition:.2s}
+.article-card:hover .art-title{color:var(--marigold)}
+.article-card:first-child{padding-top:0}
+.art-thumb{width:80px;height:60px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.art-cat{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--marigold);margin-bottom:.3rem}
+.art-title{font-size:.9rem;font-weight:600;color:var(--cream);line-height:1.4;transition:color .2s}
+.art-meta{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+.grant-card{background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.18);border-radius:4px;padding:1.25rem;margin-bottom:.85rem}
+.grant-name{font-weight:600;color:var(--cream);margin-bottom:.25rem;font-size:.9rem}
+.grant-org{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--marigold);margin-bottom:.35rem}
+.grant-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:.6rem}
+@media(max-width:900px){.hub-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Industry Hub</div>
+    <h1 class="section-title">The Knowledge You <em>Actually Need</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Articles, guides, grants, news and resources curated for Australian creative industry professionals.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div style="display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap" data-tabs>
+      <button class="ptab active" data-tab="all" onclick="showTab('all',this)" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border);cursor:pointer;background:rgba(245,166,35,.1);color:var(--marigold)">All</button>
+      <button class="ptab" data-tab="guides" onclick="showTab('guides',this)" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted)">Guides</button>
+      <button class="ptab" data-tab="grants" onclick="showTab('grants',this)" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted)">Grants</button>
+      <button class="ptab" data-tab="news" onclick="showTab('news',this)" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted)">News</button>
+      <button class="ptab" data-tab="templates" onclick="showTab('templates',this)" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--muted)">Templates</button>
+    </div>
+    <div class="hub-layout">
+      <div>
+        <div id="section-all">
+          <div class="article-card"><div class="art-thumb" style="background:rgba(245,166,35,.1)">💰</div><div><div class="art-cat">Grants &amp; Funding</div><div class="art-title">Australia Council for the Arts: How to Write a Winning Application in 2025</div><div class="art-meta">5 min read · July 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(196,98,58,.1)">🎙️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">From Bedroom to Broadcast: Getting Your Mix Release-Ready on a Budget</div><div class="art-meta">8 min read · June 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(122,158,135,.1)">📈</div><div><div class="art-cat">Career Development</div><div class="art-title">Pitching Yourself to Festival Bookers: What They Actually Want to See</div><div class="art-meta">6 min read · June 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(155,89,182,.1)">📣</div><div><div class="art-cat">Marketing</div><div class="art-title">Building a Sustainable Social Presence Without Burning Out</div><div class="art-meta">7 min read · May 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(245,166,35,.1)">⚖️</div><div><div class="art-cat">Business Resources</div><div class="art-title">Contracts Every Freelance Creative Needs to Know About</div><div class="art-meta">10 min read · May 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(196,98,58,.1)">💡</div><div><div class="art-cat">Industry News</div><div class="art-title">The State of Australian Independent Music: A 2025 Report</div><div class="art-meta">12 min read · April 2025</div></div></div>
+          <div class="article-card"><div class="art-thumb" style="background:rgba(122,158,135,.1)">🎤</div><div><div class="art-cat">Career Development</div><div class="art-title">How to Get Sync Licensing Deals as an Independent Artist</div><div class="art-meta">9 min read · April 2025</div></div></div>
+          <div class="article-card" style="border-bottom:none"><div class="art-thumb" style="background:rgba(59,130,246,.1)">🎚️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">Mixing in Mono: Why Your Mix Sounds Bad in the Car</div><div class="art-meta">5 min read · March 2025</div></div></div>
+        </div>
+      </div>
+      <aside>
+        <div style="margin-bottom:2rem" id="grants">
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1.1rem">🔥 Active Grants</h3>
+          <div class="grant-card"><div class="grant-org">Australia Council</div><div class="grant-name">Individuals — Quick Response</div><div class="grant-desc">Up to $10,000 for short-term professional development and creative projects.</div><span class="tag tag-sage" style="font-size:.58rem">Rolling deadline</span></div>
+          <div class="grant-card"><div class="grant-org">Create NSW</div><div class="grant-name">Quick Response Grants</div><div class="grant-desc">Up to $10,000 for NSW-based creative projects. Fast turnaround assessment.</div><span class="tag tag-gold" style="font-size:.58rem">Closes Aug 30</span></div>
+          <div class="grant-card"><div class="grant-org">Creative Victoria</div><div class="grant-name">Arts Project Fund</div><div class="grant-desc">$5K–$50K for Victorian artists and organisations. New projects only.</div><span class="tag tag-rust" style="font-size:.58rem">Closes Sep 15</span></div>
+          <div class="grant-card"><div class="grant-org">APRA AMCOS</div><div class="grant-name">AMCOS Distribution</div><div class="grant-desc">Music creator development grants for emerging and established songwriters.</div><span class="tag tag-sage" style="font-size:.58rem">Rolling</span></div>
+        </div>
+        <div>
+          <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1.1rem">📋 Free Templates</h3>
+          <div style="display:flex;flex-direction:column;gap:.6rem">
+            <div onclick="downloadTemplate('Creative Services Agreement')" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(245,166,35,.35)'" onmouseout="this.style.borderColor='rgba(240,237,230,.1)'"><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.2rem">Creative Services Agreement</div><div class="text-xs text-muted">Plain-English freelance contract</div></div>
+            <div onclick="downloadTemplate('Rider Template')" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(245,166,35,.35)'" onmouseout="this.style.borderColor='rgba(240,237,230,.1)'"><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.2rem">Artist Technical Rider</div><div class="text-xs text-muted">Customisable stage &amp; tech rider</div></div>
+            <div onclick="downloadTemplate('Invoice Template')" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(245,166,35,.35)'" onmouseout="this.style.borderColor='rgba(240,237,230,.1)'"><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.2rem">Freelance Invoice Template</div><div class="text-xs text-muted">GST-compliant invoice</div></div>
+            <div onclick="downloadTemplate('Grant Budget Template')" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='rgba(245,166,35,.35)'" onmouseout="this.style.borderColor='rgba(240,237,230,.1)'"><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.2rem">Grant Budget Template</div><div class="text-xs text-muted">Spreadsheet for grant applications</div></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.ptab').forEach(b => { b.style.background='transparent'; b.style.color='var(--muted)'; });
+  btn.style.background='rgba(245,166,35,.1)'; btn.style.color='var(--marigold)';
+}
+function downloadTemplate(name) {
+  if(!Auth.get()) { window.location.href='login.html'; return; }
+  showToast('Downloading: '+name,'success');
+}
+</script>
+</body>
+</html>

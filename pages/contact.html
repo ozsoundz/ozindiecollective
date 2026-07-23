@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.contact-layout{display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start;max-width:1000px;margin:0 auto}
+.contact-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.5rem}
+.contact-method{display:flex;gap:1.1rem;align-items:flex-start;padding:1.25rem;border:1px solid var(--border);border-radius:4px;margin-bottom:.85rem;transition:.2s}
+.contact-method:hover{border-color:rgba(245,166,35,.3)}
+.contact-icon{font-size:1.4rem;flex-shrink:0;width:40px;text-align:center}
+.contact-label{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--marigold);margin-bottom:.3rem}
+.contact-value{font-size:.9rem;color:var(--cream);font-weight:500}
+.contact-sub{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+@media(max-width:900px){.contact-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero">
+  <div class="inner">
+    <div class="section-label">Contact</div>
+    <h1 class="section-title">Get in <em>Touch</em></h1>
+    <p class="text-muted mt-2" style="max-width:520px;line-height:1.7">Whether you have a question, want to partner with us, pitch for the podcast or host an OIC event — we'd love to hear from you.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="contact-layout">
+    <div class="contact-card">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:.4rem">Send us a message</h2>
+      <p class="text-muted text-sm mb-3">We aim to respond within 2 business days.</p>
+      <form id="contactForm" novalidate>
+        <div class="form-row">
+          <div class="form-group"><label>Your Name <span class="required-star">*</span></label><input type="text" name="name" placeholder="Jordan Mackay"></div>
+          <div class="form-group"><label>Email Address <span class="required-star">*</span></label><input type="email" name="email" placeholder="you@example.com"></div>
+        </div>
+        <div class="form-group"><label>Subject <span class="required-star">*</span></label>
+          <select name="subject">
+            <option value="">Select a subject…</option>
+            <option>General Enquiry</option>
+            <option>Partnership Opportunity</option>
+            <option>Podcast Guest Pitch</option>
+            <option>Host an OIC Event</option>
+            <option>Media / Press Enquiry</option>
+            <option>Membership Support</option>
+            <option>Report an Issue</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message <span class="required-star">*</span></label><textarea name="message" placeholder="Tell us what's on your mind…" rows="6" data-max-chars="1000"></textarea></div>
+        <div class="form-group"><label>Are you an OIC member?</label>
+          <select name="isMember">
+            <option>Yes — approved member</option>
+            <option>Yes — pending application</option>
+            <option>No — not yet a member</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary btn-lg w-full">Send Message</button>
+      </form>
+    </div>
+    <aside>
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1.25rem">Other Ways to Reach Us</h3>
+      <div class="contact-method"><div class="contact-icon">✉️</div><div><div class="contact-label">General</div><div class="contact-value">hello@ozindiecollective.com.au</div><div class="contact-sub">General enquiries and support</div></div></div>
+      <div class="contact-method"><div class="contact-icon">🤝</div><div><div class="contact-label">Partnerships</div><div class="contact-value">partners@ozindiecollective.com.au</div><div class="contact-sub">Sponsorship, brand and industry partnerships</div></div></div>
+      <div class="contact-method"><div class="contact-icon">🎙️</div><div><div class="contact-label">Podcast</div><div class="contact-value">podcast@ozindiecollective.com.au</div><div class="contact-sub">Guest pitches and media enquiries</div></div></div>
+      <div class="contact-method"><div class="contact-icon">📍</div><div><div class="contact-label">Based In</div><div class="contact-value">Australia-wide</div><div class="contact-sub">Sydney HQ · Community across all states</div></div></div>
+      <div style="margin-top:1.5rem">
+        <div class="text-xs mono text-gold mb-2">Follow Us</div>
+        <div class="flex gap-2">
+          <a href="#" class="social-btn">IG</a>
+          <a href="#" class="social-btn">TK</a>
+          <a href="#" class="social-btn">FB</a>
+          <a href="#" class="social-btn">LI</a>
+        </div>
+      </div>
+      <div class="alert alert-info mt-3"><span>⏱</span><span class="text-sm">We respond to all messages within 2 business days.</span></div>
+    </aside>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=this.querySelector('[name=name]').value;
+  const em=this.querySelector('[name=email]').value;
+  const s=this.querySelector('[name=subject]').value;
+  const m=this.querySelector('[name=message]').value;
+  if(!n||!em||!s||!m){showToast('Please fill in all required fields.','danger');return;}
+  showToast('Message sent! We\'ll be in touch within 2 business days.','success');
+  this.reset();
+});
+</script>
+</body>
+</html>

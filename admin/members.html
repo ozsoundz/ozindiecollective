@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Members — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="members.html" class="admin-nav-item active">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">All Members</h1>
+          <p class="text-muted text-sm mt-1">4,284 approved members · 12 Professional · 3 Industry Partners</p>
+        </div>
+        <button class="btn-ghost" onclick="showToast('CSV export coming soon','info')" style="font-size:.65rem">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="search-bar" style="margin-bottom:1.25rem">
+      <input type="text" id="memberSearch" placeholder="Search by name, email, role or location…" oninput="searchMembers()">
+      <button>Search</button>
+    </div>
+
+    <div class="filter-bar">
+      <div class="form-group"><label>Plan</label><select onchange="searchMembers()"><option>All Plans</option><option>Free</option><option>Professional</option><option>Industry Partner</option></select></div>
+      <div class="form-group"><label>State</label><select onchange="searchMembers()"><option>All States</option><option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option><option>WA</option></select></div>
+      <div class="form-group"><label>Status</label><select onchange="searchMembers()"><option>All</option><option>Active</option><option>Suspended</option></select></div>
+    </div>
+
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow-x:auto">
+      <table class="data-table" id="membersTable">
+        <thead><tr><th>Member</th><th>Role</th><th>Location</th><th>Plan</th><th>Joined</th><th>Last Active</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-gold">JM</div><div><div style="color:var(--cream);font-weight:600">Jordan Mackay</div><div class="text-xs text-muted">jordan@example.com</div></div></div></td><td>Audio Engineer</td><td>Sydney, NSW</td><td><span class="tag tag-sage" style="font-size:.55rem">Pro</span></td><td>Mar 2024</td><td>Today</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Viewing Jordan Mackay\'s profile','info')">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Jordan Mackay')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-rust">SP</div><div><div style="color:var(--cream);font-weight:600">Sarah Papadimitriou</div><div class="text-xs text-muted">sarah@example.com</div></div></div></td><td>Lighting Designer</td><td>Melbourne, VIC</td><td><span class="tag tag-sage" style="font-size:.55rem">Pro</span></td><td>Jan 2024</td><td>Yesterday</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Viewing Sarah\'s profile','info')">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Sarah P')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-sage">TC</div><div><div style="color:var(--cream);font-weight:600">Tomas Crowe</div><div class="text-xs text-muted">tomas@example.com</div></div></div></td><td>Music Producer</td><td>Brisbane, QLD</td><td><span class="tag tag-gold" style="font-size:.55rem">Free</span></td><td>Apr 2024</td><td>2 days ago</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Viewing Tomas\'s profile','info')">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Tomas Crowe')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-blue">NR</div><div><div style="color:var(--cream);font-weight:600">Nina Rashid</div><div class="text-xs text-muted">nina@example.com</div></div></div></td><td>Videographer</td><td>Perth, WA</td><td><span class="tag tag-sage" style="font-size:.55rem">Pro</span></td><td>Feb 2024</td><td>3 days ago</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Nina Rashid')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-purple">DL</div><div><div style="color:var(--cream);font-weight:600">Daniel Lee</div><div class="text-xs text-muted">daniel@example.com</div></div></div></td><td>Graphic Designer</td><td>Adelaide, SA</td><td><span class="tag tag-rust" style="font-size:.55rem">Partner</span></td><td>Nov 2023</td><td>Today</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Daniel Lee')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-rust">AW</div><div><div style="color:var(--cream);font-weight:600">Amy Walsh</div><div class="text-xs text-muted">amy@example.com</div></div></div></td><td>Artist Manager</td><td>Sydney, NSW</td><td><span class="tag tag-sage" style="font-size:.55rem">Pro</span></td><td>Jun 2024</td><td>Today</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Amy Walsh')">Suspend</button></div></td></tr>
+          <tr><td><div class="flex items-center gap-2"><div class="avatar avatar-sm av-gold">KO</div><div><div style="color:var(--cream);font-weight:600">Keiko Ota</div><div class="text-xs text-muted">keiko@example.com</div></div></div></td><td>Musician / Composer</td><td>Melbourne, VIC</td><td><span class="tag tag-gold" style="font-size:.55rem">Free</span></td><td>May 2024</td><td>1 week ago</td><td><div class="flex gap-1"><button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem">View</button><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="suspendMember('Keiko Ota')">Suspend</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><a href="#" class="page-btn">‹</a><a href="#" class="page-btn active">1</a><a href="#" class="page-btn">2</a><a href="#" class="page-btn">...</a><a href="#" class="page-btn">86</a><a href="#" class="page-btn">›</a></div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
+function searchMembers(){ /* production: live search API */ showToast('Filtering members…','info'); }
+function suspendMember(name){ if(confirm('Suspend '+name+'? They will lose access until reinstated.')) showToast(name+' suspended.','danger'); }
+</script>
+</body>
+</html>

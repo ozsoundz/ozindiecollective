@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<div class="admin-layout">
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item active">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+
+  <!-- Admin Main -->
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Admin Dashboard</h1>
+      <p class="text-muted text-sm mt-1">Manage membership applications, listings and the community.</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid-4 mb-4">
+      <div class="stat-box card-accent-gold"><div class="stat-num" style="color:var(--rust)">7</div><div class="stat-lbl">Pending Applications</div></div>
+      <div class="stat-box"><div class="stat-num">4,284</div><div class="stat-lbl">Total Members</div></div>
+      <div class="stat-box card-accent-rust"><div class="stat-num" style="color:var(--rust)">3</div><div class="stat-lbl">Listings Awaiting Review</div></div>
+      <div class="stat-box"><div class="stat-num">+32</div><div class="stat-lbl">New Members This Week</div></div>
+    </div>
+
+    <!-- Pending Applications -->
+    <div style="margin-bottom:2.5rem">
+      <div class="flex justify-between items-center mb-2">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Pending Applications</h2>
+        <a href="applications.html" class="text-sm text-gold" style="text-decoration:none">View All →</a>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+        <table class="data-table">
+          <thead><tr><th>Applicant</th><th>Role</th><th>Location</th><th>Plan</th><th>Applied</th><th>Actions</th></tr></thead>
+          <tbody id="appTableBody">
+            <tr><td><div style="font-weight:600;color:var(--cream)">Sam Rivers</div><div class="text-xs text-muted">sam@example.com</div></td><td>Videographer</td><td>Brisbane, QLD</td><td><span class="tag tag-gold" style="font-size:.58rem">Free</span></td><td>2h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Sam Rivers')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Sam Rivers')">Deny</button><button class="btn-ghost" onclick="reviewApp('Sam Rivers')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+            <tr><td><div style="font-weight:600;color:var(--cream)">Maya Torres</div><div class="text-xs text-muted">maya@example.com</div></td><td>Graphic Designer</td><td>Melbourne, VIC</td><td><span class="tag tag-sage" style="font-size:.58rem">Pro</span></td><td>5h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Maya Torres')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Maya Torres')">Deny</button><button class="btn-ghost" onclick="reviewApp('Maya Torres')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+            <tr><td><div style="font-weight:600;color:var(--cream)">Chris Nguyen</div><div class="text-xs text-muted">chris@example.com</div></td><td>Music Producer</td><td>Sydney, NSW</td><td><span class="tag tag-sage" style="font-size:.58rem">Pro</span></td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Chris Nguyen')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Chris Nguyen')">Deny</button><button class="btn-ghost" onclick="reviewApp('Chris Nguyen')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+            <tr><td><div style="font-weight:600;color:var(--cream)">Aria Kim</div><div class="text-xs text-muted">aria@example.com</div></td><td>Musician</td><td>Adelaide, SA</td><td><span class="tag tag-gold" style="font-size:.58rem">Free</span></td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Aria Kim')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Aria Kim')">Deny</button><button class="btn-ghost" onclick="reviewApp('Aria Kim')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+            <tr><td><div style="font-weight:600;color:var(--cream)">Tom Barker</div><div class="text-xs text-muted">tom@example.com</div></td><td>Stage Manager</td><td>Perth, WA</td><td><span class="tag tag-rust" style="font-size:.58rem">Partner</span></td><td>2d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Tom Barker')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Tom Barker')">Deny</button><button class="btn-ghost" onclick="reviewApp('Tom Barker')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Listings Review -->
+    <div style="margin-bottom:2.5rem">
+      <div class="flex justify-between items-center mb-2">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Job Listings Awaiting Approval</h2>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+        <table class="data-table">
+          <thead><tr><th>Listing</th><th>Posted By</th><th>Category</th><th>Submitted</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--cream)">Senior Sound Engineer — Corporate AV</td><td>Blue Ant Productions</td><td>Audio Engineering</td><td>3h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
+            <tr><td style="color:var(--cream)">Content Creator — Indie Label</td><td>Dusk Records</td><td>Content Creation</td><td>8h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
+            <tr><td style="color:var(--cream)">Photographer — Album Campaign</td><td>Sienna Walsh</td><td>Photography</td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div>
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Recent Activity</h2>
+      <div style="display:flex;flex-direction:column;gap:.6rem">
+        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-approved" style="font-size:.55rem">Approved</span> Jordan Mackay joined as Professional Member <span style="margin-left:auto;font-size:.72rem">2h ago</span></div>
+        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-gold" style="font-size:.55rem">New Post</span> Listing "Mix Engineer — Indie Studio" went live <span style="margin-left:auto;font-size:.72rem">4h ago</span></div>
+        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-approved" style="font-size:.55rem">Approved</span> Nina Rashid joined as Professional Member <span style="margin-left:auto;font-size:.72rem">6h ago</span></div>
+        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-denied" style="font-size:.55rem">Denied</span> Application from fake-profile@spam.com rejected <span style="margin-left:auto;font-size:.72rem">8h ago</span></div>
+        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-gold" style="font-size:.55rem">Event</span> Sydney Networking Night — 48 registrations <span style="margin-left:auto;font-size:.72rem">1d ago</span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('reviewModal')">✕</button>
+    <div class="modal-title" id="reviewModalName">Application Review</div>
+    <div class="modal-sub">Full application details</div>
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">Videographer</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">Brisbane, QLD</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Bio</div><div class="text-sm text-muted" style="line-height:1.6">Music videographer specialising in live performance and behind-the-scenes content. 5 years working with indie artists across Queensland and NSW.</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Portfolio</div><div class="text-sm"><a href="#" class="text-gold">vimeo.com/samrivers</a></div></div>
+      <div><div class="text-xs mono text-gold mb-1">Proud Project</div><div class="text-sm text-muted" style="line-height:1.6">Shot and edited a music video for Brisbane indie band The Hollow Sons that reached 250K views on YouTube organically.</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Goals</div><div class="text-sm text-muted" style="line-height:1.6">Connect with touring artists who need ongoing video coverage and find production crew to collaborate with on bigger projects.</div></div>
+    </div>
+    <div class="flex gap-2 mt-3">
+      <button class="btn-success w-full" onclick="closeModal('reviewModal');showToast('Application approved!','success')">Approve</button>
+      <button class="btn-danger w-full" onclick="closeModal('reviewModal');showToast('Application denied.','danger')">Deny</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const user = Auth.get();
+  if(!user || !user.isAdmin) { window.location.href = '../pages/login.html'; }
+});
+function approveApp(btn, name) {
+  btn.closest('tr').style.opacity='.4';
+  showToast(name + ' approved and welcome email sent!', 'success');
+}
+function denyApp(btn, name) {
+  btn.closest('tr').style.opacity='.4';
+  showToast(name + '\'s application denied.', 'danger');
+}
+function reviewApp(name) {
+  document.getElementById('reviewModalName').textContent = 'Application: ' + name;
+  openModal('reviewModal');
+}
+function approveListing(btn) { btn.closest('tr').style.opacity='.4'; showToast('Listing approved and live!','success'); }
+function denyListing(btn) { btn.closest('tr').style.opacity='.4'; showToast('Listing rejected.','danger'); }
+</script>
+</body>
+</html>
