@@ -17,7 +17,7 @@
       <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
     </div>
     <a href="index.html" class="admin-nav-item">Dashboard</a>
-    <a href="applications.html" class="admin-nav-item active">Applications <span class="admin-badge">7</span></a>
+    <a href="applications.html" class="admin-nav-item active">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
     <a href="members.html" class="admin-nav-item">Members</a>
     <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
@@ -33,146 +33,134 @@
 
     <!-- Filter tabs -->
     <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
-      <button onclick="filterApps('all',this)" class="btn-primary" style="font-size:.62rem;padding:.4rem .9rem">All (7)</button>
-      <button onclick="filterApps('pending',this)" class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Pending (7)</button>
-      <button onclick="filterApps('approved',this)" class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Approved</button>
-      <button onclick="filterApps('denied',this)" class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Denied</button>
+      <button onclick="filterApps('all',this)" class="btn-primary" id="filterBtn-all" style="font-size:.62rem;padding:.4rem .9rem">All (…)</button>
+      <button onclick="filterApps('pending',this)" class="btn-ghost" id="filterBtn-pending" style="font-size:.62rem;padding:.4rem .9rem">Pending (…)</button>
+      <button onclick="filterApps('approved',this)" class="btn-ghost" id="filterBtn-approved" style="font-size:.62rem;padding:.4rem .9rem">Approved (…)</button>
+      <button onclick="filterApps('denied',this)" class="btn-ghost" id="filterBtn-denied" style="font-size:.62rem;padding:.4rem .9rem">Denied (…)</button>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:1rem" id="appCards">
-
-      <!-- Application cards -->
-      <div class="app-card" data-status="pending" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
-        <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <div class="avatar avatar-sm av-gold">SR</div>
-              <div><div style="font-weight:600;color:var(--cream)">Sam Rivers</div><div class="text-xs text-muted">sam@example.com · Applied 2h ago</div></div>
-              <span class="tag tag-pending" style="margin-left:.5rem">Pending</span>
-              <span class="tag tag-gold" style="font-size:.55rem">Free Plan</span>
-            </div>
-            <div class="grid-4 mb-2" style="gap:.75rem">
-              <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">Videographer</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">Brisbane, QLD</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">3–5 years</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">Instagram</div></div>
-            </div>
-            <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
-              <div class="text-xs mono text-gold mb-1">Bio</div>
-              <p class="text-sm text-muted" style="line-height:1.6">Music videographer specialising in live performance and behind-the-scenes content. 5 years working with indie artists across QLD and NSW.</p>
-            </div>
-            <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
-              <div class="text-xs mono text-gold mb-1">Proud Project</div>
-              <p class="text-sm text-muted" style="line-height:1.6">Shot and edited a music video for Brisbane indie band The Hollow Sons that reached 250K views on YouTube organically.</p>
-            </div>
-            <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-              <div class="text-xs mono text-gold mb-1">Goals</div>
-              <p class="text-sm text-muted" style="line-height:1.6">Connect with touring artists who need ongoing video coverage and find production crew for bigger projects.</p>
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-              <div class="text-xs mono text-gold">Portfolio:</div>
-              <a href="#" class="text-sm text-gold">vimeo.com/samrivers</a>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
-            <button class="btn-success w-full" onclick="processApp(this,'Sam Rivers','approved')">✓ Approve</button>
-            <button class="btn-danger w-full" onclick="processApp(this,'Sam Rivers','denied')">✗ Deny</button>
-            <button class="btn-ghost w-full" style="font-size:.6rem;padding:.45rem" onclick="showToast('Email drafted to Sam Rivers','info')">✉ Email</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-card" data-status="pending" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
-        <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <div class="avatar avatar-sm av-rust">MT</div>
-              <div><div style="font-weight:600;color:var(--cream)">Maya Torres</div><div class="text-xs text-muted">maya@example.com · Applied 5h ago</div></div>
-              <span class="tag tag-pending" style="margin-left:.5rem">Pending</span>
-              <span class="tag tag-sage" style="font-size:.55rem">Pro Plan</span>
-            </div>
-            <div class="grid-4 mb-2" style="gap:.75rem">
-              <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">Graphic Designer</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">Melbourne, VIC</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">5–10 years</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">Member: Jordan M.</div></div>
-            </div>
-            <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-              <div class="text-xs mono text-gold mb-1">Bio</div>
-              <p class="text-sm text-muted" style="line-height:1.6">Brand and identity designer specialising in the music and entertainment industry. Clients include independent labels, touring artists and venues across Australia.</p>
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-              <div class="text-xs mono text-gold">Portfolio:</div>
-              <a href="#" class="text-sm text-gold">mayatorresdesign.com.au</a>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
-            <button class="btn-success w-full" onclick="processApp(this,'Maya Torres','approved')">✓ Approve</button>
-            <button class="btn-danger w-full" onclick="processApp(this,'Maya Torres','denied')">✗ Deny</button>
-            <button class="btn-ghost w-full" style="font-size:.6rem;padding:.45rem" onclick="showToast('Email drafted to Maya Torres','info')">✉ Email</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="app-card" data-status="pending" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
-        <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <div class="avatar avatar-sm av-sage">CN</div>
-              <div><div style="font-weight:600;color:var(--cream)">Chris Nguyen</div><div class="text-xs text-muted">chris@example.com · Applied 1d ago</div></div>
-              <span class="tag tag-pending" style="margin-left:.5rem">Pending</span>
-              <span class="tag tag-sage" style="font-size:.55rem">Pro Plan</span>
-            </div>
-            <div class="grid-4 mb-2" style="gap:.75rem">
-              <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">Music Producer</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">Sydney, NSW</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">3–5 years</div></div>
-              <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">Google Search</div></div>
-            </div>
-            <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-              <div class="text-xs mono text-gold mb-1">Bio</div>
-              <p class="text-sm text-muted" style="line-height:1.6">Electronic and hip-hop producer based in Sydney. Released music on two indie labels and produced for artists with combined streaming numbers over 5M.</p>
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-              <div class="text-xs mono text-gold">Portfolio:</div>
-              <a href="#" class="text-sm text-gold">soundcloud.com/chrisnguyen</a>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
-            <button class="btn-success w-full" onclick="processApp(this,'Chris Nguyen','approved')">✓ Approve</button>
-            <button class="btn-danger w-full" onclick="processApp(this,'Chris Nguyen','denied')">✗ Deny</button>
-            <button class="btn-ghost w-full" style="font-size:.6rem;padding:.45rem" onclick="showToast('Email drafted to Chris Nguyen','info')">✉ Email</button>
-          </div>
-        </div>
-      </div>
-
+      <p class="text-muted text-sm" id="appLoading">Loading applications…</p>
     </div>
-
-    <div class="pagination"><a href="#" class="page-btn">‹</a><a href="#" class="page-btn active">1</a><a href="#" class="page-btn">2</a><a href="#" class="page-btn">3</a><a href="#" class="page-btn">›</a></div>
   </main>
 </div>
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
-function processApp(btn,name,action){
-  const card=btn.closest('.app-card');
-  const badge=card.querySelector('.tag-pending');
-  if(action==='approved'){
-    if(badge){badge.className='tag tag-approved';badge.textContent='Approved';}
-    showToast(name+' approved — welcome email sent!','success');
-  } else {
-    if(badge){badge.className='tag tag-denied';badge.textContent='Denied';}
-    showToast(name+'\'s application denied.','danger');
+<script type="module">
+import { getAllApplications, approveApplication, denyApplication } from '../assets/js/supabase.js';
+
+let applications = [];
+let currentFilter = 'pending';
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function initials(name=''){
+  return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?';
+}
+
+function renderCard(app){
+  const statusTag = app.status==='approved' ? 'tag-approved' : app.status==='denied' ? 'tag-denied' : 'tag-pending';
+  const statusLabel = app.status.charAt(0).toUpperCase()+app.status.slice(1);
+  const disabled = app.status !== 'pending';
+  return `
+  <div class="app-card" data-status="${app.status}" data-id="${app.id}" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <div class="avatar avatar-sm av-gold">${initials(app.full_name)}</div>
+          <div><div style="font-weight:600;color:var(--cream)">${app.full_name||'(no name)'}</div><div class="text-xs text-muted">${app.email||''} · Applied ${timeAgo(app.created_at)}</div></div>
+          <span class="tag ${statusTag}" style="margin-left:.5rem">${statusLabel}</span>
+          <span class="tag tag-gold" style="font-size:.55rem">${(app.plan||'free')} Plan</span>
+        </div>
+        <div class="grid-4 mb-2" style="gap:.75rem">
+          <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${app.role||'—'}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${[app.city,app.state].filter(Boolean).join(', ')||'—'}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">${app.referral_source||'—'}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Skills</div><div class="text-sm" style="color:var(--cream)">${(app.skills||[]).join(', ')||'—'}</div></div>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
+          <div class="text-xs mono text-gold mb-1">Bio</div>
+          <p class="text-sm text-muted" style="line-height:1.6">${app.bio||'—'}</p>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
+          <div class="text-xs mono text-gold mb-1">Proud Project</div>
+          <p class="text-sm text-muted" style="line-height:1.6">${app.proud_project||'—'}</p>
+        </div>
+        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+          <div class="text-xs mono text-gold mb-1">Goals</div>
+          <p class="text-sm text-muted" style="line-height:1.6">${app.goals||'—'}</p>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <div class="text-xs mono text-gold">Portfolio:</div>
+          <a href="${app.portfolio_url||'#'}" target="_blank" class="text-sm text-gold">${app.portfolio_url||'—'}</a>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
+        <button class="btn-success w-full" ${disabled?'disabled':''} onclick="window.__processApp('${app.id}','approved')">✓ Approve</button>
+        <button class="btn-danger w-full" ${disabled?'disabled':''} onclick="window.__processApp('${app.id}','denied')">✗ Deny</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  const list = currentFilter==='all' ? applications : applications.filter(a=>a.status===currentFilter);
+  const container = document.getElementById('appCards');
+  container.innerHTML = list.length
+    ? list.map(renderCard).join('')
+    : '<p class="text-muted text-sm">No applications in this category.</p>';
+
+  document.getElementById('filterBtn-all').textContent = `All (${applications.length})`;
+  document.getElementById('filterBtn-pending').textContent = `Pending (${applications.filter(a=>a.status==='pending').length})`;
+  document.getElementById('filterBtn-approved').textContent = `Approved (${applications.filter(a=>a.status==='approved').length})`;
+  document.getElementById('filterBtn-denied').textContent = `Denied (${applications.filter(a=>a.status==='denied').length})`;
+  const navBadge = document.getElementById('navPendingBadge');
+  if(navBadge) navBadge.textContent = applications.filter(a=>a.status==='pending').length;
+}
+
+window.filterApps = function(status, btn){
+  currentFilter = status;
+  document.querySelectorAll('[id^="filterBtn-"]').forEach(b=>b.className='btn-ghost');
+  btn.className = 'btn-primary';
+  renderAll();
+};
+
+window.__processApp = async function(userId, action){
+  try{
+    if(action==='approved') await approveApplication(userId);
+    else await denyApplication(userId);
+    const app = applications.find(a=>a.id===userId);
+    if(app) app.status = action;
+    showToast((app?.full_name||'Applicant')+(action==='approved'?' approved!':' denied.'), action==='approved'?'success':'danger');
+    renderAll();
+  }catch(err){
+    showToast(err.message||'Failed to update application.','danger');
   }
-  card.querySelectorAll('button').forEach(b=>b.disabled=true);
-  card.style.opacity='.6';
+};
+
+async function load(){
+  try{
+    applications = await getAllApplications();
+    renderAll();
+  }catch(err){
+    document.getElementById('appCards').innerHTML = `<p class="text-muted text-sm">Failed to load applications: ${err.message}</p>`;
+  }
 }
-function filterApps(status,btn){
-  document.querySelectorAll('#appCards .app-card').forEach(c=>{
-    c.style.display=(status==='all'||c.dataset.status===status)?'':'none';
-  });
-}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  document.getElementById('filterBtn-pending').className='btn-primary';
+  document.getElementById('filterBtn-all').className='btn-ghost';
+  load();
+});
 </script>
 </body>
 </html>

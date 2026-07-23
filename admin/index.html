@@ -19,7 +19,7 @@
       <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
     </div>
     <a href="index.html" class="admin-nav-item active">Dashboard</a>
-    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
     <a href="members.html" class="admin-nav-item">Members</a>
     <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
@@ -37,10 +37,10 @@
 
     <!-- Stats Row -->
     <div class="grid-4 mb-4">
-      <div class="stat-box card-accent-gold"><div class="stat-num" style="color:var(--rust)">7</div><div class="stat-lbl">Pending Applications</div></div>
-      <div class="stat-box"><div class="stat-num">4,284</div><div class="stat-lbl">Total Members</div></div>
+      <div class="stat-box card-accent-gold"><div class="stat-num" style="color:var(--rust)" id="statPending">…</div><div class="stat-lbl">Pending Applications</div></div>
+      <div class="stat-box"><div class="stat-num" id="statTotal">…</div><div class="stat-lbl">Total Members</div></div>
       <div class="stat-box card-accent-rust"><div class="stat-num" style="color:var(--rust)">3</div><div class="stat-lbl">Listings Awaiting Review</div></div>
-      <div class="stat-box"><div class="stat-num">+32</div><div class="stat-lbl">New Members This Week</div></div>
+      <div class="stat-box"><div class="stat-num" id="statNew">…</div><div class="stat-lbl">New Members This Week</div></div>
     </div>
 
     <!-- Pending Applications -->
@@ -53,11 +53,7 @@
         <table class="data-table">
           <thead><tr><th>Applicant</th><th>Role</th><th>Location</th><th>Plan</th><th>Applied</th><th>Actions</th></tr></thead>
           <tbody id="appTableBody">
-            <tr><td><div style="font-weight:600;color:var(--cream)">Sam Rivers</div><div class="text-xs text-muted">sam@example.com</div></td><td>Videographer</td><td>Brisbane, QLD</td><td><span class="tag tag-gold" style="font-size:.58rem">Free</span></td><td>2h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Sam Rivers')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Sam Rivers')">Deny</button><button class="btn-ghost" onclick="reviewApp('Sam Rivers')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
-            <tr><td><div style="font-weight:600;color:var(--cream)">Maya Torres</div><div class="text-xs text-muted">maya@example.com</div></td><td>Graphic Designer</td><td>Melbourne, VIC</td><td><span class="tag tag-sage" style="font-size:.58rem">Pro</span></td><td>5h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Maya Torres')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Maya Torres')">Deny</button><button class="btn-ghost" onclick="reviewApp('Maya Torres')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
-            <tr><td><div style="font-weight:600;color:var(--cream)">Chris Nguyen</div><div class="text-xs text-muted">chris@example.com</div></td><td>Music Producer</td><td>Sydney, NSW</td><td><span class="tag tag-sage" style="font-size:.58rem">Pro</span></td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Chris Nguyen')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Chris Nguyen')">Deny</button><button class="btn-ghost" onclick="reviewApp('Chris Nguyen')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
-            <tr><td><div style="font-weight:600;color:var(--cream)">Aria Kim</div><div class="text-xs text-muted">aria@example.com</div></td><td>Musician</td><td>Adelaide, SA</td><td><span class="tag tag-gold" style="font-size:.58rem">Free</span></td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Aria Kim')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Aria Kim')">Deny</button><button class="btn-ghost" onclick="reviewApp('Aria Kim')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
-            <tr><td><div style="font-weight:600;color:var(--cream)">Tom Barker</div><div class="text-xs text-muted">tom@example.com</div></td><td>Stage Manager</td><td>Perth, WA</td><td><span class="tag tag-rust" style="font-size:.58rem">Partner</span></td><td>2d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveApp(this,'Tom Barker')">Approve</button><button class="btn-danger" onclick="denyApp(this,'Tom Barker')">Deny</button><button class="btn-ghost" onclick="reviewApp('Tom Barker')" style="font-size:.6rem;padding:.35rem .7rem">Review</button></div></td></tr>
+            <tr><td colspan="6" class="text-muted text-sm">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -94,48 +90,81 @@
   </main>
 </div>
 
-<!-- Review Modal -->
-<div class="modal-overlay" id="reviewModal">
-  <div class="modal" style="position:relative">
-    <button class="modal-close" onclick="closeModal('reviewModal')">✕</button>
-    <div class="modal-title" id="reviewModalName">Application Review</div>
-    <div class="modal-sub">Full application details</div>
-    <div style="display:flex;flex-direction:column;gap:1rem">
-      <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">Videographer</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">Brisbane, QLD</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Bio</div><div class="text-sm text-muted" style="line-height:1.6">Music videographer specialising in live performance and behind-the-scenes content. 5 years working with indie artists across Queensland and NSW.</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Portfolio</div><div class="text-sm"><a href="#" class="text-gold">vimeo.com/samrivers</a></div></div>
-      <div><div class="text-xs mono text-gold mb-1">Proud Project</div><div class="text-sm text-muted" style="line-height:1.6">Shot and edited a music video for Brisbane indie band The Hollow Sons that reached 250K views on YouTube organically.</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Goals</div><div class="text-sm text-muted" style="line-height:1.6">Connect with touring artists who need ongoing video coverage and find production crew to collaborate with on bigger projects.</div></div>
-    </div>
-    <div class="flex gap-2 mt-3">
-      <button class="btn-success w-full" onclick="closeModal('reviewModal');showToast('Application approved!','success')">Approve</button>
-      <button class="btn-danger w-full" onclick="closeModal('reviewModal');showToast('Application denied.','danger')">Deny</button>
-    </div>
-  </div>
-</div>
-
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js"></script>
-<script>
+<script type="module">
+import { getAllApplications, approveApplication, denyApplication } from '../assets/js/supabase.js';
+
+let applications = [];
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function renderRow(app){
+  const planTag = {free:'tag-gold',pro:'tag-sage',partner:'tag-rust'}[app.plan] || 'tag-gold';
+  return `<tr data-id="${app.id}">
+    <td><div style="font-weight:600;color:var(--cream)">${app.full_name||'(no name)'}</div><div class="text-xs text-muted">${app.email||''}</div></td>
+    <td>${app.role||'—'}</td>
+    <td>${[app.city,app.state].filter(Boolean).join(', ')||'—'}</td>
+    <td><span class="tag ${planTag}" style="font-size:.58rem">${(app.plan||'free')}</span></td>
+    <td>${timeAgo(app.created_at)}</td>
+    <td><div class="flex gap-1">
+      <button class="btn-success" onclick="window.__adminApprove('${app.id}')">Approve</button>
+      <button class="btn-danger" onclick="window.__adminDeny('${app.id}')">Deny</button>
+    </div></td>
+  </tr>`;
+}
+
+function renderTable(){
+  const pending = applications.filter(a=>a.status==='pending');
+  const body = document.getElementById('appTableBody');
+  body.innerHTML = pending.length
+    ? pending.slice(0,5).map(renderRow).join('')
+    : '<tr><td colspan="6" class="text-muted text-sm">No pending applications 🎉</td></tr>';
+
+  document.getElementById('statPending').textContent = pending.length;
+  document.getElementById('statTotal').textContent = applications.filter(a=>a.status==='approved').length;
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  document.getElementById('statNew').textContent = '+'+applications.filter(a=>a.status==='approved' && new Date(a.created_at).getTime() > weekAgo).length;
+  const navBadge = document.getElementById('navPendingBadge');
+  if(navBadge) navBadge.textContent = pending.length;
+}
+
+window.__adminApprove = async function(id){
+  try{ await approveApplication(id); const a=applications.find(x=>x.id===id); if(a)a.status='approved'; showToast((a?.full_name||'Applicant')+' approved!','success'); renderTable(); }
+  catch(err){ showToast(err.message||'Failed to approve.','danger'); }
+};
+window.__adminDeny = async function(id){
+  try{ await denyApplication(id); const a=applications.find(x=>x.id===id); if(a)a.status='denied'; showToast((a?.full_name||'Applicant')+' denied.','danger'); renderTable(); }
+  catch(err){ showToast(err.message||'Failed to deny.','danger'); }
+};
+
+async function load(){
+  try{
+    applications = await getAllApplications();
+    renderTable();
+  }catch(err){
+    document.getElementById('appTableBody').innerHTML = `<tr><td colspan="6" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const user = Auth.get();
-  if(!user || !user.isAdmin) { window.location.href = '../pages/login.html'; }
+  if(!user || !user.isAdmin) { window.location.href = '../pages/login.html'; return; }
+  load();
 });
-function approveApp(btn, name) {
-  btn.closest('tr').style.opacity='.4';
-  showToast(name + ' approved and welcome email sent!', 'success');
-}
-function denyApp(btn, name) {
-  btn.closest('tr').style.opacity='.4';
-  showToast(name + '\'s application denied.', 'danger');
-}
-function reviewApp(name) {
-  document.getElementById('reviewModalName').textContent = 'Application: ' + name;
-  openModal('reviewModal');
-}
-function approveListing(btn) { btn.closest('tr').style.opacity='.4'; showToast('Listing approved and live!','success'); }
-function denyListing(btn) { btn.closest('tr').style.opacity='.4'; showToast('Listing rejected.','danger'); }
+
+// TODO: Job Listings review below is still placeholder data — wired up as part
+// of the opportunities/listings Supabase pass, not this one.
+window.approveListing = function(btn){ btn.closest('tr').style.opacity='.4'; showToast('Listing approved and live!','success'); };
+window.denyListing = function(btn){ btn.closest('tr').style.opacity='.4'; showToast('Listing rejected.','danger'); };
 </script>
 </body>
 </html>

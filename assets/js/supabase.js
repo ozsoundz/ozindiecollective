@@ -142,14 +142,29 @@ export async function getPendingApplications() {
   return data
 }
 
+// All applicants (any status), for the admin Applications page's filter tabs.
+export async function getAllApplications() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 export async function approveApplication(userId) {
   const { error } = await supabase
     .from('profiles')
     .update({ status: 'approved' })
     .eq('id', userId)
   if (error) throw error
-  // Trigger welcome email via Edge Function (see below)
-  await supabase.functions.invoke('send-welcome-email', { body: { userId } })
+  // Best-effort: trigger welcome email via Edge Function if one has been deployed.
+  // Not deployed yet by default, so failure here must never block the approval itself.
+  try {
+    await supabase.functions.invoke('send-welcome-email', { body: { userId } })
+  } catch (err) {
+    console.warn('send-welcome-email function not available yet:', err.message)
+  }
 }
 
 export async function denyApplication(userId) {
