@@ -60,14 +60,30 @@ create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
--- Admins can read and update every profile (vetting queue)
+-- Admins can read and update every profile (vetting queue).
+-- IMPORTANT: this must go through a security-definer function, not a raw
+-- subquery on profiles — a policy on `profiles` that queries `profiles`
+-- directly recurses into its own RLS evaluation and Postgres errors with
+-- "infinite recursion detected in policy for relation profiles" (500s on
+-- every read/write to the table). The function's internal lookup runs with
+-- the owner's privileges and bypasses RLS, breaking the recursion.
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+$$;
+
 create policy "Admins can view all profiles"
   on public.profiles for select
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+  using (public.is_admin());
 
 create policy "Admins can update all profiles"
   on public.profiles for update
-  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+  using (public.is_admin());
 
 -- 2. AUTO-CREATE A PROFILE ROW WHEN SOMEONE SIGNS UP
 -- Without this, signUp()'s follow-up .update() call in supabase.js has no row to update.
