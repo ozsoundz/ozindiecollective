@@ -5,6 +5,10 @@
 'use strict';
 
 /* AUTH (localStorage simulation — replace with real backend) */
+/* TODO: assets/js/supabase.js was added on GitHub for real Supabase-backed auth,
+   but the accompanying main.js edit was invalid (an HTML <script type="module">
+   tag pasted into a .js file) and has been dropped here to avoid breaking the
+   site. Wire up supabase.js properly in a follow-up pass. */
 const Auth={
   key:'oic_user',
   get(){try{return JSON.parse(localStorage.getItem(this.key))}catch{return null}},
