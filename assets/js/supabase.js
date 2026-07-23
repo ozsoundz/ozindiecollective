@@ -1,14 +1,14 @@
 // assets/js/supabase.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co'
-const SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY'
+const SUPABASE_URL = 'https://ijkqayhbshftdofipmzg.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3FheWhic2hmdGRvZmlwbXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NTg1NzMsImV4cCI6MjA5NzIzNDU3M30.aXW4dWgNW9Ncmw3-SfaCzilUk_tZ36DQsQbffY_41Hg'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ── AUTH HELPERS ──────────────────────────────────────
 
-export async function signUp({ email, password, fullName, role, city, state, bio, portfolio, proudProject, goals, referralSource, plan }) {
+export async function signUp({ email, password, fullName, role, city, state, bio, portfolio, proudProject, goals, referralSource, plan, skills }) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -18,7 +18,8 @@ export async function signUp({ email, password, fullName, role, city, state, bio
   })
   if (error) throw error
 
-  // Write extended profile
+  // The on_auth_user_created trigger (see supabase/schema.sql) already inserted a
+  // bare profile row for this user — fill in the rest of what join.html collected.
   const { error: profileError } = await supabase
     .from('profiles')
     .update({
@@ -29,6 +30,7 @@ export async function signUp({ email, password, fullName, role, city, state, bio
       goals,
       referral_source: referralSource,
       plan,
+      skills: skills || [],
       status: 'pending'
     })
     .eq('id', data.user.id)
@@ -46,7 +48,7 @@ export async function signIn({ email, password }) {
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
-  window.location.href = '/index.html'
+  // Note: redirect is handled by the caller (see main.js's logout handler)
 }
 
 export async function getSession() {

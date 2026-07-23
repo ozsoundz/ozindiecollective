@@ -224,6 +224,10 @@
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js"></script>
+<script type="module">
+import { signUp } from '../assets/js/supabase.js';
+window.__ozSignUp = signUp;
+</script>
 <script>
 let currentStep = 1;
 const totalSteps = 4;
@@ -279,7 +283,13 @@ function validateStep(step) {
 function captureStep(step) {
   const s = document.querySelector(`[data-step="${step}"]`);
   s.querySelectorAll('input,select,textarea').forEach(el => {
-    if(el.name) formData[el.name] = el.value;
+    if(!el.name) return;
+    if(el.type === 'checkbox' && el.name === 'skills') {
+      formData.skills = formData.skills || [];
+      if(el.checked && !formData.skills.includes(el.value)) formData.skills.push(el.value);
+      return;
+    }
+    formData[el.name] = el.value;
   });
 }
 
@@ -296,16 +306,38 @@ function buildReview() {
     </div>`;
 }
 
-document.getElementById('joinForm').addEventListener('submit', function(e) {
+document.getElementById('joinForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   captureStep(4);
   const terms = document.querySelector('[name=terms]');
   const age = document.querySelector('[name=ageCheck]');
   if(!terms.checked || !age.checked) { showToast('Please accept the terms and confirm your age.','danger'); return; }
-  this.classList.add('hidden');
-  document.getElementById('joinSuccess').classList.remove('hidden');
-  // In production: POST formData to backend API
-  // Auth.set({name: formData.firstName+' '+formData.lastName, status:'pending', role:formData.role});
+
+  const submitBtn = this.querySelector('button[type=submit]');
+  submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
+
+  try {
+    await window.__ozSignUp({
+      email: formData.email,
+      password: formData.password,
+      fullName: `${formData.firstName||''} ${formData.lastName||''}`.trim(),
+      role: formData.role,
+      city: formData.city,
+      state: formData.state,
+      bio: formData.bio,
+      portfolio: formData.portfolio,
+      proudProject: formData.proudProject,
+      goals: formData.goals,
+      referralSource: formData.referral,
+      plan: formData.plan || 'free',
+      skills: formData.skills || []
+    });
+    this.classList.add('hidden');
+    document.getElementById('joinSuccess').classList.remove('hidden');
+  } catch (err) {
+    showToast(err.message || 'Something went wrong submitting your application.','danger');
+    submitBtn.disabled = false; submitBtn.textContent = 'Submit Application';
+  }
 });
 
 // Pre-select plan from URL param

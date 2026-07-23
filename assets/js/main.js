@@ -105,9 +105,13 @@ function initAuthUI(){
     document.querySelectorAll('[data-user-location]').forEach(el=>el.textContent=user.location||'');
   }
   document.querySelectorAll('[data-action="logout"]').forEach(btn=>{
-    btn.addEventListener('click',e=>{
+    btn.addEventListener('click',async e=>{
       e.preventDefault();
       Auth.clear();
+      try{
+        const mod=await import(rootPath()+'assets/js/supabase.js');
+        await mod.signOut().catch(()=>{});
+      }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');
       setTimeout(()=>{window.location.href=rootPath()+'index.html';},900);
     });
