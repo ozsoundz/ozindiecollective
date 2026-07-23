@@ -141,6 +141,16 @@ export async function getAllListings() {
   return data
 }
 
+// Admin: every job-listing application (not membership application), for reporting.
+export async function getAllListingApplications() {
+  const { data, error } = await supabase
+    .from('applications')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 export async function approveListing(listingId) {
   const { error } = await supabase.from('listings').update({ status: 'live' }).eq('id', listingId)
   if (error) throw error

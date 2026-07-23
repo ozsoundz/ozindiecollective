@@ -25,9 +25,9 @@
       <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
     </div>
     <a href="index.html" class="admin-nav-item">Dashboard</a>
-    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge">7</span></a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
     <a href="members.html" class="admin-nav-item">Members</a>
-    <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
     <a href="reports.html" class="admin-nav-item active">Reports</a>
     <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
       <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
@@ -40,52 +40,30 @@
     </div>
 
     <div class="grid-4 mb-4">
-      <div class="stat-box"><div class="stat-num">4,284</div><div class="stat-lbl">Total Members</div></div>
-      <div class="stat-box"><div class="stat-num">+32</div><div class="stat-lbl">New This Week</div></div>
-      <div class="stat-box"><div class="stat-num">78%</div><div class="stat-lbl">Approval Rate</div></div>
-      <div class="stat-box"><div class="stat-num">48h</div><div class="stat-lbl">Avg Review Time</div></div>
+      <div class="stat-box"><div class="stat-num" id="statTotal">…</div><div class="stat-lbl">Total Members</div></div>
+      <div class="stat-box"><div class="stat-num" id="statNew">…</div><div class="stat-lbl">New This Week</div></div>
+      <div class="stat-box"><div class="stat-num" id="statApproval">…</div><div class="stat-lbl">Approval Rate</div></div>
+      <div class="stat-box"><div class="stat-num" id="statAwaiting">…</div><div class="stat-lbl">Awaiting Review</div></div>
     </div>
 
     <div class="grid-2" style="gap:1.5rem;margin-bottom:1.5rem">
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.5rem">Members by State</h3>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar-row"><div class="chart-bar-label">NSW</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:38%"></div></div><div class="chart-bar-val">1,628</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">VIC</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:28%"></div></div><div class="chart-bar-val">1,200</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">QLD</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:17%"></div></div><div class="chart-bar-val">729</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">WA</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%"></div></div><div class="chart-bar-val">343</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">SA</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:var(--sage)"></div></div><div class="chart-bar-val">214</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Other</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:4%;background:var(--rust)"></div></div><div class="chart-bar-val">170</div></div>
-        </div>
+        <div class="chart-bar-wrap" id="chartByState"><p class="text-muted text-sm">Loading…</p></div>
       </div>
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.5rem">Members by Role</h3>
-        <div class="chart-bar-wrap">
-          <div class="chart-bar-row"><div class="chart-bar-label">Musicians</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:24%"></div></div><div class="chart-bar-val">1,028</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Audio Engineers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:19%"></div></div><div class="chart-bar-val">814</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Producers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:14%"></div></div><div class="chart-bar-val">600</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Videographers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:10%;background:var(--sage)"></div></div><div class="chart-bar-val">429</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Designers</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:9%;background:var(--sage)"></div></div><div class="chart-bar-val">386</div></div>
-          <div class="chart-bar-row"><div class="chart-bar-label">Other</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:24%;background:var(--rust)"></div></div><div class="chart-bar-val">1,027</div></div>
-        </div>
+        <div class="chart-bar-wrap" id="chartByRole"><p class="text-muted text-sm">Loading…</p></div>
       </div>
     </div>
 
     <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.5rem">
-      <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Monthly Growth (Members)</h3>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.2);border-radius:2px 2px 0 0;min-height:8px;height:25%"></div><div class="text-xs text-muted">Jan</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.25);border-radius:2px 2px 0 0;height:32%"></div><div class="text-xs text-muted">Feb</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.3);border-radius:2px 2px 0 0;height:40%"></div><div class="text-xs text-muted">Mar</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.35);border-radius:2px 2px 0 0;height:45%"></div><div class="text-xs text-muted">Apr</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.4);border-radius:2px 2px 0 0;height:55%"></div><div class="text-xs text-muted">May</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:rgba(245,166,35,.5);border-radius:2px 2px 0 0;height:62%"></div><div class="text-xs text-muted">Jun</div></div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem"><div style="flex:1;width:100%;background:var(--marigold);border-radius:2px 2px 0 0;height:80%"></div><div class="text-xs text-muted">Jul</div></div>
-      </div>
+      <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Monthly Growth (Approved Members, Last 7 Months)</h3>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding-bottom:1.5rem;border-bottom:1px solid var(--border)" id="growthChart"></div>
       <div class="flex gap-4 mt-2">
-        <div><div class="text-xs mono text-gold">This Month</div><div class="text-sm" style="color:var(--cream);font-weight:600">+284 members</div></div>
-        <div><div class="text-xs mono text-gold">MoM Growth</div><div class="text-sm" style="color:var(--sage);font-weight:600">↑ 24%</div></div>
-        <div><div class="text-xs mono text-gold">Approval Rate</div><div class="text-sm" style="color:var(--cream);font-weight:600">78%</div></div>
+        <div><div class="text-xs mono text-gold">This Month</div><div class="text-sm" style="color:var(--cream);font-weight:600" id="growthThisMonth">…</div></div>
+        <div><div class="text-xs mono text-gold">MoM Growth</div><div class="text-sm" style="color:var(--sage);font-weight:600" id="growthMoM">…</div></div>
+        <div><div class="text-xs mono text-gold">Approval Rate</div><div class="text-sm" style="color:var(--cream);font-weight:600" id="growthApproval">…</div></div>
       </div>
     </div>
 
@@ -93,19 +71,19 @@
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Listings Performance</h3>
         <div style="display:flex;flex-direction:column;gap:.65rem">
-          <div class="flex justify-between"><span class="text-sm text-muted">Live Listings</span><span class="text-sm" style="color:var(--cream)">48</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Total Applications</span><span class="text-sm" style="color:var(--cream)">1,340</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Avg per Listing</span><span class="text-sm" style="color:var(--cream)">27.9</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Jobs Filled</span><span class="text-sm" style="color:var(--sage)">312</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Live Listings</span><span class="text-sm" style="color:var(--cream)" id="lpLive">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Awaiting Review</span><span class="text-sm" style="color:var(--cream)" id="lpPending">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Total Applications</span><span class="text-sm" style="color:var(--cream)" id="lpApps">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Avg Applications / Live Listing</span><span class="text-sm" style="color:var(--sage)" id="lpAvg">…</span></div>
         </div>
       </div>
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
-        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Revenue</h3>
+        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Estimated Revenue <span class="text-xs text-muted" style="text-transform:none;letter-spacing:0;font-family:var(--font-body)">(plan pricing × members — no billing integration yet)</span></h3>
         <div style="display:flex;flex-direction:column;gap:.65rem">
-          <div class="flex justify-between"><span class="text-sm text-muted">Pro Members (MRR)</span><span class="text-sm" style="color:var(--cream)">$1,944/mo</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Partners (MRR)</span><span class="text-sm" style="color:var(--cream)">$267/mo</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Total MRR</span><span class="text-sm" style="color:var(--marigold);font-weight:700">$2,211/mo</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">ARR (projected)</span><span class="text-sm" style="color:var(--marigold);font-weight:700">$26,532</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Pro Members (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revPro">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Partners (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revPartner">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Total Estimated MRR</span><span class="text-sm" style="color:var(--marigold);font-weight:700" id="revTotal">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Estimated ARR</span><span class="text-sm" style="color:var(--marigold);font-weight:700" id="revArr">…</span></div>
         </div>
       </div>
     </div>
@@ -113,8 +91,103 @@
 </div>
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js?v=2"></script>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
+<script type="module">
+import { getAllApplications, getAllListings, getAllListingApplications } from '../assets/js/supabase.js';
+
+function renderBarChart(containerId, counts, colorVar){
+  const el = document.getElementById(containerId);
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){ el.innerHTML = '<p class="text-muted text-sm">No data yet.</p>'; return; }
+  const max = entries[0][1];
+  el.innerHTML = entries.map(([label,val],i) => `
+    <div class="chart-bar-row">
+      <div class="chart-bar-label">${label}</div>
+      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(4,Math.round(val/max*100))}%;${i>2?`background:var(${colorVar})`:''}"></div></div>
+      <div class="chart-bar-val">${val}</div>
+    </div>`).join('');
+}
+
+async function load(){
+  try{
+    const [members, listings, listingApps] = await Promise.all([
+      getAllApplications(), getAllListings(), getAllListingApplications()
+    ]);
+
+    const approved = members.filter(m=>m.status==='approved');
+    const denied = members.filter(m=>m.status==='denied');
+    const pending = members.filter(m=>m.status==='pending');
+    const weekAgo = Date.now() - 7*24*60*60*1000;
+
+    document.getElementById('statTotal').textContent = approved.length;
+    document.getElementById('statNew').textContent = '+'+approved.filter(m=>new Date(m.created_at).getTime()>weekAgo).length;
+    const reviewed = approved.length + denied.length;
+    const approvalRate = reviewed ? Math.round(approved.length/reviewed*100) : 0;
+    document.getElementById('statApproval').textContent = approvalRate+'%';
+    document.getElementById('statAwaiting').textContent = pending.length;
+    const navBadge = document.getElementById('navPendingBadge');
+    if(navBadge) navBadge.textContent = pending.length;
+
+    // By state / role (approved members only)
+    const byState = {}, byRole = {};
+    approved.forEach(m=>{
+      if(m.state) byState[m.state] = (byState[m.state]||0)+1;
+      if(m.role) byRole[m.role] = (byRole[m.role]||0)+1;
+    });
+    renderBarChart('chartByState', byState, '--rust');
+    renderBarChart('chartByRole', byRole, '--rust');
+
+    // Monthly growth, last 7 months
+    const now = new Date();
+    const months = [];
+    for(let i=6;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      months.push({label:d.toLocaleDateString('en-AU',{month:'short'}), key:`${d.getFullYear()}-${d.getMonth()}`, count:0});
+    }
+    approved.forEach(m=>{
+      const d = new Date(m.created_at);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const bucket = months.find(mo=>mo.key===key);
+      if(bucket) bucket.count++;
+    });
+    const maxCount = Math.max(1, ...months.map(m=>m.count));
+    document.getElementById('growthChart').innerHTML = months.map(m => `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.35rem">
+        <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+          <div style="width:100%;background:var(--marigold);border-radius:2px 2px 0 0;min-height:4px;height:${Math.max(6,Math.round(m.count/maxCount*100))}%"></div>
+        </div>
+        <div class="text-xs text-muted">${m.label}</div>
+      </div>`).join('');
+    const thisMonth = months[months.length-1].count;
+    const lastMonth = months[months.length-2]?.count || 0;
+    document.getElementById('growthThisMonth').textContent = `+${thisMonth} members`;
+    document.getElementById('growthMoM').textContent = lastMonth ? `${thisMonth>=lastMonth?'↑':'↓'} ${Math.abs(Math.round((thisMonth-lastMonth)/lastMonth*100))}%` : '—';
+    document.getElementById('growthApproval').textContent = approvalRate+'%';
+
+    // Listings performance
+    const live = listings.filter(l=>l.status==='live');
+    const listingsPending = listings.filter(l=>l.status==='pending');
+    document.getElementById('lpLive').textContent = live.length;
+    document.getElementById('lpPending').textContent = listingsPending.length;
+    document.getElementById('lpApps').textContent = listingApps.length;
+    document.getElementById('lpAvg').textContent = live.length ? (listingApps.length/live.length).toFixed(1) : '0';
+
+    // Estimated revenue (from stated join.html plan pricing — no real billing yet)
+    const proCount = approved.filter(m=>m.plan==='pro').length;
+    const partnerCount = approved.filter(m=>m.plan==='partner').length;
+    const proMrr = proCount * 12, partnerMrr = partnerCount * 89;
+    document.getElementById('revPro').textContent = `$${proMrr.toLocaleString()}/mo (${proCount} members)`;
+    document.getElementById('revPartner').textContent = `$${partnerMrr.toLocaleString()}/mo (${partnerCount} members)`;
+    document.getElementById('revTotal').textContent = `$${(proMrr+partnerMrr).toLocaleString()}/mo`;
+    document.getElementById('revArr').textContent = `$${((proMrr+partnerMrr)*12).toLocaleString()}`;
+  }catch(err){
+    showToast(err.message||'Failed to load reports.','danger');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
 </script>
 </body>
 </html>
