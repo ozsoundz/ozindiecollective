@@ -3,24 +3,37 @@
 
 -- 1. PROFILES TABLE
 -- One row per auth user. Extends auth.users with the fields the site collects at signup.
+-- Uses "create if not exists" + "add column if not exists" rather than one big
+-- CREATE TABLE, because some Supabase projects come with a starter "profiles"
+-- table already (e.g. from the default User Management template) missing most
+-- of these columns — this makes the script safe either way.
 create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  email text,
-  full_name text,
-  role text,
-  city text,
-  state text,
-  bio text,
-  portfolio_url text,
-  proud_project text,
-  goals text,
-  referral_source text,
-  plan text default 'free',
-  status text default 'pending' check (status in ('pending','approved','denied')),
-  is_admin boolean default false,
-  skills text[] default '{}',
-  created_at timestamptz default now()
+  id uuid primary key references auth.users(id) on delete cascade
 );
+
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists full_name text;
+alter table public.profiles add column if not exists role text;
+alter table public.profiles add column if not exists city text;
+alter table public.profiles add column if not exists state text;
+alter table public.profiles add column if not exists bio text;
+alter table public.profiles add column if not exists portfolio_url text;
+alter table public.profiles add column if not exists proud_project text;
+alter table public.profiles add column if not exists goals text;
+alter table public.profiles add column if not exists referral_source text;
+alter table public.profiles add column if not exists plan text default 'free';
+alter table public.profiles add column if not exists status text default 'pending';
+alter table public.profiles add column if not exists is_admin boolean default false;
+alter table public.profiles add column if not exists skills text[] default '{}';
+alter table public.profiles add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'profiles_status_check') then
+    alter table public.profiles add constraint profiles_status_check
+      check (status in ('pending','approved','denied'));
+  end if;
+end $$;
 
 alter table public.profiles enable row level security;
 
