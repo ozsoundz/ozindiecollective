@@ -25,6 +25,8 @@ alter table public.profiles add column if not exists plan text default 'free';
 alter table public.profiles add column if not exists status text default 'pending';
 alter table public.profiles add column if not exists is_admin boolean default false;
 alter table public.profiles add column if not exists skills text[] default '{}';
+alter table public.profiles add column if not exists experience text;
+alter table public.profiles add column if not exists availability text default 'available';
 alter table public.profiles add column if not exists created_at timestamptz default now();
 
 do $$

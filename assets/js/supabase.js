@@ -8,7 +8,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 // ── AUTH HELPERS ──────────────────────────────────────
 
-export async function signUp({ email, password, fullName, role, city, state, bio, portfolio, proudProject, goals, referralSource, plan, skills }) {
+export async function signUp({ email, password, fullName, role, city, state, bio, portfolio, proudProject, goals, referralSource, plan, skills, experience }) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -31,6 +31,7 @@ export async function signUp({ email, password, fullName, role, city, state, bio
       referral_source: referralSource,
       plan,
       skills: skills || [],
+      experience,
       status: 'pending'
     })
     .eq('id', data.user.id)
@@ -72,7 +73,7 @@ export async function getCurrentProfile() {
 export async function getMembers({ role, state, availability, search } = {}) {
   let query = supabase
     .from('profiles')
-    .select('id, full_name, role, city, state, availability, skills, plan, created_at')
+    .select('id, full_name, role, city, state, availability, skills, plan, experience, created_at')
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
