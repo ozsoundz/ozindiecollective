@@ -131,6 +131,26 @@ export async function applyToListing({ listingId, coverMessage, portfolioLink })
   return data
 }
 
+// Admin: every listing regardless of status, for the moderation queue.
+export async function getAllListings() {
+  const { data, error } = await supabase
+    .from('listings')
+    .select('*, profiles(full_name, plan)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function approveListing(listingId) {
+  const { error } = await supabase.from('listings').update({ status: 'live' }).eq('id', listingId)
+  if (error) throw error
+}
+
+export async function denyListing(listingId) {
+  const { error } = await supabase.from('listings').update({ status: 'denied' }).eq('id', listingId)
+  if (error) throw error
+}
+
 // ── ADMIN ─────────────────────────────────────────────
 
 export async function getPendingApplications() {

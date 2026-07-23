@@ -39,7 +39,7 @@
     <div class="grid-4 mb-4">
       <div class="stat-box card-accent-gold"><div class="stat-num" style="color:var(--rust)" id="statPending">…</div><div class="stat-lbl">Pending Applications</div></div>
       <div class="stat-box"><div class="stat-num" id="statTotal">…</div><div class="stat-lbl">Total Members</div></div>
-      <div class="stat-box card-accent-rust"><div class="stat-num" style="color:var(--rust)">3</div><div class="stat-lbl">Listings Awaiting Review</div></div>
+      <div class="stat-box card-accent-rust"><div class="stat-num" style="color:var(--rust)" id="statListingsPending">…</div><div class="stat-lbl">Listings Awaiting Review</div></div>
       <div class="stat-box"><div class="stat-num" id="statNew">…</div><div class="stat-lbl">New Members This Week</div></div>
     </div>
 
@@ -63,14 +63,13 @@
     <div style="margin-bottom:2.5rem">
       <div class="flex justify-between items-center mb-2">
         <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Job Listings Awaiting Approval</h2>
+        <a href="listings.html" class="text-sm text-gold" style="text-decoration:none">View All →</a>
       </div>
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
         <table class="data-table">
           <thead><tr><th>Listing</th><th>Posted By</th><th>Category</th><th>Submitted</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr><td style="color:var(--cream)">Senior Sound Engineer — Corporate AV</td><td>Blue Ant Productions</td><td>Audio Engineering</td><td>3h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
-            <tr><td style="color:var(--cream)">Content Creator — Indie Label</td><td>Dusk Records</td><td>Content Creation</td><td>8h ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
-            <tr><td style="color:var(--cream)">Photographer — Album Campaign</td><td>Sienna Walsh</td><td>Photography</td><td>1d ago</td><td><div class="flex gap-1"><button class="btn-success" onclick="approveListing(this)">Approve</button><button class="btn-danger" onclick="denyListing(this)">Deny</button></div></td></tr>
+          <tbody id="listingTableBody">
+            <tr><td colspan="5" class="text-muted text-sm">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -93,9 +92,10 @@
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication } from '../assets/js/supabase.js';
+import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing } from '../assets/js/supabase.js';
 
 let applications = [];
+let listings = [];
 
 function timeAgo(iso){
   if(!iso) return '';
@@ -146,12 +146,49 @@ window.__adminDeny = async function(id){
   catch(err){ showToast(err.message||'Failed to deny.','danger'); }
 };
 
+function renderListingRow(l){
+  const poster = l.profiles?.full_name || '(unknown)';
+  return `<tr data-id="${l.id}">
+    <td style="color:var(--cream)">${l.title||'(untitled)'}</td>
+    <td>${poster}</td>
+    <td>${l.category||'—'}</td>
+    <td>${timeAgo(l.created_at)}</td>
+    <td><div class="flex gap-1">
+      <button class="btn-success" onclick="window.__adminApproveListing('${l.id}')">Approve</button>
+      <button class="btn-danger" onclick="window.__adminDenyListing('${l.id}')">Deny</button>
+    </div></td>
+  </tr>`;
+}
+
+function renderListingTable(){
+  const pending = listings.filter(l=>l.status==='pending');
+  document.getElementById('listingTableBody').innerHTML = pending.length
+    ? pending.slice(0,5).map(renderListingRow).join('')
+    : '<tr><td colspan="5" class="text-muted text-sm">No listings awaiting review 🎉</td></tr>';
+  document.getElementById('statListingsPending').textContent = pending.length;
+}
+
+window.__adminApproveListing = async function(id){
+  try{ await approveListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='live'; showToast('Listing approved and live!','success'); renderListingTable(); }
+  catch(err){ showToast(err.message||'Failed to approve listing.','danger'); }
+};
+window.__adminDenyListing = async function(id){
+  try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='denied'; showToast('Listing denied.','danger'); renderListingTable(); }
+  catch(err){ showToast(err.message||'Failed to deny listing.','danger'); }
+};
+
 async function load(){
   try{
     applications = await getAllApplications();
     renderTable();
   }catch(err){
     document.getElementById('appTableBody').innerHTML = `<tr><td colspan="6" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+  }
+  try{
+    listings = await getAllListings();
+    renderListingTable();
+  }catch(err){
+    document.getElementById('listingTableBody').innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
   }
 }
 
@@ -160,11 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if(!user || !user.isAdmin) { window.location.href = '../pages/login.html'; return; }
   load();
 });
-
-// TODO: Job Listings review below is still placeholder data — wired up as part
-// of the opportunities/listings Supabase pass, not this one.
-window.approveListing = function(btn){ btn.closest('tr').style.opacity='.4'; showToast('Listing approved and live!','success'); };
-window.denyListing = function(btn){ btn.closest('tr').style.opacity='.4'; showToast('Listing rejected.','danger'); };
 </script>
 </body>
 </html>

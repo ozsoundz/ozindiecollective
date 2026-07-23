@@ -108,3 +108,105 @@ create trigger on_auth_user_created
 
 -- 3. MAKE YOURSELF ADMIN (run manually, once, after you've signed up through join.html)
 -- update public.profiles set is_admin = true, status = 'approved' where email = 'YOUR_EMAIL_HERE';
+
+-- 4. LISTINGS TABLE (job/gig posts, submitted via post-job.html)
+create table if not exists public.listings (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.listings add column if not exists title text;
+alter table public.listings add column if not exists category text;
+alter table public.listings add column if not exists employment_type text;
+alter table public.listings add column if not exists description text;
+alter table public.listings add column if not exists requirements text;
+alter table public.listings add column if not exists city text;
+alter table public.listings add column if not exists state text;
+alter table public.listings add column if not exists pay text;
+alter table public.listings add column if not exists start_date text;
+alter table public.listings add column if not exists duration text;
+alter table public.listings add column if not exists tags text[] default '{}';
+alter table public.listings add column if not exists apply_method text default 'platform';
+alter table public.listings add column if not exists deadline text;
+alter table public.listings add column if not exists contact_email text;
+alter table public.listings add column if not exists visibility text default 'all';
+-- References public.profiles (not auth.users directly) so PostgREST can embed
+-- profiles(full_name, plan) in getListings()'s select — it needs a real FK to
+-- the table being embedded to auto-detect the relationship.
+alter table public.listings add column if not exists posted_by uuid references public.profiles(id) on delete cascade;
+alter table public.listings add column if not exists status text default 'pending';
+alter table public.listings add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'listings_status_check') then
+    alter table public.listings add constraint listings_status_check
+      check (status in ('pending','live','denied'));
+  end if;
+end $$;
+
+alter table public.listings enable row level security;
+
+drop policy if exists "Public can view live listings" on public.listings;
+drop policy if exists "Posters can view own listings" on public.listings;
+drop policy if exists "Authenticated users can create listings" on public.listings;
+drop policy if exists "Admins can view all listings" on public.listings;
+drop policy if exists "Admins can update all listings" on public.listings;
+
+create policy "Public can view live listings"
+  on public.listings for select
+  using (status = 'live');
+
+create policy "Posters can view own listings"
+  on public.listings for select
+  using (auth.uid() = posted_by);
+
+create policy "Authenticated users can create listings"
+  on public.listings for insert
+  with check (auth.uid() = posted_by);
+
+create policy "Admins can view all listings"
+  on public.listings for select
+  using (public.is_admin());
+
+create policy "Admins can update all listings"
+  on public.listings for update
+  using (public.is_admin());
+
+-- 5. APPLICATIONS TABLE (a member applying to a listing)
+create table if not exists public.applications (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.applications add column if not exists listing_id uuid references public.listings(id) on delete cascade;
+alter table public.applications add column if not exists applicant_id uuid references auth.users(id) on delete cascade;
+alter table public.applications add column if not exists cover_message text;
+alter table public.applications add column if not exists portfolio_link text;
+alter table public.applications add column if not exists status text default 'pending';
+alter table public.applications add column if not exists created_at timestamptz default now();
+
+alter table public.applications enable row level security;
+
+drop policy if exists "Applicants can create applications" on public.applications;
+drop policy if exists "Applicants can view own applications" on public.applications;
+drop policy if exists "Listing owners can view applications to their listings" on public.applications;
+drop policy if exists "Admins can view all applications" on public.applications;
+
+create policy "Applicants can create applications"
+  on public.applications for insert
+  with check (auth.uid() = applicant_id);
+
+create policy "Applicants can view own applications"
+  on public.applications for select
+  using (auth.uid() = applicant_id);
+
+-- Non-recursive: this subquery hits `listings`, not `applications` itself, so
+-- it doesn't trigger the RLS-recursion bug the profiles policies had.
+create policy "Listing owners can view applications to their listings"
+  on public.applications for select
+  using (exists (
+    select 1 from public.listings l where l.id = listing_id and l.posted_by = auth.uid()
+  ));
+
+create policy "Admins can view all applications"
+  on public.applications for select
+  using (public.is_admin());

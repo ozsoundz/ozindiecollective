@@ -32,98 +32,104 @@
     </div>
 
     <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
-      <button class="btn-primary" style="font-size:.62rem;padding:.4rem .9rem">Pending Review (3)</button>
-      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Live (48)</button>
-      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Expired (112)</button>
-      <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .9rem">Denied (7)</button>
+      <button onclick="window.__filterListings('pending',this)" class="btn-primary" id="lfBtn-pending" style="font-size:.62rem;padding:.4rem .9rem">Pending Review (…)</button>
+      <button onclick="window.__filterListings('live',this)" class="btn-ghost" id="lfBtn-live" style="font-size:.62rem;padding:.4rem .9rem">Live (…)</button>
+      <button onclick="window.__filterListings('denied',this)" class="btn-ghost" id="lfBtn-denied" style="font-size:.62rem;padding:.4rem .9rem">Denied (…)</button>
+      <button onclick="window.__filterListings('all',this)" class="btn-ghost" id="lfBtn-all" style="font-size:.62rem;padding:.4rem .9rem">All (…)</button>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:1rem">
-
-      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-gold">Full-time</span><span class="tag tag-blue">Audio Engineering</span></div>
-            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Senior Sound Engineer — Corporate AV</h3>
-            <div class="text-sm text-muted">Posted by Blue Ant Productions · Sydney, NSW · Submitted 3h ago</div>
-          </div>
-          <div class="flex gap-1">
-            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
-            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
-          </div>
-        </div>
-        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-          <p class="text-sm text-muted" style="line-height:1.6">Seeking experienced FOH/audio engineer for corporate events and conferences. Full-time role with major event production company. Must have 5+ years live AV experience. Digico and Avid proficiency essential.</p>
-        </div>
-        <div class="flex gap-3 mt-2 text-xs text-muted">
-          <span>💰 $85K–$100K pa</span>
-          <span>📍 Sydney, NSW</span>
-          <span>🔗 <a href="#" class="text-gold">blueant.com.au</a></span>
-        </div>
-      </div>
-
-      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-rust">Contract</span><span class="tag tag-blue">Content Creation</span></div>
-            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Content Creator — Independent Label</h3>
-            <div class="text-sm text-muted">Posted by Dusk Records · Melbourne, VIC · Submitted 8h ago</div>
-          </div>
-          <div class="flex gap-1">
-            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
-            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
-          </div>
-        </div>
-        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-          <p class="text-sm text-muted" style="line-height:1.6">Fast-growing indie label needs a content creator to manage social across our artist roster. TikTok, Instagram Reels and YouTube Shorts focus. Music industry knowledge essential.</p>
-        </div>
-        <div class="flex gap-3 mt-2 text-xs text-muted">
-          <span>💰 $4,500/month</span><span>📍 Remote / Melbourne</span>
-        </div>
-      </div>
-
-      <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <div class="flex gap-2 mb-1"><span class="tag tag-pending">Pending</span><span class="tag tag-rust">Contract</span><span class="tag tag-sage">Photography</span></div>
-            <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">Photographer — Album Campaign &amp; Tour</h3>
-            <div class="text-sm text-muted">Posted by Sienna Walsh (Artist) · National · Submitted 1d ago</div>
-          </div>
-          <div class="flex gap-1">
-            <button class="btn-success" onclick="approveListing(this)">✓ Approve</button>
-            <button class="btn-danger" onclick="denyListing(this)">✗ Deny</button>
-          </div>
-        </div>
-        <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-          <p class="text-sm text-muted" style="line-height:1.6">Indie-pop artist seeking a photographer for a 3-month album campaign including EPK shoot, live photography across 8 shows and press material. Creative collaboration welcome.</p>
-        </div>
-        <div class="flex gap-3 mt-2 text-xs text-muted">
-          <span>💰 $3,000 total</span><span>📍 National Tour</span>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="divider"></div>
-    <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Live Listings (Recent)</h2>
-    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
-      <table class="data-table">
-        <thead><tr><th>Title</th><th>Posted By</th><th>Category</th><th>Live Since</th><th>Applications</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--cream)">Live Sound Engineer — National Support Tour</td><td>Venue Productions</td><td>Audio Engineering</td><td>3 days ago</td><td>14</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
-          <tr><td style="color:var(--cream)">Studio Mix Engineer — Boutique Studio</td><td>Ochre Sound Studios</td><td>Music Production</td><td>5 days ago</td><td>9</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
-          <tr><td style="color:var(--cream)">Lighting Designer — Boutique Festival</td><td>Byron Roots Festival</td><td>Lighting Design</td><td>1 week ago</td><td>22</td><td><button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="showToast('Listing removed','danger')">Remove</button></td></tr>
-        </tbody>
-      </table>
+    <div style="display:flex;flex-direction:column;gap:1rem" id="listingsContainer">
+      <p class="text-muted text-sm">Loading listings…</p>
     </div>
   </main>
 </div>
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{ if(!Auth.get()?.isAdmin) window.location.href='../pages/login.html'; });
-function approveListing(btn){ const card=btn.closest('[style]'); card.style.opacity='.5'; showToast('Listing approved and now live!','success'); btn.disabled=true; btn.nextElementSibling.disabled=true; }
-function denyListing(btn){ const card=btn.closest('[style]'); card.style.opacity='.5'; showToast('Listing denied.','danger'); btn.disabled=true; btn.previousElementSibling.disabled=true; }
+<script type="module">
+import { getAllListings, approveListing, denyListing } from '../assets/js/supabase.js';
+
+let listings = [];
+let currentFilter = 'pending';
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function renderRow(listing){
+  const statusTag = listing.status==='live' ? 'tag-approved' : listing.status==='denied' ? 'tag-denied' : 'tag-pending';
+  const statusLabel = listing.status.charAt(0).toUpperCase()+listing.status.slice(1);
+  const disabled = listing.status !== 'pending';
+  const poster = listing.profiles?.full_name || '(unknown)';
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-gold">${listing.employment_type||'—'}</span><span class="tag tag-blue">${listing.category||'—'}</span></div>
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${listing.title||'(untitled)'}</h3>
+        <div class="text-sm text-muted">Posted by ${poster} · ${[listing.city,listing.state].filter(Boolean).join(', ')||'—'} · Submitted ${timeAgo(listing.created_at)}</div>
+      </div>
+      <div class="flex gap-1">
+        <button class="btn-success" ${disabled?'disabled':''} onclick="window.__listingApprove('${listing.id}')">✓ Approve</button>
+        <button class="btn-danger" ${disabled?'disabled':''} onclick="window.__listingDeny('${listing.id}')">✗ Deny</button>
+      </div>
+    </div>
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+      <p class="text-sm text-muted" style="line-height:1.6">${listing.description||''}</p>
+    </div>
+    <div class="flex gap-3 mt-2 text-xs text-muted">
+      <span>💰 ${listing.pay||'—'}</span>
+      <span>📍 ${[listing.city,listing.state].filter(Boolean).join(', ')||'—'}</span>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  const list = currentFilter==='all' ? listings : listings.filter(l=>l.status===currentFilter);
+  document.getElementById('listingsContainer').innerHTML = list.length
+    ? list.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No listings in this category.</p>';
+
+  document.getElementById('lfBtn-pending').textContent = `Pending Review (${listings.filter(l=>l.status==='pending').length})`;
+  document.getElementById('lfBtn-live').textContent = `Live (${listings.filter(l=>l.status==='live').length})`;
+  document.getElementById('lfBtn-denied').textContent = `Denied (${listings.filter(l=>l.status==='denied').length})`;
+  document.getElementById('lfBtn-all').textContent = `All (${listings.length})`;
+}
+
+window.__filterListings = function(status, btn){
+  currentFilter = status;
+  document.querySelectorAll('[id^="lfBtn-"]').forEach(b=>b.className='btn-ghost');
+  btn.className = 'btn-primary';
+  renderAll();
+};
+
+window.__listingApprove = async function(id){
+  try{ await approveListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='live'; showToast('Listing approved and now live!','success'); renderAll(); }
+  catch(err){ showToast(err.message||'Failed to approve listing.','danger'); }
+};
+window.__listingDeny = async function(id){
+  try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='denied'; showToast('Listing denied.','danger'); renderAll(); }
+  catch(err){ showToast(err.message||'Failed to deny listing.','danger'); }
+};
+
+async function load(){
+  try{
+    listings = await getAllListings();
+    renderAll();
+  }catch(err){
+    document.getElementById('listingsContainer').innerHTML = `<p class="text-muted text-sm">Failed to load listings: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
 </script>
 </body>
 </html>
