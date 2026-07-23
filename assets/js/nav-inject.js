@@ -6,7 +6,7 @@
   const navHTML = `
 <nav id="nav">
   <a href="${root}index.html" class="nav-logo">
-    <div class="logo-mark">OIC</div>
+    <img src="${root}assets/img/logo.jpg" alt="Oz Indie Collective" class="logo-mark">
     Oz Indie Collective
   </a>
   <ul class="nav-links">

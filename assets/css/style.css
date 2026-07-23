@@ -3,8 +3,12 @@
    ========================================================= */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0D1117;--cream:#F0EDE6;--marigold:#F5A623;--sage:#7A9E87;
-  --rust:#C4623A;--mid:#1E2530;--deep:#111820;
+  /* Palette lifted from The Oz Indie Collective neon sign logo:
+     amber/orange + cyan neon rings, copper Australia outline,
+     neon purple + green accent rays, on a dark rusted-metal charcoal. */
+  --ink:#0B0E13;--cream:#F0EDE6;--marigold:#F5A623;--sage:#4ADE80;
+  --rust:#C4623A;--cyan:#4FD8F0;--violet:#A78BFA;
+  --mid:#1A2028;--deep:#0F141A;
   --muted:rgba(240,237,230,0.55);--border:rgba(240,237,230,0.1);
   --border-hi:rgba(240,237,230,0.22);
   --font-display:'Playfair Display',Georgia,serif;
@@ -33,7 +37,7 @@ section{padding:6rem 4rem}
 /* NAV */
 #nav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 3rem;background:rgba(13,17,23,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);transition:background .3s}
 .nav-logo{font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
-.logo-mark{width:34px;height:34px;border-radius:50%;background:var(--marigold);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.6rem;font-weight:700;color:var(--ink)}
+.logo-mark{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border-hi)}
 .nav-links{display:flex;align-items:center;gap:1.5rem;list-style:none}
 .nav-links a{font-size:.75rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
 .nav-links a:hover,.nav-links a.active{color:var(--marigold)}
@@ -49,8 +53,8 @@ section{padding:6rem 4rem}
 .btn-lg{padding:.85rem 2rem;font-size:.75rem}
 .btn-danger{background:rgba(196,98,58,.15);color:var(--rust);border:1px solid rgba(196,98,58,.3);font-family:var(--font-mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;cursor:pointer;transition:.2s;display:inline-block}
 .btn-danger:hover{background:rgba(196,98,58,.3)}
-.btn-success{background:rgba(122,158,135,.15);color:var(--sage);border:1px solid rgba(122,158,135,.3);font-family:var(--font-mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;cursor:pointer;transition:.2s;display:inline-block}
-.btn-success:hover{background:rgba(122,158,135,.3)}
+.btn-success{background:rgba(74,222,128,.15);color:var(--sage);border:1px solid rgba(74,222,128,.3);font-family:var(--font-mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;cursor:pointer;transition:.2s;display:inline-block}
+.btn-success:hover{background:rgba(74,222,128,.3)}
 
 /* HAMBURGER */
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
@@ -88,16 +92,18 @@ textarea{resize:vertical;min-height:110px}
 .card-accent-gold{border-top:3px solid var(--marigold)}
 .card-accent-rust{border-top:3px solid var(--rust)}
 .card-accent-sage{border-top:3px solid var(--sage)}
+.card-accent-cyan{border-top:3px solid var(--cyan)}
+.card-accent-violet{border-top:3px solid var(--violet)}
 
 /* TAGS */
 .tag{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .6rem;border-radius:2px;display:inline-block}
 .tag-gold{background:rgba(245,166,35,.14);color:var(--marigold)}
 .tag-rust{background:rgba(196,98,58,.14);color:var(--rust)}
-.tag-sage{background:rgba(122,158,135,.14);color:var(--sage)}
-.tag-blue{background:rgba(59,130,246,.14);color:#7db4f7}
-.tag-purple{background:rgba(139,92,246,.14);color:#c4b5fd}
+.tag-sage{background:rgba(74,222,128,.14);color:var(--sage)}
+.tag-blue{background:rgba(79,216,240,.14);color:var(--cyan)}
+.tag-purple{background:rgba(167,139,250,.16);color:var(--violet)}
 .tag-pending{background:rgba(245,166,35,.1);color:var(--marigold)}
-.tag-approved{background:rgba(122,158,135,.1);color:var(--sage)}
+.tag-approved{background:rgba(74,222,128,.12);color:var(--sage)}
 .tag-denied{background:rgba(196,98,58,.1);color:var(--rust)}
 
 /* AVATAR */
@@ -108,9 +114,9 @@ textarea{resize:vertical;min-height:110px}
 .avatar-xl{width:110px;height:110px;font-size:1.4rem}
 .av-gold{background:rgba(245,166,35,.2);color:var(--marigold)}
 .av-rust{background:rgba(196,98,58,.2);color:var(--rust)}
-.av-sage{background:rgba(122,158,135,.2);color:var(--sage)}
-.av-blue{background:rgba(59,130,246,.2);color:#7db4f7}
-.av-purple{background:rgba(139,92,246,.2);color:#c4b5fd}
+.av-sage{background:rgba(74,222,128,.18);color:var(--sage)}
+.av-blue{background:rgba(79,216,240,.18);color:var(--cyan)}
+.av-purple{background:rgba(167,139,250,.2);color:var(--violet)}
 
 /* FILTER BAR */
 .filter-bar{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.5rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;margin-bottom:2rem}
@@ -129,7 +135,7 @@ textarea{resize:vertical;min-height:110px}
 /* ALERTS */
 .alert{padding:.95rem 1.2rem;border-radius:3px;font-size:.86rem;display:flex;align-items:flex-start;gap:.7rem;margin-bottom:1.2rem;line-height:1.5}
 .alert-info{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.22);color:var(--cream)}
-.alert-success{background:rgba(122,158,135,.1);border:1px solid rgba(122,158,135,.28);color:var(--cream)}
+.alert-success{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.28);color:var(--cream)}
 .alert-danger{background:rgba(196,98,58,.1);border:1px solid rgba(196,98,58,.28);color:var(--cream)}
 
 /* MODAL */
