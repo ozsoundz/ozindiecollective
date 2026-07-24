@@ -486,6 +486,135 @@ export async function deletePartner(id) {
   if (error) throw error
 }
 
+// ── COMMUNITY FEED ────────────────────────────────────
+
+// Public: visible posts with author info and like/comment counts.
+export async function getCommunityPosts({ limit = 30 } = {}) {
+  const { data, error } = await supabase
+    .from('community_posts')
+    .select('*, profiles(full_name, role, city, state, avatar_url), community_likes(count), community_comments(count)')
+    .eq('status', 'visible')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+export async function createCommunityPost({ body, tag }) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('community_posts')
+    .insert({ author_id: session.user.id, body, tag })
+    .select('*, profiles(full_name, role, city, state, avatar_url)')
+  if (error) throw error
+  return data[0]
+}
+
+export async function deleteCommunityPost(id) {
+  const { error } = await supabase.from('community_posts').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function getCommunityComments(postId) {
+  const { data, error } = await supabase
+    .from('community_comments')
+    .select('*, profiles(full_name, avatar_url)')
+    .eq('post_id', postId)
+    .eq('status', 'visible')
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function createCommunityComment(postId, body) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('community_comments')
+    .insert({ post_id: postId, author_id: session.user.id, body })
+    .select('*, profiles(full_name, avatar_url)')
+  if (error) throw error
+  return data[0]
+}
+
+// Returns { liked: boolean, count: number } after toggling the current user's like.
+export async function toggleCommunityLike(postId) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data: existing } = await supabase
+    .from('community_likes')
+    .select('id')
+    .eq('post_id', postId)
+    .eq('user_id', session.user.id)
+    .maybeSingle()
+
+  if (existing) {
+    const { error } = await supabase.from('community_likes').delete().eq('id', existing.id)
+    if (error) throw error
+  } else {
+    const { error } = await supabase.from('community_likes').insert({ post_id: postId, user_id: session.user.id })
+    if (error) throw error
+  }
+  const { count } = await supabase
+    .from('community_likes')
+    .select('id', { count: 'exact', head: true })
+    .eq('post_id', postId)
+  return { liked: !existing, count: count || 0 }
+}
+
+export async function getMyLikedPostIds(postIds) {
+  const session = await getSession()
+  if (!session || !postIds.length) return []
+  const { data, error } = await supabase
+    .from('community_likes')
+    .select('post_id')
+    .eq('user_id', session.user.id)
+    .in('post_id', postIds)
+  if (error) throw error
+  return data.map(l => l.post_id)
+}
+
+export async function reportCommunityContent({ postId, commentId, reason }) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { error } = await supabase
+    .from('community_reports')
+    .insert({ post_id: postId || null, comment_id: commentId || null, reporter_id: session.user.id, reason })
+  if (error) throw error
+}
+
+// Admin: open reports with the reported content attached, for the moderation queue.
+export async function getOpenCommunityReports() {
+  const { data, error } = await supabase
+    .from('community_reports')
+    .select('*, community_posts(id, body, author_id, status), community_comments(id, body, author_id, status)')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function resolveCommunityReport(reportId, { removeContent, postId, commentId } = {}) {
+  if (removeContent) {
+    if (postId) {
+      const { error } = await supabase.from('community_posts').update({ status: 'removed' }).eq('id', postId)
+      if (error) throw error
+    }
+    if (commentId) {
+      const { error } = await supabase.from('community_comments').update({ status: 'removed' }).eq('id', commentId)
+      if (error) throw error
+    }
+  }
+  const { error } = await supabase.from('community_reports').update({ status: 'resolved' }).eq('id', reportId)
+  if (error) throw error
+}
+
+export async function dismissCommunityReport(reportId) {
+  const { error } = await supabase.from('community_reports').update({ status: 'dismissed' }).eq('id', reportId)
+  if (error) throw error
+}
+
 // ── STORAGE (real file uploads) ──────────────────────
 
 function randomName(file){

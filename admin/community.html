@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Community Moderation — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item active">Community <span class="admin-badge" id="navReportsBadge">…</span></a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Community Moderation</h1>
+      <p class="text-muted text-sm mt-1">Review reported posts and comments from the Community feed.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem" id="reportsContainer">
+      <p class="text-muted text-sm">Loading reports…</p>
+    </div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js?v=2"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { getOpenCommunityReports, resolveCommunityReport, dismissCommunityReport } from '../assets/js/supabase.js?v=2';
+
+let reports = [];
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function renderRow(r){
+  const e = escapeHtml;
+  const isComment = !!r.comment_id;
+  const content = isComment ? r.community_comments : r.community_posts;
+  const alreadyRemoved = content?.status === 'removed';
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem" data-report-id="${e(r.id)}">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div class="flex gap-2 mb-1"><span class="tag tag-pending">${isComment?'Comment':'Post'}</span>${alreadyRemoved?'<span class="tag tag-denied">Already Removed</span>':''}</div>
+        <div class="text-xs text-muted">Reported ${timeAgo(r.created_at)} · Reason: ${e(r.reason||'(no reason given)')}</div>
+      </div>
+      <div class="flex gap-1">
+        <button class="btn-danger" data-action="remove" ${alreadyRemoved?'disabled':''}>Remove Content</button>
+        <button class="btn-ghost" data-action="dismiss">Dismiss</button>
+      </div>
+    </div>
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+      <p class="text-sm text-muted" style="line-height:1.6">${content ? e(content.body) : '(content no longer exists)'}</p>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  document.getElementById('reportsContainer').innerHTML = reports.length
+    ? reports.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No open reports — the queue is clear.</p>';
+  const badge = document.getElementById('navReportsBadge');
+  if (badge) badge.textContent = reports.length;
+}
+
+document.getElementById('reportsContainer').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const wrap = btn.closest('[data-report-id]');
+  const reportId = wrap.dataset.reportId;
+  const report = reports.find(r => r.id === reportId);
+  if (!report) return;
+
+  try {
+    if (btn.dataset.action === 'remove') {
+      await resolveCommunityReport(reportId, { removeContent: true, postId: report.post_id, commentId: report.comment_id });
+      showToast('Content removed and report resolved.','success');
+    } else {
+      await dismissCommunityReport(reportId);
+      showToast('Report dismissed.','info');
+    }
+    reports = reports.filter(r => r.id !== reportId);
+    renderAll();
+  } catch(err) {
+    showToast(err.message || 'Failed to update report.','danger');
+  }
+});
+
+async function load(){
+  try{
+    reports = await getOpenCommunityReports();
+    renderAll();
+  }catch(err){
+    document.getElementById('reportsContainer').innerHTML = `<p class="text-muted text-sm">Failed to load reports: ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

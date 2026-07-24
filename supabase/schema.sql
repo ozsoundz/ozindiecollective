@@ -322,6 +322,121 @@ alter table public.profiles add column if not exists epk_tech_rider_url text;
 -- Existing "Users can update own profile" / "Public can view approved profiles" policies on
 -- public.profiles already cover read/write of these new columns — no new policies needed.
 
+-- 11. COMMUNITY FEED (posts, comments, likes, reports)
+create table if not exists public.community_posts (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.community_posts add column if not exists author_id uuid references public.profiles(id) on delete cascade;
+alter table public.community_posts add column if not exists body text;
+alter table public.community_posts add column if not exists tag text;
+alter table public.community_posts add column if not exists status text default 'visible';
+alter table public.community_posts add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'community_posts_status_check') then
+    alter table public.community_posts add constraint community_posts_status_check check (status in ('visible','removed'));
+  end if;
+end $$;
+
+alter table public.community_posts enable row level security;
+drop policy if exists "Public can view visible posts" on public.community_posts;
+drop policy if exists "Members can create posts" on public.community_posts;
+drop policy if exists "Authors can update own posts" on public.community_posts;
+drop policy if exists "Authors can delete own posts" on public.community_posts;
+drop policy if exists "Admins can view all posts" on public.community_posts;
+drop policy if exists "Admins can update all posts" on public.community_posts;
+drop policy if exists "Admins can delete all posts" on public.community_posts;
+
+create policy "Public can view visible posts" on public.community_posts for select using (status = 'visible');
+create policy "Members can create posts" on public.community_posts for insert with check (auth.uid() = author_id);
+create policy "Authors can update own posts" on public.community_posts for update using (auth.uid() = author_id);
+create policy "Authors can delete own posts" on public.community_posts for delete using (auth.uid() = author_id);
+create policy "Admins can view all posts" on public.community_posts for select using (public.is_admin());
+create policy "Admins can update all posts" on public.community_posts for update using (public.is_admin());
+create policy "Admins can delete all posts" on public.community_posts for delete using (public.is_admin());
+
+create table if not exists public.community_comments (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.community_comments add column if not exists post_id uuid references public.community_posts(id) on delete cascade;
+alter table public.community_comments add column if not exists author_id uuid references public.profiles(id) on delete cascade;
+alter table public.community_comments add column if not exists body text;
+alter table public.community_comments add column if not exists status text default 'visible';
+alter table public.community_comments add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'community_comments_status_check') then
+    alter table public.community_comments add constraint community_comments_status_check check (status in ('visible','removed'));
+  end if;
+end $$;
+
+alter table public.community_comments enable row level security;
+drop policy if exists "Public can view visible comments" on public.community_comments;
+drop policy if exists "Members can create comments" on public.community_comments;
+drop policy if exists "Authors can delete own comments" on public.community_comments;
+drop policy if exists "Admins can view all comments" on public.community_comments;
+drop policy if exists "Admins can update all comments" on public.community_comments;
+drop policy if exists "Admins can delete all comments" on public.community_comments;
+
+create policy "Public can view visible comments" on public.community_comments for select using (status = 'visible');
+create policy "Members can create comments" on public.community_comments for insert with check (auth.uid() = author_id);
+create policy "Authors can delete own comments" on public.community_comments for delete using (auth.uid() = author_id);
+create policy "Admins can view all comments" on public.community_comments for select using (public.is_admin());
+create policy "Admins can update all comments" on public.community_comments for update using (public.is_admin());
+create policy "Admins can delete all comments" on public.community_comments for delete using (public.is_admin());
+
+create table if not exists public.community_likes (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.community_likes add column if not exists post_id uuid references public.community_posts(id) on delete cascade;
+alter table public.community_likes add column if not exists user_id uuid references public.profiles(id) on delete cascade;
+alter table public.community_likes add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'community_likes_post_user_unique') then
+    alter table public.community_likes add constraint community_likes_post_user_unique unique (post_id, user_id);
+  end if;
+end $$;
+
+alter table public.community_likes enable row level security;
+drop policy if exists "Public can view likes" on public.community_likes;
+drop policy if exists "Members can like posts" on public.community_likes;
+drop policy if exists "Members can unlike own likes" on public.community_likes;
+
+create policy "Public can view likes" on public.community_likes for select using (true);
+create policy "Members can like posts" on public.community_likes for insert with check (auth.uid() = user_id);
+create policy "Members can unlike own likes" on public.community_likes for delete using (auth.uid() = user_id);
+
+-- Reports on posts or comments (at least one of post_id/comment_id set), for the admin moderation queue.
+create table if not exists public.community_reports (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.community_reports add column if not exists post_id uuid references public.community_posts(id) on delete cascade;
+alter table public.community_reports add column if not exists comment_id uuid references public.community_comments(id) on delete cascade;
+alter table public.community_reports add column if not exists reporter_id uuid references public.profiles(id) on delete set null;
+alter table public.community_reports add column if not exists reason text;
+alter table public.community_reports add column if not exists status text default 'open';
+alter table public.community_reports add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'community_reports_status_check') then
+    alter table public.community_reports add constraint community_reports_status_check check (status in ('open','resolved','dismissed'));
+  end if;
+end $$;
+
+alter table public.community_reports enable row level security;
+drop policy if exists "Members can file reports" on public.community_reports;
+drop policy if exists "Admins can view all reports" on public.community_reports;
+drop policy if exists "Admins can update reports" on public.community_reports;
+
+create policy "Members can file reports" on public.community_reports for insert with check (auth.uid() = reporter_id);
+create policy "Admins can view all reports" on public.community_reports for select using (public.is_admin());
+create policy "Admins can update reports" on public.community_reports for update using (public.is_admin());
+
 -- 10. STORAGE BUCKETS (for real image/file uploads instead of pasted URLs)
 -- avatars, epk-media: member-owned, folder-per-user (path must start with their own uid).
 -- article-covers, highlight-thumbs, partner-logos: admin-only uploads, publicly readable.
