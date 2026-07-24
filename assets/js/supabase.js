@@ -205,3 +205,185 @@ export async function denyApplication(userId) {
     .eq('id', userId)
   if (error) throw error
 }
+
+// ── ARTICLES ──────────────────────────────────────────
+
+// Public: published articles only, for the Articles/resources page.
+export async function getArticles({ category } = {}) {
+  let query = supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+  if (category) query = query.eq('category', category)
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function getArticleBySlug(slug) {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single()
+  if (error) throw error
+  return data
+}
+
+// Admin: every article regardless of status.
+export async function getAllArticles() {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createArticle(articleData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('articles')
+    .insert({ ...articleData, created_by: session.user.id })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateArticle(id, articleData) {
+  const { data, error } = await supabase
+    .from('articles')
+    .update(articleData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteArticle(id) {
+  const { error } = await supabase.from('articles').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── HIGHLIGHTS (Professional Highlights video showcase) ──
+
+export async function getHighlights({ category } = {}) {
+  let query = supabase
+    .from('highlights')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+  if (category) query = query.eq('category', category)
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function getAllHighlights() {
+  const { data, error } = await supabase
+    .from('highlights')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createHighlight(highlightData) {
+  const { data, error } = await supabase
+    .from('highlights')
+    .insert(highlightData)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateHighlight(id, highlightData) {
+  const { data, error } = await supabase
+    .from('highlights')
+    .update(highlightData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteHighlight(id) {
+  const { error } = await supabase.from('highlights').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── PARTNERS (Partner Organisations) ─────────────────
+
+export async function getPartners() {
+  const { data, error } = await supabase
+    .from('partners')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function getAllPartners() {
+  const { data, error } = await supabase
+    .from('partners')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createPartner(partnerData) {
+  const { data, error } = await supabase
+    .from('partners')
+    .insert(partnerData)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updatePartner(id, partnerData) {
+  const { data, error } = await supabase
+    .from('partners')
+    .update(partnerData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deletePartner(id) {
+  const { error } = await supabase.from('partners').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── EPK (per-member Electronic Press Kit) ────────────
+
+// Public: a member's EPK, only if they've enabled it and are approved.
+export async function getMemberEpk(memberId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, role, city, state, bio, epk_enabled, epk_bio, epk_photos, epk_music_links, epk_video_links, epk_stage_plot_url, epk_tech_rider_url')
+    .eq('id', memberId)
+    .eq('status', 'approved')
+    .eq('epk_enabled', true)
+    .single()
+  if (error) throw error
+  return data
+}
+
+// Member: update their own EPK fields.
+export async function updateOwnEpk(epkData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(epkData)
+    .eq('id', session.user.id)
+    .select()
+  if (error) throw error
+  return data
+}

@@ -16,6 +16,8 @@
     <li><a href="${root}pages/directory.html">Directory</a></li>
     <li><a href="${root}pages/events.html">Events</a></li>
     <li><a href="${root}pages/resources.html">Resources</a></li>
+    <li><a href="${root}pages/articles.html">Articles</a></li>
+    <li><a href="${root}pages/highlights.html">Highlights</a></li>
     <li><a href="${root}pages/podcast.html">Podcast</a></li>
   </ul>
   <div class="nav-actions">
@@ -40,6 +42,8 @@
   <a href="${root}pages/directory.html">Directory</a>
   <a href="${root}pages/events.html">Events</a>
   <a href="${root}pages/resources.html">Resources</a>
+  <a href="${root}pages/articles.html">Articles</a>
+  <a href="${root}pages/highlights.html">Highlights</a>
   <a href="${root}pages/podcast.html">Podcast</a>
   <a href="${root}pages/login.html" data-auth="logged-out">Sign In</a>
   <a href="${root}pages/dashboard.html" data-auth="logged-in" style="display:none">Dashboard</a>
@@ -71,9 +75,10 @@
       <h4>Resources</h4>
       <ul>
         <li><a href="${root}pages/resources.html">Industry Hub</a></li>
+        <li><a href="${root}pages/articles.html">Articles</a></li>
+        <li><a href="${root}pages/highlights.html">Professional Highlights</a></li>
         <li><a href="${root}pages/podcast.html">Podcast</a></li>
         <li><a href="${root}pages/resources.html#grants">Grants Database</a></li>
-        <li><a href="${root}pages/resources.html#guides">Career Guides</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -87,6 +92,7 @@
       </ul>
     </div>
   </div>
+  <div id="footer-partners" style="border-top:1px solid var(--border);padding-top:1.5rem;margin-top:1.5rem"></div>
   <div class="footer-bottom">
     <div class="footer-copy">© 2025 Oz Indie Collective. All rights reserved.</div>
     <div class="footer-nation"><div class="au-dot"></div>Australia-wide Creative Community</div>
@@ -105,5 +111,21 @@
     if (navEl) navEl.outerHTML = navHTML;
     const footEl = document.getElementById('footer-placeholder');
     if (footEl) footEl.outerHTML = footerHTML;
+
+    // Populate the Partner Organisations strip in the footer, site-wide.
+    const partnersMount = document.getElementById('footer-partners');
+    if (partnersMount) {
+      import(root + 'assets/js/supabase.js').then(async ({ getPartners }) => {
+        try {
+          const partners = await getPartners();
+          if (!partners || !partners.length) { partnersMount.remove(); return; }
+          partnersMount.innerHTML = `
+            <div class="text-xs mono text-muted" style="letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem">Partner Organisations</div>
+            <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center">
+              ${partners.map(p => `<a href="${p.website_url||'#'}" target="_blank" rel="noopener" title="${p.name||''}" style="opacity:.75;transition:.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.75">${p.logo_url ? `<img src="${p.logo_url}" alt="${p.name||''}" style="height:32px;max-width:120px;object-fit:contain">` : `<span class="text-sm" style="color:var(--cream)">${p.name||''}</span>`}</a>`).join('')}
+            </div>`;
+        } catch(err) { partnersMount.remove(); }
+      }).catch(() => partnersMount.remove());
+    }
   });
 })();

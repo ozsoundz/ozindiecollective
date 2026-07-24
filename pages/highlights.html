@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Professional Highlights — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.highlights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.75rem}
+.highlight-tile{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:.2s;cursor:pointer}
+.highlight-tile:hover{border-color:var(--border-hi);transform:translateY(-2px)}
+.highlight-thumb-wrap{position:relative}
+.highlight-tile img{width:100%;height:180px;object-fit:cover;display:block;background:rgba(240,237,230,.05)}
+.play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:var(--cream);background:rgba(10,10,12,.25);transition:.2s}
+.highlight-tile:hover .play-badge{background:rgba(10,10,12,.45)}
+.highlight-body{padding:1.1rem 1.25rem}
+.highlight-cat{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:.4rem}
+.highlight-title{font-size:.95rem;font-weight:600;color:var(--cream);line-height:1.4;margin-bottom:.3rem}
+.highlight-meta{font-size:.72rem;color:var(--muted)}
+@media(max-width:900px){.highlights-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.highlights-grid{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-highlights-hero/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Professional Highlights</div>
+    <h1 class="section-title">See The <em>Collective</em> In Action</h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Performance clips, studio sessions and behind-the-scenes footage from members across the country.</p>
+  </div>
+</div>
+
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div id="videoModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,12,.85);z-index:100;align-items:center;justify-content:center;padding:2rem">
+      <div style="max-width:900px;width:100%">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem"><button onclick="document.getElementById('videoModal').style.display='none';document.getElementById('videoFrame').src=''" class="btn-ghost" style="font-size:.65rem">Close ✕</button></div>
+        <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:4px;overflow:hidden">
+          <iframe id="videoFrame" src="" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="highlights-grid" id="highlightsGrid">
+      <p class="text-muted text-sm">Loading highlights…</p>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js?v=2"></script>
+<script type="module">
+import { getHighlights } from '../assets/js/supabase.js';
+
+function toEmbedUrl(url){
+  if(!url) return '';
+  const yt = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  if(vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return url;
+}
+
+function tileFor(h){
+  const thumb = h.thumbnail_url || `https://picsum.photos/seed/${encodeURIComponent(h.id)}/500/300`;
+  return `
+  <div class="highlight-tile" onclick='window.__playHighlight(${JSON.stringify(h.video_url||'')})'>
+    <div class="highlight-thumb-wrap">
+      <img src="${thumb}" alt="${h.title||''}">
+      <div class="play-badge">▶</div>
+    </div>
+    <div class="highlight-body">
+      <div class="highlight-cat">${h.category||'Highlight'}</div>
+      <div class="highlight-title">${h.title||'(untitled)'}</div>
+      <div class="highlight-meta">${h.member_name||'Oz Indie Collective'}</div>
+    </div>
+  </div>`;
+}
+
+window.__playHighlight = function(videoUrl){
+  document.getElementById('videoFrame').src = toEmbedUrl(videoUrl);
+  document.getElementById('videoModal').style.display = 'flex';
+};
+
+async function load(){
+  try{
+    const highlights = await getHighlights();
+    document.getElementById('highlightsGrid').innerHTML = highlights.length
+      ? highlights.map(tileFor).join('')
+      : '<p class="text-muted text-sm">No highlights published yet — check back soon.</p>';
+  }catch(err){
+    document.getElementById('highlightsGrid').innerHTML = `<p class="text-muted text-sm">Failed to load highlights: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partners — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item active">Partners</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Partner Organisations</h1>
+        <p class="text-muted text-sm mt-1">Manage the partner logos and links shown on the public site.</p>
+      </div>
+      <button class="btn-primary" onclick="window.__openEditor()">+ New Partner</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem" id="partnersContainer">
+      <p class="text-muted text-sm">Loading partners…</p>
+    </div>
+  </main>
+</div>
+
+<div id="partnerModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,12,.75);z-index:100;align-items:center;justify-content:center;padding:2rem">
+  <div style="background:var(--deep);border:1px solid var(--border-hi);border-radius:6px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem">
+    <h2 style="font-family:var(--font-display);color:var(--cream);font-size:1.3rem;margin-bottom:1.25rem" id="partnerModalTitle">New Partner</h2>
+    <form id="partnerForm" style="display:flex;flex-direction:column;gap:1rem">
+      <input type="hidden" id="pf_id">
+      <div>
+        <label class="text-xs text-muted mono">Organisation Name</label>
+        <input type="text" id="pf_name" class="input" required>
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Logo URL (placeholder OK)</label>
+        <input type="text" id="pf_logo" class="input" placeholder="https://placehold.co/200x80?text=Partner">
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Website URL</label>
+        <input type="text" id="pf_website" class="input" placeholder="https://example.org">
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Description</label>
+        <textarea id="pf_description" class="input" rows="3"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <label class="text-xs text-muted mono">Tier</label>
+          <select id="pf_tier" class="input">
+            <option value="partner">Partner</option>
+            <option value="sponsor">Sponsor</option>
+            <option value="community">Community</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-muted mono">Status</label>
+          <select id="pf_status" class="input">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:.5rem">
+        <button type="submit" class="btn-primary">Save Partner</button>
+        <button type="button" class="btn-ghost" onclick="window.__closeEditor()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js"></script>
+<script src="../assets/js/main.js?v=2"></script>
+<script type="module">
+import { getAllPartners, createPartner, updatePartner, deletePartner } from '../assets/js/supabase.js';
+
+let partners = [];
+
+function renderRow(p){
+  const statusTag = p.status==='active' ? 'tag-approved' : 'tag-denied';
+  const statusLabel = p.status.charAt(0).toUpperCase()+p.status.slice(1);
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;justify-content:space-between;gap:1rem;align-items:center">
+    <div class="flex gap-3 items-center">
+      ${p.logo_url ? `<img src="${p.logo_url}" alt="${p.name||''}" style="width:64px;height:40px;object-fit:contain;background:rgba(240,237,230,.05);border-radius:3px">` : ''}
+      <div>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-blue">${p.tier||'partner'}</span></div>
+        <h3 style="font-family:var(--font-display);font-size:1.05rem;color:var(--cream)">${p.name||'(untitled)'}</h3>
+      </div>
+    </div>
+    <div class="flex gap-1" style="flex-shrink:0">
+      <button class="btn-ghost" style="font-size:.62rem" onclick="window.__editPartner('${p.id}')">Edit</button>
+      <button class="btn-danger" style="font-size:.62rem" onclick="window.__deletePartner('${p.id}')">Delete</button>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  document.getElementById('partnersContainer').innerHTML = partners.length
+    ? partners.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No partners yet. Click "+ New Partner" to add one.</p>';
+}
+
+window.__openEditor = function(){
+  document.getElementById('partnerModalTitle').textContent = 'New Partner';
+  document.getElementById('partnerForm').reset();
+  document.getElementById('pf_id').value = '';
+  document.getElementById('partnerModal').style.display = 'flex';
+};
+
+window.__editPartner = function(id){
+  const p = partners.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('partnerModalTitle').textContent = 'Edit Partner';
+  document.getElementById('pf_id').value = p.id;
+  document.getElementById('pf_name').value = p.name||'';
+  document.getElementById('pf_logo').value = p.logo_url||'';
+  document.getElementById('pf_website').value = p.website_url||'';
+  document.getElementById('pf_description').value = p.description||'';
+  document.getElementById('pf_tier').value = p.tier||'partner';
+  document.getElementById('pf_status').value = p.status||'active';
+  document.getElementById('partnerModal').style.display = 'flex';
+};
+
+window.__closeEditor = function(){
+  document.getElementById('partnerModal').style.display = 'none';
+};
+
+window.__deletePartner = async function(id){
+  if(!confirm('Delete this partner permanently?')) return;
+  try{
+    await deletePartner(id);
+    partners = partners.filter(p=>p.id!==id);
+    renderAll();
+    showToast('Partner deleted.','info');
+  }catch(err){ showToast(err.message||'Failed to delete partner.','danger'); }
+};
+
+document.getElementById('partnerForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const id = document.getElementById('pf_id').value;
+  const payload = {
+    name: document.getElementById('pf_name').value,
+    logo_url: document.getElementById('pf_logo').value,
+    website_url: document.getElementById('pf_website').value,
+    description: document.getElementById('pf_description').value,
+    tier: document.getElementById('pf_tier').value,
+    status: document.getElementById('pf_status').value
+  };
+  try{
+    if(id){
+      const [updated] = await updatePartner(id, payload);
+      const idx = partners.findIndex(p=>p.id===id);
+      if(idx>-1) partners[idx] = updated;
+      showToast('Partner updated.','success');
+    }else{
+      const [created] = await createPartner(payload);
+      partners.unshift(created);
+      showToast('Partner created.','success');
+    }
+    renderAll();
+    window.__closeEditor();
+  }catch(err){ showToast(err.message||'Failed to save partner.','danger'); }
+});
+
+async function load(){
+  try{
+    partners = await getAllPartners();
+    renderAll();
+  }catch(err){
+    document.getElementById('partnersContainer').innerHTML = `<p class="text-muted text-sm">Failed to load partners: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

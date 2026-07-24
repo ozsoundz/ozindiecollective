@@ -10,7 +10,7 @@
 </head>
 <body>
 <div id="nav-placeholder"></div>
-<div class="page-hero">
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-directory/1600/500');background-size:cover;background-position:center">
   <div class="inner">
     <div class="section-label">Member Directory</div>
     <h1 class="section-title">Find Your Next <em>Collaborator</em></h1>
@@ -83,7 +83,7 @@ let members = [];
 function renderCard(m){
   const skills = (m.skills||[]).slice(0,3);
   return `
-  <a href="profile.html" class="member-card fade-in" data-role="${m.role||''}" data-state="${m.state||''}" data-avail="${m.availability||'available'}" data-plan="${m.plan||'free'}">
+  <a href="profile.html?id=${m.id}" class="member-card fade-in" data-role="${m.role||''}" data-state="${m.state||''}" data-avail="${m.availability||'available'}" data-plan="${m.plan||'free'}">
     <div class="member-card-top"><div class="avatar avatar-md ${avatarClass(m.full_name)}">${initials(m.full_name)}</div><div><div class="member-name">${m.full_name||'(no name)'}</div><div class="member-role">${m.role||'—'}</div></div></div>
     <div class="member-location">📍 ${[m.city,m.state].filter(Boolean).join(', ')||'—'}</div>
     <div class="member-skills">${skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${s}</span>`).join('')}</div>

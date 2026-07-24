@@ -62,6 +62,7 @@
           <button class="ptab" onclick="showTab('portfolio')">Portfolio</button>
           <button class="ptab" onclick="showTab('credits')">Credits</button>
           <button class="ptab" onclick="showTab('reviews')">Reviews</button>
+          <button class="ptab" onclick="showTab('epk')" id="epkTabBtn">EPK</button>
         </div>
 
         <div id="tab-about">
@@ -102,6 +103,12 @@
             <div style="border:1px solid var(--border);border-radius:4px;padding:1.25rem"><div class="flex items-center gap-2 mb-1"><div class="avatar avatar-sm av-sage" style="font-size:.55rem">TR</div><div><div class="text-sm" style="color:var(--cream);font-weight:600">Tom Russo</div><div class="text-xs text-muted">Band Manager</div></div><div style="margin-left:auto;color:var(--marigold);font-size:.9rem">★★★★★</div></div><p class="text-sm text-muted mt-1" style="line-height:1.6">"Had Jordan on FOH for our national tour. Rock solid the whole way through. The band sounded incredible every night."</p></div>
           </div>
         </div>
+
+        <div id="tab-epk" class="hidden">
+          <div id="epkPublicView">
+            <p class="text-muted text-sm">Loading EPK…</p>
+          </div>
+        </div>
       </div>
 
       <!-- EDIT MODE -->
@@ -117,6 +124,19 @@
           <div class="form-group"><label>Social — Instagram</label><input type="text" name="instagram" placeholder="@yourhandle"></div>
           <div class="form-group"><label>Availability</label><select name="availability"><option>Available for work</option><option>Selectively available</option><option>Not currently available</option></select></div>
           <div class="form-group"><label>Profile Photo</label><div class="file-upload-box">Click to upload or drag here · JPG, PNG · Max 5MB<br><span>Browse files</span></div></div>
+
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin:2rem 0 1.25rem;padding-top:1.5rem;border-top:1px solid var(--border)">Electronic Press Kit (EPK)</h2>
+          <p class="text-muted text-sm" style="margin-bottom:1.25rem;line-height:1.6">Your EPK is a public one-pager other members, promoters and venues can view. Enable it below and fill in what you'd like to share.</p>
+          <div class="form-group"><label class="flex items-center gap-2"><input type="checkbox" id="epk_enabled" style="width:auto"> Make my EPK public</label></div>
+          <div class="form-group"><label>EPK Bio</label><textarea id="epk_bio" rows="4" placeholder="A press-ready bio for bookers and promoters"></textarea></div>
+          <div class="form-group"><label>Photo URLs (one per line)</label><textarea id="epk_photos" rows="3" placeholder="https://example.com/photo1.jpg"></textarea></div>
+          <div class="form-group"><label>Music Links (one per line)</label><textarea id="epk_music_links" rows="3" placeholder="https://open.spotify.com/artist/..."></textarea></div>
+          <div class="form-group"><label>Video Links (one per line)</label><textarea id="epk_video_links" rows="3" placeholder="https://www.youtube.com/watch?v=..."></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Stage Plot URL</label><input type="url" id="epk_stage_plot_url" placeholder="https://example.com/stage-plot.pdf"></div>
+            <div class="form-group"><label>Tech Rider URL</label><input type="url" id="epk_tech_rider_url" placeholder="https://example.com/tech-rider.pdf"></div>
+          </div>
+
           <div class="flex gap-2 mt-3">
             <button class="btn-primary btn-lg" onclick="saveProfile()">Save Changes</button>
             <button class="btn-secondary btn-lg" onclick="toggleEdit()">Cancel</button>
@@ -161,12 +181,12 @@
 <script src="../assets/js/main.js?v=2"></script>
 <script>
 function showTab(name) {
-  ['about','portfolio','credits','reviews'].forEach(t => {
+  ['about','portfolio','credits','reviews','epk'].forEach(t => {
     document.getElementById('tab-'+t).classList.add('hidden');
   });
   document.getElementById('tab-'+name).classList.remove('hidden');
   document.querySelectorAll('.ptab').forEach((btn,i) => {
-    btn.classList.toggle('active', ['about','portfolio','credits','reviews'][i] === name);
+    btn.classList.toggle('active', ['about','portfolio','credits','reviews','epk'][i] === name);
   });
 }
 function toggleEdit() {
@@ -176,9 +196,87 @@ function toggleEdit() {
   edit.classList.toggle('hidden');
 }
 function saveProfile() {
-  showToast('Profile updated successfully!','success');
+  if (window.__saveEpk) window.__saveEpk();
   toggleEdit();
 }
+</script>
+<script type="module">
+import { getSession, getMemberEpk, updateOwnEpk } from '../assets/js/supabase.js';
+
+function linesToArray(text){ return (text||'').split('\n').map(s=>s.trim()).filter(Boolean); }
+function arrayToLines(arr){ return (arr||[]).join('\n'); }
+
+function renderEpkPublic(epk){
+  const wrap = document.getElementById('epkPublicView');
+  if(!epk || !epk.epk_enabled){
+    wrap.innerHTML = '<p class="text-muted text-sm">This member hasn\'t published an EPK yet.</p>';
+    return;
+  }
+  const photos = (epk.epk_photos||[]).map(p=>`<img src="${p}" style="width:100%;border-radius:4px;margin-bottom:.75rem" loading="lazy">`).join('');
+  const music = (epk.epk_music_links||[]).map(l=>`<a href="${l}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎵 ${l}</a>`).join('');
+  const videos = (epk.epk_video_links||[]).map(l=>`<a href="${l}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎬 ${l}</a>`).join('');
+  wrap.innerHTML = `
+    ${epk.epk_bio ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Press Bio</h3><p class="text-muted" style="line-height:1.8;margin-bottom:2rem">${epk.epk_bio}</p>` : ''}
+    ${photos ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Photos</h3><div style="margin-bottom:2rem">${photos}</div>` : ''}
+    ${music ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Music</h3><div style="margin-bottom:2rem">${music}</div>` : ''}
+    ${videos ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Videos</h3><div style="margin-bottom:2rem">${videos}</div>` : ''}
+    ${(epk.epk_stage_plot_url || epk.epk_tech_rider_url) ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Technical</h3>
+      ${epk.epk_stage_plot_url ? `<a href="${epk.epk_stage_plot_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">📐 Stage Plot</a>` : ''}
+      ${epk.epk_tech_rider_url ? `<a href="${epk.epk_tech_rider_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block">📋 Tech Rider</a>` : ''}` : ''}
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const viewedId = params.get('id');
+  const session = await getSession();
+  const isOwnProfile = !viewedId || (session && session.user.id === viewedId);
+
+  if (isOwnProfile && session) {
+    // Load own EPK into the edit form.
+    try {
+      const { data } = await (await import('../assets/js/supabase.js')).supabase
+        .from('profiles').select('epk_enabled, epk_bio, epk_photos, epk_music_links, epk_video_links, epk_stage_plot_url, epk_tech_rider_url')
+        .eq('id', session.user.id).single();
+      if (data) {
+        document.getElementById('epk_enabled').checked = !!data.epk_enabled;
+        document.getElementById('epk_bio').value = data.epk_bio || '';
+        document.getElementById('epk_photos').value = arrayToLines(data.epk_photos);
+        document.getElementById('epk_music_links').value = arrayToLines(data.epk_music_links);
+        document.getElementById('epk_video_links').value = arrayToLines(data.epk_video_links);
+        document.getElementById('epk_stage_plot_url').value = data.epk_stage_plot_url || '';
+        document.getElementById('epk_tech_rider_url').value = data.epk_tech_rider_url || '';
+        renderEpkPublic(data);
+      }
+    } catch(err) { /* no profile yet or not permitted — leave blank */ }
+
+    window.__saveEpk = async function(){
+      try {
+        await updateOwnEpk({
+          epk_enabled: document.getElementById('epk_enabled').checked,
+          epk_bio: document.getElementById('epk_bio').value,
+          epk_photos: linesToArray(document.getElementById('epk_photos').value),
+          epk_music_links: linesToArray(document.getElementById('epk_music_links').value),
+          epk_video_links: linesToArray(document.getElementById('epk_video_links').value),
+          epk_stage_plot_url: document.getElementById('epk_stage_plot_url').value,
+          epk_tech_rider_url: document.getElementById('epk_tech_rider_url').value
+        });
+        showToast('EPK & profile updated successfully!','success');
+      } catch(err) {
+        showToast(err.message || 'Failed to save EPK.','danger');
+      }
+    };
+  } else if (viewedId) {
+    // Viewing someone else's public EPK.
+    document.getElementById('epkTabBtn').style.display = '';
+    try {
+      const epk = await getMemberEpk(viewedId);
+      renderEpkPublic(epk);
+    } catch(err) {
+      renderEpkPublic(null);
+    }
+  }
+});
 </script>
 </body>
 </html>

@@ -210,3 +210,109 @@ create policy "Listing owners can view applications to their listings"
 create policy "Admins can view all applications"
   on public.applications for select
   using (public.is_admin());
+
+-- 6. ARTICLES TABLE (Industry Hub / resources articles, admin-managed)
+create table if not exists public.articles (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.articles add column if not exists title text;
+alter table public.articles add column if not exists slug text;
+alter table public.articles add column if not exists excerpt text;
+alter table public.articles add column if not exists body text;
+alter table public.articles add column if not exists cover_image_url text;
+alter table public.articles add column if not exists category text;
+alter table public.articles add column if not exists author_name text;
+alter table public.articles add column if not exists read_minutes integer;
+alter table public.articles add column if not exists status text default 'draft';
+alter table public.articles add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.articles add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'articles_status_check') then
+    alter table public.articles add constraint articles_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.articles enable row level security;
+drop policy if exists "Public can view published articles" on public.articles;
+drop policy if exists "Admins can view all articles" on public.articles;
+drop policy if exists "Admins can insert articles" on public.articles;
+drop policy if exists "Admins can update articles" on public.articles;
+drop policy if exists "Admins can delete articles" on public.articles;
+
+create policy "Public can view published articles" on public.articles for select using (status = 'published');
+create policy "Admins can view all articles" on public.articles for select using (public.is_admin());
+create policy "Admins can insert articles" on public.articles for insert with check (public.is_admin());
+create policy "Admins can update articles" on public.articles for update using (public.is_admin());
+create policy "Admins can delete articles" on public.articles for delete using (public.is_admin());
+
+-- 7. HIGHLIGHTS TABLE (Professional Highlights — member showcase videos, admin-curated)
+create table if not exists public.highlights (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.highlights add column if not exists title text;
+alter table public.highlights add column if not exists description text;
+alter table public.highlights add column if not exists video_url text;
+alter table public.highlights add column if not exists thumbnail_url text;
+alter table public.highlights add column if not exists member_name text;
+alter table public.highlights add column if not exists member_id uuid references public.profiles(id) on delete set null;
+alter table public.highlights add column if not exists category text;
+alter table public.highlights add column if not exists status text default 'draft';
+alter table public.highlights add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'highlights_status_check') then
+    alter table public.highlights add constraint highlights_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.highlights enable row level security;
+drop policy if exists "Public can view published highlights" on public.highlights;
+drop policy if exists "Admins can view all highlights" on public.highlights;
+drop policy if exists "Admins can insert highlights" on public.highlights;
+drop policy if exists "Admins can update highlights" on public.highlights;
+drop policy if exists "Admins can delete highlights" on public.highlights;
+
+create policy "Public can view published highlights" on public.highlights for select using (status = 'published');
+create policy "Admins can view all highlights" on public.highlights for select using (public.is_admin());
+create policy "Admins can insert highlights" on public.highlights for insert with check (public.is_admin());
+create policy "Admins can update highlights" on public.highlights for update using (public.is_admin());
+create policy "Admins can delete highlights" on public.highlights for delete using (public.is_admin());
+
+-- 8. PARTNERS TABLE (Partner Organisations, admin-managed)
+create table if not exists public.partners (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.partners add column if not exists name text;
+alter table public.partners add column if not exists logo_url text;
+alter table public.partners add column if not exists website_url text;
+alter table public.partners add column if not exists description text;
+alter table public.partners add column if not exists tier text default 'partner';
+alter table public.partners add column if not exists status text default 'active';
+alter table public.partners add column if not exists created_at timestamptz default now();
+
+alter table public.partners enable row level security;
+drop policy if exists "Public can view active partners" on public.partners;
+drop policy if exists "Admins can view all partners" on public.partners;
+drop policy if exists "Admins can insert partners" on public.partners;
+drop policy if exists "Admins can update partners" on public.partners;
+drop policy if exists "Admins can delete partners" on public.partners;
+
+create policy "Public can view active partners" on public.partners for select using (status = 'active');
+create policy "Admins can view all partners" on public.partners for select using (public.is_admin());
+create policy "Admins can insert partners" on public.partners for insert with check (public.is_admin());
+create policy "Admins can update partners" on public.partners for update using (public.is_admin());
+create policy "Admins can delete partners" on public.partners for delete using (public.is_admin());
+
+-- 9. EPK FIELDS (per-member Electronic Press Kit, on profiles — member manages their own)
+alter table public.profiles add column if not exists epk_enabled boolean default false;
+alter table public.profiles add column if not exists epk_bio text;
+alter table public.profiles add column if not exists epk_photos text[] default '{}';
+alter table public.profiles add column if not exists epk_music_links text[] default '{}';
+alter table public.profiles add column if not exists epk_video_links text[] default '{}';
+alter table public.profiles add column if not exists epk_stage_plot_url text;
+alter table public.profiles add column if not exists epk_tech_rider_url text;
+-- Existing "Users can update own profile" / "Public can view approved profiles" policies on
+-- public.profiles already cover read/write of these new columns — no new policies needed.
