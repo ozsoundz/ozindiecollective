@@ -53,8 +53,13 @@
         <input type="text" id="pf_name" class="input" required>
       </div>
       <div>
-        <label class="text-xs text-muted mono">Logo URL (placeholder OK)</label>
-        <input type="text" id="pf_logo" class="input" placeholder="https://placehold.co/200x80?text=Partner">
+        <label class="text-xs text-muted mono">Logo</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="text" id="pf_logo" class="input" placeholder="https://placehold.co/200x80?text=Partner" style="flex:1">
+          <input type="file" id="pf_logo_file" accept="image/*" style="display:none">
+          <button type="button" class="btn-ghost" style="font-size:.62rem;white-space:nowrap" onclick="document.getElementById('pf_logo_file').click()">Upload</button>
+        </div>
+        <div class="text-xs text-muted mt-1" id="pf_logo_status"></div>
       </div>
       <div>
         <label class="text-xs text-muted mono">Website URL</label>
@@ -92,7 +97,21 @@
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js?v=2"></script>
 <script type="module">
-import { getAllPartners, createPartner, updatePartner, deletePartner } from '../assets/js/supabase.js';
+import { getAllPartners, createPartner, updatePartner, deletePartner, uploadAdminMedia } from '../assets/js/supabase.js';
+
+document.getElementById('pf_logo_file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('pf_logo_status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    const url = await uploadAdminMedia('partner-logos', file);
+    document.getElementById('pf_logo').value = url;
+    statusEl.textContent = 'Uploaded ✓';
+  } catch(err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+});
 
 let partners = [];
 

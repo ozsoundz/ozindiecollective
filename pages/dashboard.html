@@ -51,10 +51,10 @@
 
     <!-- Stats -->
     <div class="grid-4 mb-4">
-      <div class="stat-box"><div class="stat-num">12</div><div class="stat-lbl">Profile Views</div></div>
-      <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Applications</div></div>
-      <div class="stat-box"><div class="stat-num">8</div><div class="stat-lbl">Connections</div></div>
-      <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">Saved Items</div></div>
+      <div class="stat-box"><div class="stat-num" id="statApplications">…</div><div class="stat-lbl">Applications</div></div>
+      <div class="stat-box"><div class="stat-num" id="statListings">…</div><div class="stat-lbl">Listings Posted</div></div>
+      <div class="stat-box"><div class="stat-num" id="statCompleteness">…</div><div class="stat-lbl">Profile Complete</div></div>
+      <div class="stat-box"><div class="stat-num" id="statEpk">…</div><div class="stat-lbl">EPK Status</div></div>
     </div>
 
     <!-- Two-col layout -->
@@ -63,20 +63,11 @@
         <!-- Recommended Opportunities -->
         <div style="margin-bottom:2rem">
           <div class="flex justify-between items-center mb-3">
-            <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Recommended for You</h2>
+            <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Recent Opportunities</h2>
             <a href="opportunities.html" class="text-sm text-gold" style="text-decoration:none">View all →</a>
           </div>
-          <div style="display:flex;flex-direction:column;gap:1rem">
-            <div class="job-card card-accent-gold">
-              <div class="job-card-header"><div><a href="opportunities.html" class="job-title">Live Sound Engineer — National Support Tour</a><div class="job-company">Venue Productions Pty Ltd</div></div><span class="tag tag-gold">Full-time</span></div>
-              <div class="job-tags"><span class="tag tag-sage">Live Sound</span><span class="tag tag-blue">Touring</span><span class="tag tag-gold">Pro Tools</span></div>
-              <div class="job-footer"><span class="job-location">📍 Sydney, NSW + touring</span><span class="job-pay">$75K–$90K</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">Apply</a></div>
-            </div>
-            <div class="job-card card-accent-rust">
-              <div class="job-card-header"><div><a href="opportunities.html" class="job-title">Studio Mix Engineer — Boutique Studio</a><div class="job-company">Ochre Sound Studios</div></div><span class="tag tag-rust">Contract</span></div>
-              <div class="job-tags"><span class="tag tag-sage">Mixing</span><span class="tag tag-blue">Analogue</span><span class="tag tag-gold">Studio</span></div>
-              <div class="job-footer"><span class="job-location">📍 Melbourne, VIC</span><span class="job-pay">$500–$700/day</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">Apply</a></div>
-            </div>
+          <div style="display:flex;flex-direction:column;gap:1rem" id="recommendedJobs">
+            <p class="text-muted text-sm">Loading opportunities…</p>
           </div>
         </div>
 
@@ -88,10 +79,8 @@
           <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
             <table class="data-table" style="min-width:0">
               <thead><tr><th>Opportunity</th><th>Applied</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td>Live Sound Engineer — National Tour</td><td>2 days ago</td><td><span class="tag tag-gold">Pending</span></td></tr>
-                <tr><td>Studio Engineer — Ochre Sound</td><td>1 week ago</td><td><span class="tag tag-sage">Shortlisted</span></td></tr>
-                <tr><td>FOH Engineer — Byron Roots Festival</td><td>2 weeks ago</td><td><span class="tag tag-rust">Not Progressed</span></td></tr>
+              <tbody id="myApplicationsBody">
+                <tr><td colspan="3" class="text-muted text-sm">Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -103,15 +92,9 @@
         <!-- Profile Completeness -->
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
           <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Profile Strength</h3>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><span class="text-sm">72% complete</span><a href="profile.html" class="text-xs text-gold" style="text-decoration:none">Edit →</a></div>
-          <div style="height:6px;background:rgba(240,237,230,.08);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:var(--marigold);border-radius:3px"></div></div>
-          <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.5rem">
-            <div class="text-xs text-muted">✓ Name &amp; role set</div>
-            <div class="text-xs text-muted">✓ Location set</div>
-            <div class="text-xs text-muted">✓ Bio written</div>
-            <div class="text-xs" style="color:var(--rust)">✗ Portfolio link missing</div>
-            <div class="text-xs" style="color:var(--rust)">✗ Profile photo missing</div>
-          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><span class="text-sm" id="strengthPct">…% complete</span><a href="profile.html" class="text-xs text-gold" style="text-decoration:none">Edit →</a></div>
+          <div style="height:6px;background:rgba(240,237,230,.08);border-radius:3px;overflow:hidden"><div style="width:0%;height:100%;background:var(--marigold);border-radius:3px" id="strengthBar"></div></div>
+          <div style="margin-top:1rem;display:flex;flex-direction:column;gap:.5rem" id="strengthChecklist"></div>
         </div>
 
         <!-- Upcoming Events -->
@@ -141,14 +124,96 @@
 
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js?v=2"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
+<script type="module">
+import { getCurrentProfile, getMyApplications, getMyListings, getListings } from '../assets/js/supabase.js';
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function statusTagFor(status){
+  const map = { pending: 'tag-gold', live: 'tag-sage', denied: 'tag-rust', approved: 'tag-sage' };
+  return `<span class="tag ${map[status]||'tag-gold'}">${(status||'pending').charAt(0).toUpperCase()+(status||'pending').slice(1)}</span>`;
+}
+
+function jobCardFor(l){
+  const accent = ['card-accent-gold','card-accent-rust','card-accent-sage'][Math.floor(Math.random()*3)];
+  return `
+  <div class="job-card ${accent}">
+    <div class="job-card-header"><div><a href="opportunities.html" class="job-title">${l.title||'(untitled)'}</a><div class="job-company">${l.profiles?.full_name||'Oz Indie Collective member'}</div></div><span class="tag tag-gold">${l.employment_type||'—'}</span></div>
+    <div class="job-tags">${(l.tags||[]).slice(0,3).map(t=>`<span class="tag tag-sage">${t}</span>`).join('')}</div>
+    <div class="job-footer"><span class="job-location">📍 ${[l.city,l.state].filter(Boolean).join(', ')||'—'}</span><span class="job-pay">${l.pay||'—'}</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">View</a></div>
+  </div>`;
+}
+
+async function loadRecommended(){
+  const wrap = document.getElementById('recommendedJobs');
+  try{
+    const listings = await getListings();
+    wrap.innerHTML = listings.length ? listings.slice(0,3).map(jobCardFor).join('') : '<p class="text-muted text-sm">No live opportunities right now — check back soon.</p>';
+  }catch(err){
+    wrap.innerHTML = `<p class="text-muted text-sm">Failed to load opportunities.</p>`;
+  }
+}
+
+async function loadApplications(){
+  const body = document.getElementById('myApplicationsBody');
+  try{
+    const apps = await getMyApplications();
+    document.getElementById('statApplications').textContent = apps.length;
+    body.innerHTML = apps.length
+      ? apps.map(a=>`<tr><td>${a.listings?.title||'(listing removed)'}</td><td>${timeAgo(a.created_at)}</td><td>${statusTagFor(a.status)}</td></tr>`).join('')
+      : '<tr><td colspan="3" class="text-muted text-sm">You haven\'t applied to anything yet.</td></tr>';
+  }catch(err){
+    body.innerHTML = `<tr><td colspan="3" class="text-muted text-sm">Failed to load applications.</td></tr>`;
+  }
+}
+
+async function loadListingsCount(){
+  try{
+    const mine = await getMyListings();
+    document.getElementById('statListings').textContent = mine.length;
+  }catch(err){ document.getElementById('statListings').textContent = '—'; }
+}
+
+function loadProfileStrength(profile){
+  const checks = [
+    { label: 'Name & role set', ok: !!(profile.full_name && profile.role) },
+    { label: 'Location set', ok: !!(profile.city && profile.state) },
+    { label: 'Bio written', ok: !!profile.bio },
+    { label: 'Skills added', ok: !!(profile.skills && profile.skills.length) },
+    { label: 'Portfolio link added', ok: !!profile.portfolio_url }
+  ];
+  const pct = Math.round((checks.filter(c=>c.ok).length / checks.length) * 100);
+  document.getElementById('strengthPct').textContent = `${pct}% complete`;
+  document.getElementById('strengthBar').style.width = pct + '%';
+  document.getElementById('strengthChecklist').innerHTML = checks.map(c =>
+    `<div class="text-xs" style="color:${c.ok?'var(--muted)':'var(--rust)'}">${c.ok?'✓':'✗'} ${c.label}</div>`
+  ).join('');
+  document.getElementById('statCompleteness').textContent = pct + '%';
+  document.getElementById('statEpk').textContent = profile.epk_enabled ? 'Public' : 'Private';
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   const user = Auth.get();
   if(!user) { window.location.href = 'login.html'; return; }
   if(user.isAdmin) { window.location.href = '../admin/index.html'; return; }
   if(user.status === 'pending') {
     document.getElementById('pendingNotice').classList.remove('hidden');
   }
+  try {
+    const profile = await getCurrentProfile();
+    if (profile) loadProfileStrength(profile);
+  } catch(err) { /* leave defaults */ }
+  loadRecommended();
+  loadApplications();
+  loadListingsCount();
 });
 </script>
 </body>

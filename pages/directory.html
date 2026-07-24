@@ -84,7 +84,7 @@ function renderCard(m){
   const skills = (m.skills||[]).slice(0,3);
   return `
   <a href="profile.html?id=${m.id}" class="member-card fade-in" data-role="${m.role||''}" data-state="${m.state||''}" data-avail="${m.availability||'available'}" data-plan="${m.plan||'free'}">
-    <div class="member-card-top"><div class="avatar avatar-md ${avatarClass(m.full_name)}">${initials(m.full_name)}</div><div><div class="member-name">${m.full_name||'(no name)'}</div><div class="member-role">${m.role||'—'}</div></div></div>
+    <div class="member-card-top"><div class="avatar avatar-md ${m.avatar_url?'':avatarClass(m.full_name)}">${m.avatar_url?`<img src="${m.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:initials(m.full_name)}</div><div><div class="member-name">${m.full_name||'(no name)'}</div><div class="member-role">${m.role||'—'}</div></div></div>
     <div class="member-location">📍 ${[m.city,m.state].filter(Boolean).join(', ')||'—'}</div>
     <div class="member-skills">${skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${s}</span>`).join('')}</div>
     <div class="member-foot"><span class="text-xs text-muted">${m.experience||''}</span><span class="text-xs">${(m.availability||'available')==='available'?'<span class="avail-dot"></span>Available':'<span class="text-xs text-muted">Selective</span>'}</span></div>

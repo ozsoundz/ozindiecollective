@@ -25,28 +25,26 @@
 <!-- PROFILE HEADER -->
 <div class="profile-header">
   <div class="profile-hero">
-    <div class="avatar avatar-xl av-gold" data-user-initials style="flex-shrink:0">JM</div>
+    <div class="avatar avatar-xl av-gold" id="ph_avatar" style="flex-shrink:0">··</div>
     <div style="flex:1">
-      <div class="flex items-center gap-2 mb-1">
-        <span class="tag tag-approved">✓ Approved Member</span>
-        <span class="tag tag-gold">Professional</span>
+      <div class="flex items-center gap-2 mb-1" id="ph_tags">
+        <span class="tag" id="ph_statusTag">…</span>
+        <span class="tag tag-gold" id="ph_planTag" style="display:none"></span>
       </div>
-      <h1 style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:.35rem" data-user-name>Jordan Mackay</h1>
-      <div style="font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem" data-user-role>Audio Engineer</div>
+      <h1 style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:.35rem" id="ph_name">Loading…</h1>
+      <div style="font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem" id="ph_role"></div>
       <div class="flex items-center gap-3 text-muted text-sm" style="flex-wrap:wrap">
-        <span data-user-location>📍 Sydney, NSW</span>
-        <span>🎯 8 Years Experience</span>
-        <span class="flex items-center gap-1"><span class="avail-dot"></span>Available for work</span>
+        <span id="ph_location"></span>
+        <span id="ph_experience" style="display:none"></span>
+        <span class="flex items-center gap-1" id="ph_availability" style="display:none"><span class="avail-dot"></span>Available for work</span>
       </div>
-      <div class="flex gap-2 mt-3">
-        <a href="#" class="btn-ghost" style="font-size:.65rem;padding:.45rem .9rem">Connect</a>
-        <a href="#" class="btn-primary" style="font-size:.65rem;padding:.45rem .9rem">Message</a>
-        <button class="btn-secondary" style="font-size:.65rem;padding:.45rem .9rem" onclick="toggleEdit()">Edit Profile</button>
+      <div class="flex gap-2 mt-3" id="ph_actions">
+        <button class="btn-secondary" id="ph_editBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none" onclick="toggleEdit()">Edit Profile</button>
       </div>
     </div>
     <div style="text-align:right;flex-shrink:0">
       <div class="text-xs mono text-muted mb-1">Member Since</div>
-      <div class="text-sm" style="color:var(--cream)">March 2024</div>
+      <div class="text-sm" style="color:var(--cream)" id="ph_memberSince">—</div>
     </div>
   </div>
 </div>
@@ -67,41 +65,26 @@
 
         <div id="tab-about">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">About</h3>
-          <p class="text-muted" style="line-height:1.8;margin-bottom:2rem">Mixing and tracking engineer with 8 years experience across studio and live environments. Specialising in indie, alternative and electronic music. Comfortable with both analogue and digital workflows. Based in Sydney but available to travel for the right project.</p>
+          <p class="text-muted" id="ph_bio" style="line-height:1.8;margin-bottom:2rem">—</p>
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Skills &amp; Specialisations</h3>
-          <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem">
-            <span class="tag tag-gold">Mixing</span><span class="tag tag-gold">Tracking</span><span class="tag tag-sage">Live Sound</span><span class="tag tag-sage">Mastering</span><span class="tag tag-blue">Pro Tools</span><span class="tag tag-blue">Ableton</span><span class="tag tag-rust">Analogue</span><span class="tag tag-purple">Electronic</span>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem" id="ph_skills">
+            <span class="text-sm text-muted">No skills listed yet.</span>
           </div>
-          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Equipment &amp; Studio</h3>
-          <p class="text-muted text-sm" style="line-height:1.7">SSL G-Series console · Pro Tools Ultimate · Neve 1073 preamps · Waves Mercury bundle · Universal Audio interfaces · Yamaha NS10 + Genelec monitoring</p>
         </div>
 
         <div id="tab-portfolio" class="hidden">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Portfolio</h3>
-          <div class="grid-3">
-            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#1a0a00,#3d1f00);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎵</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Neon Satellite — LP Mix</div><div class="text-xs text-muted">Indie Rock · 2024</div></div>
-            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#001a0d,#004d29);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎚️</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Byrne &amp; Co Live — FOH</div><div class="text-xs text-muted">Live Sound · 2024</div></div>
-            <div class="card" style="padding:1.25rem"><div style="height:100px;background:linear-gradient(135deg,#0a001a,#2d0052);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:.85rem">🎹</div><div class="text-sm" style="color:var(--cream);font-weight:600;margin-bottom:.25rem">Priya Nair — EP Tracking</div><div class="text-xs text-muted">Electronic · 2023</div></div>
-          </div>
+          <p class="text-muted text-sm">Portfolio showcase is coming soon. In the meantime check out this member's <a href="#" id="ph_portfolioLink" style="color:var(--cyan)">portfolio link</a> if they've added one.</p>
         </div>
 
         <div id="tab-credits" class="hidden">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Credits</h3>
-          <table class="data-table"><thead><tr><th>Project</th><th>Artist</th><th>Role</th><th>Year</th></tr></thead><tbody>
-            <tr><td>Neon Satellite LP</td><td>The Rogue Satellites</td><td>Mix Engineer</td><td>2024</td></tr>
-            <tr><td>Somewhere Else</td><td>Mara James</td><td>Recording &amp; Mix</td><td>2024</td></tr>
-            <tr><td>National Tour 2023</td><td>Byrne &amp; Co</td><td>FOH Engineer</td><td>2023</td></tr>
-            <tr><td>First Light EP</td><td>Priya Nair</td><td>Tracking Engineer</td><td>2023</td></tr>
-            <tr><td>Dust &amp; Gold Album</td><td>Various Artists</td><td>Assistant Engineer</td><td>2022</td></tr>
-          </tbody></table>
+          <p class="text-muted text-sm">Credits history is coming soon.</p>
         </div>
 
         <div id="tab-reviews" class="hidden">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Reviews</h3>
-          <div style="display:flex;flex-direction:column;gap:1.25rem">
-            <div style="border:1px solid var(--border);border-radius:4px;padding:1.25rem"><div class="flex items-center gap-2 mb-1"><div class="avatar avatar-sm av-rust" style="font-size:.55rem">MJ</div><div><div class="text-sm" style="color:var(--cream);font-weight:600">Mara James</div><div class="text-xs text-muted">Singer-Songwriter</div></div><div style="margin-left:auto;color:var(--marigold);font-size:.9rem">★★★★★</div></div><p class="text-sm text-muted mt-1" style="line-height:1.6">"Jordan is exactly the kind of engineer you want on your record. Patient, creative and incredibly skilled. The mixes were stunning."</p></div>
-            <div style="border:1px solid var(--border);border-radius:4px;padding:1.25rem"><div class="flex items-center gap-2 mb-1"><div class="avatar avatar-sm av-sage" style="font-size:.55rem">TR</div><div><div class="text-sm" style="color:var(--cream);font-weight:600">Tom Russo</div><div class="text-xs text-muted">Band Manager</div></div><div style="margin-left:auto;color:var(--marigold);font-size:.9rem">★★★★★</div></div><p class="text-sm text-muted mt-1" style="line-height:1.6">"Had Jordan on FOH for our national tour. Rock solid the whole way through. The band sounded incredible every night."</p></div>
-          </div>
+          <p class="text-muted text-sm">Reviews are coming soon.</p>
         </div>
 
         <div id="tab-epk" class="hidden">
@@ -115,21 +98,35 @@
       <div id="editMode" class="hidden">
         <div class="edit-form-wrap">
           <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Edit Your Profile</h2>
-          <div class="form-row"><div class="form-group"><label>First Name</label><input type="text" name="firstName" value="Jordan"></div><div class="form-group"><label>Last Name</label><input type="text" name="lastName" value="Mackay"></div></div>
-          <div class="form-group"><label>Primary Role</label><select name="role"><option selected>Audio Engineer (Studio)</option><option>Audio Engineer (Live)</option><option>Music Producer</option></select></div>
-          <div class="form-group"><label>Tagline / One-liner</label><input type="text" name="tagline" value="Mixing &amp; tracking engineer · Studio &amp; live · Sydney" data-max-chars="80"></div>
-          <div class="form-group"><label>Bio</label><textarea name="bio" data-max-chars="600" rows="4">Mixing and tracking engineer with 8 years experience across studio and live environments.</textarea></div>
-          <div class="form-row"><div class="form-group"><label>City</label><input type="text" name="city" value="Sydney"></div><div class="form-group"><label>State</label><select name="state"><option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option><option>WA</option></select></div></div>
-          <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolio" placeholder="https://yoursite.com"></div>
-          <div class="form-group"><label>Social — Instagram</label><input type="text" name="instagram" placeholder="@yourhandle"></div>
-          <div class="form-group"><label>Availability</label><select name="availability"><option>Available for work</option><option>Selectively available</option><option>Not currently available</option></select></div>
-          <div class="form-group"><label>Profile Photo</label><div class="file-upload-box">Click to upload or drag here · JPG, PNG · Max 5MB<br><span>Browse files</span></div></div>
+          <div class="form-group"><label>Full Name</label><input type="text" id="ef_full_name"></div>
+          <div class="form-group"><label>Primary Role</label><input type="text" id="ef_role" placeholder="e.g. Audio Engineer"></div>
+          <div class="form-group"><label>Tagline / One-liner</label><input type="text" id="ef_tagline" maxlength="80"></div>
+          <div class="form-group"><label>Bio</label><textarea id="ef_bio" rows="4" maxlength="600"></textarea></div>
+          <div class="form-row"><div class="form-group"><label>City</label><input type="text" id="ef_city"></div><div class="form-group"><label>State</label><select id="ef_state"><option value="">—</option><option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option><option>WA</option><option>TAS</option><option>NT</option><option>ACT</option></select></div></div>
+          <div class="form-group"><label>Skills (comma-separated)</label><input type="text" id="ef_skills" placeholder="Mixing, Tracking, Pro Tools"></div>
+          <div class="form-group"><label>Experience</label><input type="text" id="ef_experience" placeholder="e.g. 8 years"></div>
+          <div class="form-group"><label>Portfolio URL</label><input type="url" id="ef_portfolio" placeholder="https://yoursite.com"></div>
+          <div class="form-group"><label>Social — Instagram</label><input type="text" id="ef_instagram" placeholder="@yourhandle"></div>
+          <div class="form-group"><label>Availability</label><select id="ef_availability"><option value="available">Available for work</option><option value="selective">Selectively available</option><option value="unavailable">Not currently available</option></select></div>
+          <div class="form-group">
+            <label>Profile Photo</label>
+            <div class="file-upload-box" onclick="document.getElementById('ef_avatar_file').click()" style="cursor:pointer">Click to upload · JPG, PNG · Max 5MB<br><span id="ef_avatar_status">Browse files</span></div>
+            <input type="file" id="ef_avatar_file" accept="image/*" style="display:none">
+          </div>
 
           <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin:2rem 0 1.25rem;padding-top:1.5rem;border-top:1px solid var(--border)">Electronic Press Kit (EPK)</h2>
           <p class="text-muted text-sm" style="margin-bottom:1.25rem;line-height:1.6">Your EPK is a public one-pager other members, promoters and venues can view. Enable it below and fill in what you'd like to share.</p>
           <div class="form-group"><label class="flex items-center gap-2"><input type="checkbox" id="epk_enabled" style="width:auto"> Make my EPK public</label></div>
           <div class="form-group"><label>EPK Bio</label><textarea id="epk_bio" rows="4" placeholder="A press-ready bio for bookers and promoters"></textarea></div>
-          <div class="form-group"><label>Photo URLs (one per line)</label><textarea id="epk_photos" rows="3" placeholder="https://example.com/photo1.jpg"></textarea></div>
+          <div class="form-group">
+            <label>Photo URLs (one per line)</label>
+            <textarea id="epk_photos" rows="3" placeholder="https://example.com/photo1.jpg"></textarea>
+            <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">
+              <input type="file" id="epk_photo_file" accept="image/*" style="display:none">
+              <button type="button" class="btn-ghost" style="font-size:.62rem" onclick="document.getElementById('epk_photo_file').click()">+ Upload a photo</button>
+              <span class="text-xs text-muted" id="epk_photo_status"></span>
+            </div>
+          </div>
           <div class="form-group"><label>Music Links (one per line)</label><textarea id="epk_music_links" rows="3" placeholder="https://open.spotify.com/artist/..."></textarea></div>
           <div class="form-group"><label>Video Links (one per line)</label><textarea id="epk_video_links" rows="3" placeholder="https://www.youtube.com/watch?v=..."></textarea></div>
           <div class="form-row">
@@ -147,29 +144,20 @@
 
     <!-- Sidebar -->
     <aside>
-      <div class="sidebar-card mb-3" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
-        <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Contact</h3>
-        <div class="flex flex-col gap-2">
-          <a href="#" class="btn-primary w-full text-center" style="font-size:.65rem;padding:.6rem">Send Message</a>
-          <a href="#" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">Connect</a>
-        </div>
-      </div>
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Details</h3>
         <div style="display:flex;flex-direction:column;gap:.75rem">
-          <div><div class="text-xs mono text-muted mb-1">Location</div><div class="text-sm" style="color:var(--cream)" data-user-location>Sydney, NSW</div></div>
-          <div><div class="text-xs mono text-muted mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">8 years</div></div>
-          <div><div class="text-xs mono text-muted mb-1">Member Since</div><div class="text-sm" style="color:var(--cream)">March 2024</div></div>
-          <div><div class="text-xs mono text-muted mb-1">Plan</div><div><span class="tag tag-gold">Professional</span></div></div>
-          <div><div class="text-xs mono text-muted mb-1">Status</div><div><span class="tag tag-approved">✓ Approved</span></div></div>
+          <div><div class="text-xs mono text-muted mb-1">Location</div><div class="text-sm" style="color:var(--cream)" id="side_location">—</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Experience</div><div class="text-sm" style="color:var(--cream)" id="side_experience">—</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Member Since</div><div class="text-sm" style="color:var(--cream)" id="side_memberSince">—</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Plan</div><div id="side_plan">—</div></div>
+          <div><div class="text-xs mono text-muted mb-1">Status</div><div id="side_status">—</div></div>
         </div>
       </div>
-      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem" id="side_links_wrap">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Links</h3>
-        <div style="display:flex;flex-direction:column;gap:.5rem">
-          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🌐 jordanmackay.com.au</a>
-          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🎵 soundcloud.com/jordanmackay</a>
-          <a href="#" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">📷 @jordanmackay_audio</a>
+        <div style="display:flex;flex-direction:column;gap:.5rem" id="side_links">
+          <span class="text-sm text-muted">No links added yet.</span>
         </div>
       </div>
     </aside>
@@ -201,10 +189,119 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk } from '../assets/js/supabase.js';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia } from '../assets/js/supabase.js';
+
+let pendingAvatarUrl = null;
+
+document.getElementById('ef_avatar_file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('ef_avatar_status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    pendingAvatarUrl = await uploadOwnMedia('avatars', file);
+    statusEl.textContent = 'Photo ready — will be saved with your profile.';
+  } catch(err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+});
+
+document.getElementById('epk_photo_file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('epk_photo_status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    const url = await uploadOwnMedia('epk-media', file);
+    const ta = document.getElementById('epk_photos');
+    ta.value = ta.value ? (ta.value.replace(/\n+$/,'') + '\n' + url) : url;
+    statusEl.textContent = 'Uploaded ✓';
+  } catch(err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+});
 
 function linesToArray(text){ return (text||'').split('\n').map(s=>s.trim()).filter(Boolean); }
 function arrayToLines(arr){ return (arr||[]).join('\n'); }
+function initials(name=''){ return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?'; }
+const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
+function avatarClass(seed=''){
+  let h = 0;
+  for(let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
+  return AVATAR_CLASSES[h % AVATAR_CLASSES.length];
+}
+function fmtMonthYear(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+}
+
+function renderHeader(p){
+  const avatarEl = document.getElementById('ph_avatar');
+  if (p.avatar_url) {
+    avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    avatarEl.className = 'avatar avatar-xl';
+  } else {
+    avatarEl.textContent = initials(p.full_name);
+    avatarEl.className = 'avatar avatar-xl ' + avatarClass(p.full_name||p.id);
+  }
+  document.getElementById('ph_name').textContent = p.full_name || '(no name)';
+  document.getElementById('ph_role').textContent = p.role || '';
+  document.getElementById('ph_location').textContent = '📍 ' + ([p.city,p.state].filter(Boolean).join(', ')||'—');
+  if(p.experience){
+    document.getElementById('ph_experience').textContent = '🎯 ' + p.experience;
+    document.getElementById('ph_experience').style.display = '';
+  }
+  if((p.availability||'available')==='available'){
+    document.getElementById('ph_availability').style.display = '';
+  }
+  const statusTag = document.getElementById('ph_statusTag');
+  if(p.status === 'approved'){ statusTag.textContent = '✓ Approved Member'; statusTag.className = 'tag tag-approved'; }
+  else if(p.status === 'pending'){ statusTag.textContent = 'Pending Review'; statusTag.className = 'tag tag-pending'; }
+  else { statusTag.textContent = p.status || ''; statusTag.className = 'tag tag-denied'; }
+  if(p.plan){
+    const planTag = document.getElementById('ph_planTag');
+    planTag.textContent = p.plan.charAt(0).toUpperCase()+p.plan.slice(1);
+    planTag.style.display = '';
+  }
+  document.getElementById('ph_memberSince').textContent = fmtMonthYear(p.created_at);
+
+  document.getElementById('ph_bio').textContent = p.bio || 'This member hasn\'t written a bio yet.';
+  const skillsWrap = document.getElementById('ph_skills');
+  const TAG_CLASSES = ['tag-gold','tag-sage','tag-blue','tag-rust'];
+  skillsWrap.innerHTML = (p.skills&&p.skills.length)
+    ? p.skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${s}</span>`).join('')
+    : '<span class="text-sm text-muted">No skills listed yet.</span>';
+
+  if(p.portfolio_url){
+    const link = document.getElementById('ph_portfolioLink');
+    link.href = p.portfolio_url; link.textContent = p.portfolio_url; link.target = '_blank'; link.rel = 'noopener';
+  }
+
+  document.getElementById('side_location').textContent = [p.city,p.state].filter(Boolean).join(', ')||'—';
+  document.getElementById('side_experience').textContent = p.experience || '—';
+  document.getElementById('side_memberSince').textContent = fmtMonthYear(p.created_at);
+  document.getElementById('side_plan').innerHTML = p.plan ? `<span class="tag tag-gold">${p.plan.charAt(0).toUpperCase()+p.plan.slice(1)}</span>` : '—';
+  document.getElementById('side_status').innerHTML = p.status === 'approved' ? '<span class="tag tag-approved">✓ Approved</span>' : `<span class="tag tag-pending">${p.status||'—'}</span>`;
+
+  const links = [];
+  if(p.portfolio_url) links.push(`<a href="${p.portfolio_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🌐 ${p.portfolio_url}</a>`);
+  if(p.instagram_handle) links.push(`<a href="https://instagram.com/${p.instagram_handle.replace('@','')}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">📷 @${p.instagram_handle.replace('@','')}</a>`);
+  document.getElementById('side_links').innerHTML = links.length ? links.join('') : '<span class="text-sm text-muted">No links added yet.</span>';
+}
+
+function populateEditForm(p){
+  document.getElementById('ef_full_name').value = p.full_name || '';
+  document.getElementById('ef_role').value = p.role || '';
+  document.getElementById('ef_tagline').value = p.tagline || '';
+  document.getElementById('ef_bio').value = p.bio || '';
+  document.getElementById('ef_city').value = p.city || '';
+  document.getElementById('ef_state').value = p.state || '';
+  document.getElementById('ef_skills').value = (p.skills||[]).join(', ');
+  document.getElementById('ef_experience').value = p.experience || '';
+  document.getElementById('ef_portfolio').value = p.portfolio_url || '';
+  document.getElementById('ef_instagram').value = p.instagram_handle || '';
+  document.getElementById('ef_availability').value = p.availability || 'available';
+}
 
 function renderEpkPublic(epk){
   const wrap = document.getElementById('epkPublicView');
@@ -228,54 +325,77 @@ function renderEpkPublic(epk){
 
 document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
-  const viewedId = params.get('id');
   const session = await getSession();
-  const isOwnProfile = !viewedId || (session && session.user.id === viewedId);
+  const viewedId = params.get('id') || (session ? session.user.id : null);
 
-  if (isOwnProfile && session) {
-    // Load own EPK into the edit form.
-    try {
-      const { data } = await (await import('../assets/js/supabase.js')).supabase
-        .from('profiles').select('epk_enabled, epk_bio, epk_photos, epk_music_links, epk_video_links, epk_stage_plot_url, epk_tech_rider_url')
-        .eq('id', session.user.id).single();
-      if (data) {
-        document.getElementById('epk_enabled').checked = !!data.epk_enabled;
-        document.getElementById('epk_bio').value = data.epk_bio || '';
-        document.getElementById('epk_photos').value = arrayToLines(data.epk_photos);
-        document.getElementById('epk_music_links').value = arrayToLines(data.epk_music_links);
-        document.getElementById('epk_video_links').value = arrayToLines(data.epk_video_links);
-        document.getElementById('epk_stage_plot_url').value = data.epk_stage_plot_url || '';
-        document.getElementById('epk_tech_rider_url').value = data.epk_tech_rider_url || '';
-        renderEpkPublic(data);
-      }
-    } catch(err) { /* no profile yet or not permitted — leave blank */ }
-
-    window.__saveEpk = async function(){
-      try {
-        await updateOwnEpk({
-          epk_enabled: document.getElementById('epk_enabled').checked,
-          epk_bio: document.getElementById('epk_bio').value,
-          epk_photos: linesToArray(document.getElementById('epk_photos').value),
-          epk_music_links: linesToArray(document.getElementById('epk_music_links').value),
-          epk_video_links: linesToArray(document.getElementById('epk_video_links').value),
-          epk_stage_plot_url: document.getElementById('epk_stage_plot_url').value,
-          epk_tech_rider_url: document.getElementById('epk_tech_rider_url').value
-        });
-        showToast('EPK & profile updated successfully!','success');
-      } catch(err) {
-        showToast(err.message || 'Failed to save EPK.','danger');
-      }
-    };
-  } else if (viewedId) {
-    // Viewing someone else's public EPK.
-    document.getElementById('epkTabBtn').style.display = '';
-    try {
-      const epk = await getMemberEpk(viewedId);
-      renderEpkPublic(epk);
-    } catch(err) {
-      renderEpkPublic(null);
-    }
+  if (!viewedId) {
+    document.getElementById('ph_name').textContent = 'Sign in to view a profile';
+    return;
   }
+
+  const isOwnProfile = !!(session && session.user.id === viewedId);
+
+  try {
+    const profile = await getProfileById(viewedId);
+    renderHeader(profile);
+    if (isOwnProfile) {
+      document.getElementById('ph_editBtn').style.display = '';
+      populateEditForm(profile);
+      document.getElementById('epk_enabled').checked = !!profile.epk_enabled;
+      document.getElementById('epk_bio').value = profile.epk_bio || '';
+      document.getElementById('epk_photos').value = arrayToLines(profile.epk_photos);
+      document.getElementById('epk_music_links').value = arrayToLines(profile.epk_music_links);
+      document.getElementById('epk_video_links').value = arrayToLines(profile.epk_video_links);
+      document.getElementById('epk_stage_plot_url').value = profile.epk_stage_plot_url || '';
+      document.getElementById('epk_tech_rider_url').value = profile.epk_tech_rider_url || '';
+      renderEpkPublic(profile);
+    } else {
+      try {
+        const epk = await getMemberEpk(viewedId);
+        renderEpkPublic(epk);
+      } catch(err) {
+        renderEpkPublic(null);
+      }
+    }
+  } catch(err) {
+    document.getElementById('ph_name').textContent = 'Profile not found';
+    document.getElementById('ph_bio').textContent = '';
+  }
+
+  window.__saveEpk = async function(){
+    try {
+      const profileUpdate = {
+        full_name: document.getElementById('ef_full_name').value,
+        role: document.getElementById('ef_role').value,
+        tagline: document.getElementById('ef_tagline').value,
+        bio: document.getElementById('ef_bio').value,
+        city: document.getElementById('ef_city').value,
+        state: document.getElementById('ef_state').value,
+        skills: document.getElementById('ef_skills').value.split(',').map(s=>s.trim()).filter(Boolean),
+        experience: document.getElementById('ef_experience').value,
+        portfolio_url: document.getElementById('ef_portfolio').value,
+        instagram_handle: document.getElementById('ef_instagram').value,
+        availability: document.getElementById('ef_availability').value
+      };
+      if (pendingAvatarUrl) profileUpdate.avatar_url = pendingAvatarUrl;
+      await updateOwnProfile(profileUpdate);
+      await updateOwnEpk({
+        epk_enabled: document.getElementById('epk_enabled').checked,
+        epk_bio: document.getElementById('epk_bio').value,
+        epk_photos: linesToArray(document.getElementById('epk_photos').value),
+        epk_music_links: linesToArray(document.getElementById('epk_music_links').value),
+        epk_video_links: linesToArray(document.getElementById('epk_video_links').value),
+        epk_stage_plot_url: document.getElementById('epk_stage_plot_url').value,
+        epk_tech_rider_url: document.getElementById('epk_tech_rider_url').value
+      });
+      const refreshed = await getProfileById(viewedId);
+      renderHeader(refreshed);
+      renderEpkPublic(refreshed);
+      showToast('Profile updated successfully!','success');
+    } catch(err) {
+      showToast(err.message || 'Failed to save profile.','danger');
+    }
+  };
 });
 </script>
 </body>

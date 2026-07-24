@@ -67,8 +67,13 @@
         <input type="text" id="hf_video" class="input" placeholder="https://www.youtube.com/embed/...">
       </div>
       <div>
-        <label class="text-xs text-muted mono">Thumbnail URL (placeholder OK)</label>
-        <input type="text" id="hf_thumb" class="input" placeholder="https://picsum.photos/seed/oic-vid1/640/360">
+        <label class="text-xs text-muted mono">Thumbnail</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="text" id="hf_thumb" class="input" placeholder="https://picsum.photos/seed/oic-vid1/640/360" style="flex:1">
+          <input type="file" id="hf_thumb_file" accept="image/*" style="display:none">
+          <button type="button" class="btn-ghost" style="font-size:.62rem;white-space:nowrap" onclick="document.getElementById('hf_thumb_file').click()">Upload</button>
+        </div>
+        <div class="text-xs text-muted mt-1" id="hf_thumb_status"></div>
       </div>
       <div>
         <label class="text-xs text-muted mono">Description</label>
@@ -92,7 +97,21 @@
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js?v=2"></script>
 <script type="module">
-import { getAllHighlights, createHighlight, updateHighlight, deleteHighlight } from '../assets/js/supabase.js';
+import { getAllHighlights, createHighlight, updateHighlight, deleteHighlight, uploadAdminMedia } from '../assets/js/supabase.js';
+
+document.getElementById('hf_thumb_file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('hf_thumb_status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    const url = await uploadAdminMedia('highlight-thumbs', file);
+    document.getElementById('hf_thumb').value = url;
+    statusEl.textContent = 'Uploaded ✓';
+  } catch(err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+});
 
 let highlights = [];
 

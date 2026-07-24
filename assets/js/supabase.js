@@ -68,12 +68,38 @@ export async function getCurrentProfile() {
   return data
 }
 
+// Public: a single member's full profile, for the profile page.
+// Only returns approved profiles (or the caller's own profile, any status).
+export async function getProfileById(id) {
+  const session = await getSession()
+  let query = supabase.from('profiles').select('*').eq('id', id)
+  if (!session || session.user.id !== id) {
+    query = query.eq('status', 'approved')
+  }
+  const { data, error } = await query.single()
+  if (error) throw error
+  return data
+}
+
+// Member: update their own core profile fields (not EPK — see updateOwnEpk).
+export async function updateOwnProfile(profileData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(profileData)
+    .eq('id', session.user.id)
+    .select()
+  if (error) throw error
+  return data
+}
+
 // ── DIRECTORY ────────────────────────────────────────
 
 export async function getMembers({ role, state, availability, search } = {}) {
   let query = supabase
     .from('profiles')
-    .select('id, full_name, role, city, state, availability, skills, plan, experience, created_at')
+    .select('id, full_name, role, city, state, availability, skills, plan, experience, created_at, avatar_url')
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
@@ -159,6 +185,32 @@ export async function approveListing(listingId) {
 export async function denyListing(listingId) {
   const { error } = await supabase.from('listings').update({ status: 'denied' }).eq('id', listingId)
   if (error) throw error
+}
+
+// Member: their own job applications, for the dashboard.
+export async function getMyApplications() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('applications')
+    .select('*, listings(title)')
+    .eq('applicant_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Member: listings they've posted, for the dashboard.
+export async function getMyListings() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('listings')
+    .select('*')
+    .eq('posted_by', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
 }
 
 // ── ADMIN ─────────────────────────────────────────────
@@ -358,6 +410,35 @@ export async function updatePartner(id, partnerData) {
 export async function deletePartner(id) {
   const { error } = await supabase.from('partners').delete().eq('id', id)
   if (error) throw error
+}
+
+// ── STORAGE (real file uploads) ──────────────────────
+
+function randomName(file){
+  const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const rand = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  return `${rand}.${ext}`;
+}
+
+// For buckets that require the object path to start with the uploader's own user id
+// (avatars, epk-media) — enforced by storage RLS policies in supabase/schema.sql.
+export async function uploadOwnMedia(bucket, file) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const path = `${session.user.id}/${randomName(file)}`
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+  if (error) throw error
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+  return data.publicUrl
+}
+
+// For admin-only buckets (article-covers, highlight-thumbs, partner-logos).
+export async function uploadAdminMedia(bucket, file) {
+  const path = randomName(file)
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+  if (error) throw error
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+  return data.publicUrl
 }
 
 // ── EPK (per-member Electronic Press Kit) ────────────

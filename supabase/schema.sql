@@ -306,6 +306,11 @@ create policy "Admins can insert partners" on public.partners for insert with ch
 create policy "Admins can update partners" on public.partners for update using (public.is_admin());
 create policy "Admins can delete partners" on public.partners for delete using (public.is_admin());
 
+-- 9b. PROFILE EXTRA FIELDS (used by the profile edit form)
+alter table public.profiles add column if not exists tagline text;
+alter table public.profiles add column if not exists instagram_handle text;
+alter table public.profiles add column if not exists avatar_url text;
+
 -- 9. EPK FIELDS (per-member Electronic Press Kit, on profiles — member manages their own)
 alter table public.profiles add column if not exists epk_enabled boolean default false;
 alter table public.profiles add column if not exists epk_bio text;
@@ -316,3 +321,45 @@ alter table public.profiles add column if not exists epk_stage_plot_url text;
 alter table public.profiles add column if not exists epk_tech_rider_url text;
 -- Existing "Users can update own profile" / "Public can view approved profiles" policies on
 -- public.profiles already cover read/write of these new columns — no new policies needed.
+
+-- 10. STORAGE BUCKETS (for real image/file uploads instead of pasted URLs)
+-- avatars, epk-media: member-owned, folder-per-user (path must start with their own uid).
+-- article-covers, highlight-thumbs, partner-logos: admin-only uploads, publicly readable.
+insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('epk-media', 'epk-media', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('article-covers', 'article-covers', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('highlight-thumbs', 'highlight-thumbs', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('partner-logos', 'partner-logos', true) on conflict (id) do nothing;
+
+drop policy if exists "Public can view avatars" on storage.objects;
+drop policy if exists "Users can upload own avatar" on storage.objects;
+drop policy if exists "Users can update own avatar" on storage.objects;
+drop policy if exists "Users can delete own avatar" on storage.objects;
+create policy "Public can view avatars" on storage.objects for select using (bucket_id = 'avatars');
+create policy "Users can upload own avatar" on storage.objects for insert to authenticated with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "Users can update own avatar" on storage.objects for update to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "Users can delete own avatar" on storage.objects for delete to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Public can view epk media" on storage.objects;
+drop policy if exists "Users can upload own epk media" on storage.objects;
+drop policy if exists "Users can update own epk media" on storage.objects;
+drop policy if exists "Users can delete own epk media" on storage.objects;
+create policy "Public can view epk media" on storage.objects for select using (bucket_id = 'epk-media');
+create policy "Users can upload own epk media" on storage.objects for insert to authenticated with check (bucket_id = 'epk-media' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "Users can update own epk media" on storage.objects for update to authenticated using (bucket_id = 'epk-media' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "Users can delete own epk media" on storage.objects for delete to authenticated using (bucket_id = 'epk-media' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Public can view article covers" on storage.objects;
+drop policy if exists "Admins can manage article covers" on storage.objects;
+create policy "Public can view article covers" on storage.objects for select using (bucket_id = 'article-covers');
+create policy "Admins can manage article covers" on storage.objects for all to authenticated using (bucket_id = 'article-covers' and public.is_admin()) with check (bucket_id = 'article-covers' and public.is_admin());
+
+drop policy if exists "Public can view highlight thumbs" on storage.objects;
+drop policy if exists "Admins can manage highlight thumbs" on storage.objects;
+create policy "Public can view highlight thumbs" on storage.objects for select using (bucket_id = 'highlight-thumbs');
+create policy "Admins can manage highlight thumbs" on storage.objects for all to authenticated using (bucket_id = 'highlight-thumbs' and public.is_admin()) with check (bucket_id = 'highlight-thumbs' and public.is_admin());
+
+drop policy if exists "Public can view partner logos" on storage.objects;
+drop policy if exists "Admins can manage partner logos" on storage.objects;
+create policy "Public can view partner logos" on storage.objects for select using (bucket_id = 'partner-logos');
+create policy "Admins can manage partner logos" on storage.objects for all to authenticated using (bucket_id = 'partner-logos' and public.is_admin()) with check (bucket_id = 'partner-logos' and public.is_admin());
