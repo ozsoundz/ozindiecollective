@@ -44,14 +44,15 @@
     <div class="hub-layout">
       <div>
         <div id="section-all">
-          <div class="article-card"><div class="art-thumb" style="background:rgba(79,216,240,.1)">💰</div><div><div class="art-cat">Grants &amp; Funding</div><div class="art-title">Australia Council for the Arts: How to Write a Winning Application in 2025</div><div class="art-meta">5 min read · July 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(196,98,58,.1)">🎙️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">From Bedroom to Broadcast: Getting Your Mix Release-Ready on a Budget</div><div class="art-meta">8 min read · June 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(74,222,128,.1)">📈</div><div><div class="art-cat">Career Development</div><div class="art-title">Pitching Yourself to Festival Bookers: What They Actually Want to See</div><div class="art-meta">6 min read · June 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(155,89,182,.1)">📣</div><div><div class="art-cat">Marketing</div><div class="art-title">Building a Sustainable Social Presence Without Burning Out</div><div class="art-meta">7 min read · May 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(79,216,240,.1)">⚖️</div><div><div class="art-cat">Business Resources</div><div class="art-title">Contracts Every Freelance Creative Needs to Know About</div><div class="art-meta">10 min read · May 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(196,98,58,.1)">💡</div><div><div class="art-cat">Industry News</div><div class="art-title">The State of Australian Independent Music: A 2025 Report</div><div class="art-meta">12 min read · April 2025</div></div></div>
-          <div class="article-card"><div class="art-thumb" style="background:rgba(74,222,128,.1)">🎤</div><div><div class="art-cat">Career Development</div><div class="art-title">How to Get Sync Licensing Deals as an Independent Artist</div><div class="art-meta">9 min read · April 2025</div></div></div>
-          <div class="article-card" style="border-bottom:none"><div class="art-thumb" style="background:rgba(79,216,240,.1)">🎚️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">Mixing in Mono: Why Your Mix Sounds Bad in the Car</div><div class="art-meta">5 min read · March 2025</div></div></div>
+          <div class="article-card" data-cat="grants"><div class="art-thumb" style="background:rgba(79,216,240,.1)">💰</div><div><div class="art-cat">Grants &amp; Funding</div><div class="art-title">Australia Council for the Arts: How to Write a Winning Application in 2025</div><div class="art-meta">5 min read · July 2025</div></div></div>
+          <div class="article-card" data-cat="guides"><div class="art-thumb" style="background:rgba(196,98,58,.1)">🎙️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">From Bedroom to Broadcast: Getting Your Mix Release-Ready on a Budget</div><div class="art-meta">8 min read · June 2025</div></div></div>
+          <div class="article-card" data-cat="guides"><div class="art-thumb" style="background:rgba(74,222,128,.1)">📈</div><div><div class="art-cat">Career Development</div><div class="art-title">Pitching Yourself to Festival Bookers: What They Actually Want to See</div><div class="art-meta">6 min read · June 2025</div></div></div>
+          <div class="article-card" data-cat="news"><div class="art-thumb" style="background:rgba(155,89,182,.1)">📣</div><div><div class="art-cat">Marketing</div><div class="art-title">Building a Sustainable Social Presence Without Burning Out</div><div class="art-meta">7 min read · May 2025</div></div></div>
+          <div class="article-card" data-cat="guides"><div class="art-thumb" style="background:rgba(79,216,240,.1)">⚖️</div><div><div class="art-cat">Business Resources</div><div class="art-title">Contracts Every Freelance Creative Needs to Know About</div><div class="art-meta">10 min read · May 2025</div></div></div>
+          <div class="article-card" data-cat="news"><div class="art-thumb" style="background:rgba(196,98,58,.1)">💡</div><div><div class="art-cat">Industry News</div><div class="art-title">The State of Australian Independent Music: A 2025 Report</div><div class="art-meta">12 min read · April 2025</div></div></div>
+          <div class="article-card" data-cat="guides"><div class="art-thumb" style="background:rgba(74,222,128,.1)">🎤</div><div><div class="art-cat">Career Development</div><div class="art-title">How to Get Sync Licensing Deals as an Independent Artist</div><div class="art-meta">9 min read · April 2025</div></div></div>
+          <div class="article-card" data-cat="guides" style="border-bottom:none"><div class="art-thumb" style="background:rgba(79,216,240,.1)">🎚️</div><div><div class="art-cat">Recording Guides</div><div class="art-title">Mixing in Mono: Why Your Mix Sounds Bad in the Car</div><div class="art-meta">5 min read · March 2025</div></div></div>
+          <p class="text-muted text-sm hidden" id="noArticlesMsg">No articles in this category yet.</p>
         </div>
       </div>
       <aside>
@@ -82,6 +83,21 @@
 function showTab(name, btn) {
   document.querySelectorAll('.ptab').forEach(b => { b.style.background='transparent'; b.style.color='var(--muted)'; });
   btn.style.background='rgba(79,216,240,.1)'; btn.style.color='var(--cyan)';
+
+  const cards = document.querySelectorAll('#section-all .article-card');
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const show = name === 'all' || card.dataset.cat === name;
+    card.style.display = show ? '' : 'none';
+    if (show) visibleCount++;
+  });
+  document.getElementById('noArticlesMsg').classList.toggle('hidden', visibleCount > 0);
+
+  // Border on the last *visible* card should be removed so the list doesn't
+  // end with a trailing divider line.
+  cards.forEach(c => { c.style.borderBottom = ''; });
+  const visible = [...cards].filter(c => c.style.display !== 'none');
+  if (visible.length) visible[visible.length - 1].style.borderBottom = 'none';
 }
 function downloadTemplate(name) {
   if(!Auth.get()) { window.location.href='login.html'; return; }
