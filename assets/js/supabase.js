@@ -486,6 +486,82 @@ export async function deleteArticle(id) {
   if (error) throw error
 }
 
+// ── EVENTS (networking nights, workshops, panels — admin-managed) ──
+
+export async function getEvents() {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('status', 'published')
+    .order('event_date', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function getAllEvents() {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .order('event_date', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function createEvent(eventData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('events')
+    .insert({ ...eventData, created_by: session.user.id })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateEvent(id, eventData) {
+  const { data, error } = await supabase
+    .from('events')
+    .update(eventData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteEvent(id) {
+  const { error } = await supabase.from('events').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function registerForEvent({ eventId, fullName, email, accessibilityNotes }) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .insert({
+      event_id: eventId,
+      user_id: session.user.id,
+      full_name: fullName,
+      email,
+      accessibility_notes: accessibilityNotes
+    })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function getMyEventRegistrations() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .select('*, events(title, event_date)')
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 // ── HIGHLIGHTS (Professional Highlights video showcase) ──
 
 export async function getHighlights({ category } = {}) {

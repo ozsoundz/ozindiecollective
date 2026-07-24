@@ -570,3 +570,93 @@ create policy "Project owners can view applications to their projects"
 create policy "Admins can view all project applications"
   on public.project_applications for select
   using (public.is_admin());
+
+-- 14. EVENTS TABLE (networking nights, workshops, panels — admin-managed like articles/highlights)
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.events add column if not exists title text;
+alter table public.events add column if not exists event_type text;
+alter table public.events add column if not exists description text;
+alter table public.events add column if not exists venue text;
+alter table public.events add column if not exists city text;
+alter table public.events add column if not exists state text;
+alter table public.events add column if not exists event_date date;
+alter table public.events add column if not exists time_range text;
+alter table public.events add column if not exists price_info text;
+alter table public.events add column if not exists status text default 'draft';
+alter table public.events add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.events add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'events_status_check') then
+    alter table public.events add constraint events_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.events enable row level security;
+
+drop policy if exists "Public can view published events" on public.events;
+drop policy if exists "Admins can view all events" on public.events;
+drop policy if exists "Admins can insert events" on public.events;
+drop policy if exists "Admins can update events" on public.events;
+drop policy if exists "Admins can delete events" on public.events;
+
+create policy "Public can view published events"
+  on public.events for select
+  using (status = 'published');
+
+create policy "Admins can view all events"
+  on public.events for select
+  using (public.is_admin());
+
+create policy "Admins can insert events"
+  on public.events for insert
+  with check (public.is_admin());
+
+create policy "Admins can update events"
+  on public.events for update
+  using (public.is_admin());
+
+create policy "Admins can delete events"
+  on public.events for delete
+  using (public.is_admin());
+
+-- 15. EVENT REGISTRATIONS TABLE (a member registering for an event)
+create table if not exists public.event_registrations (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.event_registrations add column if not exists event_id uuid references public.events(id) on delete cascade;
+alter table public.event_registrations add column if not exists user_id uuid references public.profiles(id) on delete cascade;
+alter table public.event_registrations add column if not exists full_name text;
+alter table public.event_registrations add column if not exists email text;
+alter table public.event_registrations add column if not exists accessibility_notes text;
+alter table public.event_registrations add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'event_registrations_event_user_unique') then
+    alter table public.event_registrations add constraint event_registrations_event_user_unique unique (event_id, user_id);
+  end if;
+end $$;
+
+alter table public.event_registrations enable row level security;
+
+drop policy if exists "Members can register for events" on public.event_registrations;
+drop policy if exists "Members can view own registrations" on public.event_registrations;
+drop policy if exists "Admins can view all registrations" on public.event_registrations;
+
+create policy "Members can register for events"
+  on public.event_registrations for insert
+  with check (auth.uid() = user_id);
+
+create policy "Members can view own registrations"
+  on public.event_registrations for select
+  using (auth.uid() = user_id);
+
+create policy "Admins can view all registrations"
+  on public.event_registrations for select
+  using (public.is_admin());
