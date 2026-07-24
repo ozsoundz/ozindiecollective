@@ -670,6 +670,7 @@ create table if not exists public.newsletter_subscribers (
 
 alter table public.newsletter_subscribers add column if not exists email text;
 alter table public.newsletter_subscribers add column if not exists source text default 'footer';
+alter table public.newsletter_subscribers add column if not exists welcomed_at timestamptz;
 alter table public.newsletter_subscribers add column if not exists created_at timestamptz default now();
 
 do $$

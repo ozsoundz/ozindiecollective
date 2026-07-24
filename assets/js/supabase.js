@@ -632,6 +632,15 @@ export async function subscribeToNewsletter(email) {
     if (error.code === '23505') return { alreadySubscribed: true }
     throw error
   }
+
+  // Best-effort: trigger a one-time welcome email via Edge Function. Failure here
+  // must never block the subscription itself — the function may not be deployed yet.
+  try {
+    await supabase.functions.invoke('send-newsletter-welcome', { body: { email } })
+  } catch (err) {
+    console.warn('send-newsletter-welcome function not available yet:', err.message)
+  }
+
   return { alreadySubscribed: false }
 }
 
