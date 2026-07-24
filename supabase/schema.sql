@@ -478,3 +478,95 @@ drop policy if exists "Public can view partner logos" on storage.objects;
 drop policy if exists "Admins can manage partner logos" on storage.objects;
 create policy "Public can view partner logos" on storage.objects for select using (bucket_id = 'partner-logos');
 create policy "Admins can manage partner logos" on storage.objects for all to authenticated using (bucket_id = 'partner-logos' and public.is_admin()) with check (bucket_id = 'partner-logos' and public.is_admin());
+
+-- 12. PROJECTS BOARD (collaboration/creative projects, submitted via projects.html)
+-- Deliberately separate from `listings` (paid job/gig posts) — projects are
+-- collaboration-oriented (paid/unpaid/rev-share) and target a discipline, not a role.
+create table if not exists public.projects (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.projects add column if not exists title text;
+alter table public.projects add column if not exists category text;
+alter table public.projects add column if not exists project_type text;
+alter table public.projects add column if not exists discipline_needed text;
+alter table public.projects add column if not exists description text;
+alter table public.projects add column if not exists city text;
+alter table public.projects add column if not exists state text;
+alter table public.projects add column if not exists timeframe text;
+alter table public.projects add column if not exists posted_by uuid references public.profiles(id) on delete cascade;
+alter table public.projects add column if not exists status text default 'pending';
+alter table public.projects add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'projects_status_check') then
+    alter table public.projects add constraint projects_status_check
+      check (status in ('pending','live','denied'));
+  end if;
+end $$;
+
+alter table public.projects enable row level security;
+
+drop policy if exists "Public can view live projects" on public.projects;
+drop policy if exists "Posters can view own projects" on public.projects;
+drop policy if exists "Authenticated users can create projects" on public.projects;
+drop policy if exists "Admins can view all projects" on public.projects;
+drop policy if exists "Admins can update all projects" on public.projects;
+
+create policy "Public can view live projects"
+  on public.projects for select
+  using (status = 'live');
+
+create policy "Posters can view own projects"
+  on public.projects for select
+  using (auth.uid() = posted_by);
+
+create policy "Authenticated users can create projects"
+  on public.projects for insert
+  with check (auth.uid() = posted_by);
+
+create policy "Admins can view all projects"
+  on public.projects for select
+  using (public.is_admin());
+
+create policy "Admins can update all projects"
+  on public.projects for update
+  using (public.is_admin());
+
+-- 13. PROJECT APPLICATIONS TABLE (a member applying to a project)
+create table if not exists public.project_applications (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.project_applications add column if not exists project_id uuid references public.projects(id) on delete cascade;
+alter table public.project_applications add column if not exists applicant_id uuid references auth.users(id) on delete cascade;
+alter table public.project_applications add column if not exists cover_message text;
+alter table public.project_applications add column if not exists portfolio_link text;
+alter table public.project_applications add column if not exists status text default 'pending';
+alter table public.project_applications add column if not exists created_at timestamptz default now();
+
+alter table public.project_applications enable row level security;
+
+drop policy if exists "Applicants can create project applications" on public.project_applications;
+drop policy if exists "Applicants can view own project applications" on public.project_applications;
+drop policy if exists "Project owners can view applications to their projects" on public.project_applications;
+drop policy if exists "Admins can view all project applications" on public.project_applications;
+
+create policy "Applicants can create project applications"
+  on public.project_applications for insert
+  with check (auth.uid() = applicant_id);
+
+create policy "Applicants can view own project applications"
+  on public.project_applications for select
+  using (auth.uid() = applicant_id);
+
+create policy "Project owners can view applications to their projects"
+  on public.project_applications for select
+  using (exists (
+    select 1 from public.projects p where p.id = project_id and p.posted_by = auth.uid()
+  ));
+
+create policy "Admins can view all project applications"
+  on public.project_applications for select
+  using (public.is_admin());

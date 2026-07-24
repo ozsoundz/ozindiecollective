@@ -282,6 +282,98 @@ export async function getMyListings() {
   return data
 }
 
+// ── PROJECTS BOARD ────────────────────────────────────
+// Separate from `listings`/`applications` — projects are collaboration-oriented
+// (paid/unpaid/rev-share) posts targeting a discipline rather than a role.
+
+export async function getProjects({ projectType, discipline, state } = {}) {
+  let query = supabase
+    .from('projects')
+    .select('*, profiles(full_name, plan)')
+    .eq('status', 'live')
+    .order('created_at', { ascending: false })
+
+  if (projectType) query = query.eq('project_type', projectType)
+  if (discipline) query = query.eq('discipline_needed', discipline)
+  if (state) query = query.eq('state', state)
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function createProject(projectData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('projects')
+    .insert({ ...projectData, posted_by: session.user.id, status: 'pending' })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function applyToProject({ projectId, coverMessage, portfolioLink }) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('project_applications')
+    .insert({
+      project_id: projectId,
+      applicant_id: session.user.id,
+      cover_message: coverMessage,
+      portfolio_link: portfolioLink
+    })
+  if (error) throw error
+  return data
+}
+
+// Admin: every project regardless of status, for the moderation queue.
+export async function getAllProjects() {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*, profiles(full_name, plan)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function approveProject(projectId) {
+  const { error } = await supabase.from('projects').update({ status: 'live' }).eq('id', projectId)
+  if (error) throw error
+}
+
+export async function denyProject(projectId) {
+  const { error } = await supabase.from('projects').update({ status: 'denied' }).eq('id', projectId)
+  if (error) throw error
+}
+
+// Member: their own project applications, for the dashboard.
+export async function getMyProjectApplications() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('project_applications')
+    .select('*, projects(title)')
+    .eq('applicant_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Member: projects they've posted, for the dashboard.
+export async function getMyProjects() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('posted_by', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 // ── ADMIN ─────────────────────────────────────────────
 
 export async function getPendingApplications() {

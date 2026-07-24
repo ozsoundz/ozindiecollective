@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="projects.html" class="admin-nav-item active">Projects <span class="admin-badge" id="navProjPendingBadge">…</span></a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Projects Board</h1>
+      <p class="text-muted text-sm mt-1">Review and moderate all collaboration project listings.</p>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
+      <button onclick="window.__filterProjects('pending',this)" class="btn-primary" id="pfBtn-pending" style="font-size:.62rem;padding:.4rem .9rem">Pending Review (…)</button>
+      <button onclick="window.__filterProjects('live',this)" class="btn-ghost" id="pfBtn-live" style="font-size:.62rem;padding:.4rem .9rem">Live (…)</button>
+      <button onclick="window.__filterProjects('denied',this)" class="btn-ghost" id="pfBtn-denied" style="font-size:.62rem;padding:.4rem .9rem">Denied (…)</button>
+      <button onclick="window.__filterProjects('all',this)" class="btn-ghost" id="pfBtn-all" style="font-size:.62rem;padding:.4rem .9rem">All (…)</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem" id="projectsContainer">
+      <p class="text-muted text-sm">Loading projects…</p>
+    </div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js?v=2"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { getAllProjects, approveProject, denyProject } from '../assets/js/supabase.js?v=2';
+
+let projects = [];
+let currentFilter = 'pending';
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function renderRow(p){
+  const e = escapeHtml;
+  const statusTag = p.status==='live' ? 'tag-approved' : p.status==='denied' ? 'tag-denied' : 'tag-pending';
+  const statusLabel = p.status.charAt(0).toUpperCase()+p.status.slice(1);
+  const disabled = p.status !== 'pending';
+  const poster = p.profiles?.full_name || '(unknown)';
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-gold">${e(p.project_type||'—')}</span><span class="tag tag-blue">${e(p.category||'—')}</span></div>
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(p.title||'(untitled)')}</h3>
+        <div class="text-sm text-muted">Posted by ${e(poster)} · ${e([p.city,p.state].filter(Boolean).join(', ')||'—')} · Submitted ${timeAgo(p.created_at)}</div>
+      </div>
+      <div class="flex gap-1">
+        <button class="btn-success" ${disabled?'disabled':''} data-project-action="approve" data-project-id="${e(p.id)}">✓ Approve</button>
+        <button class="btn-danger" ${disabled?'disabled':''} data-project-action="deny" data-project-id="${e(p.id)}">✗ Deny</button>
+      </div>
+    </div>
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+      <p class="text-sm text-muted" style="line-height:1.6">${e(p.description||'')}</p>
+    </div>
+    <div class="flex gap-3 mt-2 text-xs text-muted">
+      <span>🎯 ${e(p.discipline_needed||'—')}</span>
+      <span>📍 ${e([p.city,p.state].filter(Boolean).join(', ')||'—')}</span>
+      <span>🗓️ ${e(p.timeframe||'—')}</span>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  const list = currentFilter==='all' ? projects : projects.filter(p=>p.status===currentFilter);
+  document.getElementById('projectsContainer').innerHTML = list.length
+    ? list.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No projects in this category.</p>';
+
+  document.getElementById('pfBtn-pending').textContent = `Pending Review (${projects.filter(p=>p.status==='pending').length})`;
+  document.getElementById('pfBtn-live').textContent = `Live (${projects.filter(p=>p.status==='live').length})`;
+  document.getElementById('pfBtn-denied').textContent = `Denied (${projects.filter(p=>p.status==='denied').length})`;
+  document.getElementById('pfBtn-all').textContent = `All (${projects.length})`;
+  const navBadge = document.getElementById('navProjPendingBadge');
+  if(navBadge) navBadge.textContent = projects.filter(p=>p.status==='pending').length;
+}
+
+window.__filterProjects = function(status, btn){
+  currentFilter = status;
+  document.querySelectorAll('[id^="pfBtn-"]').forEach(b=>b.className='btn-ghost');
+  btn.className = 'btn-primary';
+  renderAll();
+};
+
+window.__projectApprove = async function(id){
+  try{ await approveProject(id); const p=projects.find(x=>x.id===id); if(p)p.status='live'; showToast('Project approved and now live!','success'); renderAll(); }
+  catch(err){ showToast(err.message||'Failed to approve project.','danger'); }
+};
+window.__projectDeny = async function(id){
+  try{ await denyProject(id); const p=projects.find(x=>x.id===id); if(p)p.status='denied'; showToast('Project denied.','danger'); renderAll(); }
+  catch(err){ showToast(err.message||'Failed to deny project.','danger'); }
+};
+
+document.getElementById('projectsContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-project-action]');
+  if (!btn) return;
+  if (btn.dataset.projectAction === 'approve') window.__projectApprove(btn.dataset.projectId);
+  else window.__projectDeny(btn.dataset.projectId);
+});
+
+async function load(){
+  try{
+    projects = await getAllProjects();
+    renderAll();
+  }catch(err){
+    document.getElementById('projectsContainer').innerHTML = `<p class="text-muted text-sm">Failed to load projects: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

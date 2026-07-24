@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post a Project — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.post-layout{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:2.5rem;align-items:start}
+.post-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.5rem}
+.preview-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;position:sticky;top:calc(var(--nav-h) + 1.5rem)}
+@media(max-width:900px){.post-layout{grid-template-columns:1fr}}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-postproj/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Post a Project</div>
+    <h1 class="section-title">Find a <em>Collaborator</em></h1>
+    <p class="text-muted mt-2" style="max-width:540px;line-height:1.7">Post a paid, unpaid or rev-share creative project and connect with vetted OIC members across every discipline.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="post-layout">
+    <div class="post-card">
+      <form id="postProjectForm" novalidate>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Project Details</h2>
+
+        <div class="form-group"><label>Project Title <span class="required-star">*</span></label><input type="text" name="title" placeholder="e.g. Indie Band Seeking Lighting Designer — National Tour" oninput="updatePreview()" data-max-chars="100"><div class="form-error" data-error="title"></div></div>
+
+        <div class="form-row">
+          <div class="form-group"><label>Category <span class="required-star">*</span></label>
+            <select name="category" onchange="updatePreview()">
+              <option value="">Select category…</option>
+              <option>Music</option><option>Podcast</option><option>Tour</option><option>Studio</option>
+              <option>Festival</option><option>Visual</option><option>Film</option><option>Other</option>
+            </select>
+            <div class="form-error" data-error="category"></div>
+          </div>
+          <div class="form-group"><label>Project Type <span class="required-star">*</span></label>
+            <select name="projectType" onchange="updatePreview()">
+              <option value="">Select type…</option>
+              <option value="Paid">Paid</option>
+              <option value="Unpaid / Collab">Unpaid / Collab</option>
+              <option value="Rev Share">Rev Share</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group"><label>Discipline Needed <span class="required-star">*</span></label>
+          <select name="discipline" onchange="updatePreview()">
+            <option value="">Select discipline…</option>
+            <option>Audio Engineer</option><option>Lighting Designer</option><option>Videographer</option>
+            <option>Producer</option><option>Graphic Designer</option><option>Photographer</option>
+            <option>Co-Writer</option><option>Sound Designer</option><option>Other</option>
+          </select>
+          <div class="form-error" data-error="discipline"></div>
+        </div>
+
+        <div class="form-group"><label>Description <span class="required-star">*</span></label><textarea name="description" placeholder="Describe the project, what you're looking for, and any key details…" rows="6" data-max-chars="1500" oninput="updatePreview()"></textarea><div class="form-error" data-error="description"></div></div>
+
+        <div class="form-row">
+          <div class="form-group"><label>City / Location <span class="required-star">*</span></label><input type="text" name="city" placeholder="e.g. Melbourne, Remote" oninput="updatePreview()"><div class="form-error" data-error="city"></div></div>
+          <div class="form-group"><label>State</label>
+            <select name="state">
+              <option value="">Select…</option>
+              <option>NSW</option><option>VIC</option><option>QLD</option><option>SA</option>
+              <option>WA</option><option>TAS</option><option>NT</option><option>ACT</option><option>Remote / National</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group"><label>Timeframe</label><input type="text" name="timeframe" placeholder="e.g. Oct 2025, 4 Months, Ongoing" oninput="updatePreview()"></div>
+
+        <div class="alert alert-info mt-2"><span>🔍</span><span class="text-sm">All projects are reviewed by our team before going live. Expect approval within 24 hours.</span></div>
+
+        <button type="submit" class="btn-primary btn-lg w-full mt-3">Submit Project</button>
+      </form>
+    </div>
+
+    <!-- Live Preview -->
+    <aside>
+      <div class="preview-card">
+        <div class="text-xs mono text-gold mb-3">Live Preview</div>
+        <div id="previewTitle" style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.35rem">Your project title will appear here</div>
+        <div id="previewMeta" class="text-xs text-muted mb-2">Category / Type</div>
+        <div id="previewDesc" class="text-sm text-muted" style="line-height:1.6;margin-bottom:.85rem">Your description will appear here…</div>
+        <div id="previewLocation" class="text-xs mono text-muted">📍 Location</div>
+        <div id="previewTimeframe" class="text-xs mono text-gold mt-1"></div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-top:1rem">
+        <div class="text-xs mono text-gold mb-2">Posting Tips</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.55rem">
+          <li class="text-xs text-muted">✓ Clear, specific titles get more applicants</li>
+          <li class="text-xs text-muted">✓ Be upfront about pay/rev-share terms</li>
+          <li class="text-xs text-muted">✓ Mention the timeframe and location</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=2"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { createProject } from '../assets/js/supabase.js?v=2';
+window.__ozCreateProject = createProject;
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()) { window.location.href = 'login.html'; }
+});
+function updatePreview() {
+  const f = document.getElementById('postProjectForm');
+  const title = f.querySelector('[name=title]').value || 'Your project title will appear here';
+  const cat = f.querySelector('[name=category]').value;
+  const type = f.querySelector('[name=projectType]').value;
+  const desc = f.querySelector('[name=description]').value;
+  const city = f.querySelector('[name=city]').value;
+  const timeframe = f.querySelector('[name=timeframe]').value;
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('previewMeta').textContent = [cat,type].filter(Boolean).join(' / ') || 'Category / Type';
+  document.getElementById('previewDesc').textContent = desc ? desc.slice(0,140)+(desc.length>140?'…':'') : 'Your description will appear here…';
+  document.getElementById('previewLocation').textContent = city ? '📍 '+city : '📍 Location';
+  document.getElementById('previewTimeframe').textContent = timeframe || '';
+}
+document.getElementById('postProjectForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const f = this;
+  const val = name => f.querySelector(`[name=${name}]`)?.value || '';
+  const title = val('title'), cat = val('category'), type = val('projectType'), discipline = val('discipline'), desc = val('description'), city = val('city');
+  if(!title || !cat || !type || !discipline || !desc || !city) { showToast('Please fill in all required fields.','danger'); return; }
+
+  const submitBtn = f.querySelector('button[type=submit]');
+  submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
+
+  try {
+    await window.__ozCreateProject({
+      title,
+      category: cat,
+      project_type: type,
+      discipline_needed: discipline,
+      description: desc,
+      city,
+      state: val('state'),
+      timeframe: val('timeframe')
+    });
+    showToast('Project submitted for review! You\'ll hear from us within 24 hours.','success');
+    setTimeout(() => { window.location.href = 'projects.html'; }, 1800);
+  } catch(err) {
+    showToast(err.message || 'Failed to submit project.','danger');
+    submitBtn.disabled = false; submitBtn.textContent = 'Submit Project';
+  }
+});
+</script>
+</body>
+</html>
