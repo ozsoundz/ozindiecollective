@@ -20,8 +20,8 @@
 .hero-content{position:relative;z-index:3;text-align:center;padding:0 2rem;max-width:860px}
 .hero-logo{width:180px;height:180px;object-fit:contain;margin:0 auto 1.75rem;border-radius:50%;filter:drop-shadow(0 0 28px rgba(79,216,240,.25)) drop-shadow(0 0 46px rgba(245,166,35,.15))}
 @media(max-width:600px){.hero-logo{width:130px;height:130px;margin-bottom:1.25rem}}
-.hero-eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--marigold);margin-bottom:1.4rem;display:flex;align-items:center;justify-content:center;gap:1rem}
-.hero-eyebrow::before,.hero-eyebrow::after{content:'';height:1px;width:36px;background:var(--marigold);opacity:.5}
+.hero-eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--cyan);margin-bottom:1.4rem;display:flex;align-items:center;justify-content:center;gap:1rem}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';height:1px;width:36px;background:var(--cyan);opacity:.5}
 .hero-headline{font-family:var(--font-display);font-size:clamp(3rem,8vw,6rem);font-weight:900;line-height:1.02;color:var(--cream);margin-bottom:1.4rem;letter-spacing:-.02em}
 .hero-headline em{font-style:italic;color:var(--marigold)}
 .hero-sub{font-size:1.05rem;line-height:1.75;font-weight:300;color:rgba(240,237,230,.72);max-width:620px;margin:0 auto 2.4rem}
@@ -33,7 +33,7 @@
 .why-quote{font-family:var(--font-display);font-size:1.4rem;font-style:italic;color:rgba(240,237,230,.65);line-height:1.5;padding-left:1.4rem;border-left:3px solid var(--rust);margin:1.5rem 0 2rem}
 .pillars{display:flex;flex-direction:column;gap:1.2rem}
 .pillar{display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;border:1px solid var(--border);border-radius:4px;transition:.2s}
-.pillar:hover{border-color:rgba(245,166,35,.35)}
+.pillar:hover{border-color:rgba(79,216,240,.35)}
 .pillar-icon{width:42px;height:42px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.6rem;font-weight:700}
 .pi-c{background:rgba(74,222,128,.2);color:var(--sage)}
 .pi-co{background:rgba(245,166,35,.15);color:var(--marigold)}
@@ -51,7 +51,7 @@
 .odot{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--mid);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.5rem;color:var(--marigold);font-weight:700;text-transform:uppercase;white-space:nowrap;line-height:1.1;text-align:center;padding:2px}
 .members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.9rem;margin-top:3rem}
 .mcard{background:rgba(240,237,230,.04);border:1px solid var(--border);border-radius:4px;padding:1.4rem 1rem;text-align:center;cursor:pointer;transition:.2s;text-decoration:none;display:block}
-.mcard:hover{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.4);transform:translateY(-3px)}
+.mcard:hover{background:rgba(79,216,240,.08);border-color:rgba(79,216,240,.4);transform:translateY(-3px)}
 .mcard-icon{font-size:1.6rem;margin-bottom:.65rem;display:block}
 .mcard-name{font-size:.8rem;font-weight:600;color:var(--cream)}
 .mcard-sub{font-size:.68rem;color:var(--muted);margin-top:.2rem;font-family:var(--font-mono)}
@@ -63,13 +63,13 @@
 .pcard-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--cream);margin:.75rem 0 .4rem;line-height:1.25}
 .pcard-meta{font-size:.78rem;color:var(--muted);margin-bottom:.85rem}
 .pcard-desc{font-size:.85rem;color:rgba(240,237,230,.68);line-height:1.6;margin-bottom:1.25rem}
-.apply-link{font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:.2s}
+.apply-link{font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:.2s}
 .apply-link:hover{gap:.6rem}
 .impact-grid{display:grid;grid-template-columns:repeat(3,1fr)}
 .istat{padding:2.25rem;border-right:1px solid var(--border);text-align:center}
 .istat:last-child{border-right:none}
 .istat:nth-child(n+4){border-top:1px solid var(--border)}
-.istat-num{font-family:var(--font-display);font-size:3.2rem;font-weight:900;color:var(--marigold);line-height:1;margin-bottom:.4rem}
+.istat-num{font-family:var(--font-display);font-size:3.2rem;font-weight:900;color:var(--cyan);line-height:1;margin-bottom:.4rem}
 .istat-lbl{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
 .stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.4rem;margin-top:3rem}
 .story-card{border-radius:4px;overflow:hidden;border:1px solid var(--border);transition:.2s}
@@ -229,11 +229,11 @@
     <h2 class="section-title mb-4">Numbers that <em>matter.</em></h2>
     <div class="impact-grid">
       <div class="istat fade-in"><div class="istat-num">4,200+</div><div class="istat-lbl">Members</div></div>
-      <div class="istat fade-in"><div class="istat-num">890</div><div class="istat-lbl">Projects Created</div></div>
-      <div class="istat fade-in"><div class="istat-num">1,340</div><div class="istat-lbl">Jobs Posted</div></div>
-      <div class="istat fade-in"><div class="istat-num">2,100+</div><div class="istat-lbl">Collaborations Formed</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--marigold)">890</div><div class="istat-lbl">Projects Created</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--violet)">1,340</div><div class="istat-lbl">Jobs Posted</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--sage)">2,100+</div><div class="istat-lbl">Collaborations Formed</div></div>
       <div class="istat fade-in"><div class="istat-num">78</div><div class="istat-lbl">Events Hosted</div></div>
-      <div class="istat fade-in"><div class="istat-num">$340K</div><div class="istat-lbl">Sponsorships Funded</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--marigold)">$340K</div><div class="istat-lbl">Sponsorships Funded</div></div>
     </div>
   </div>
 </section>
