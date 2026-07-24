@@ -53,7 +53,7 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication } from '../assets/js/supabase.js?v=3';
+import { getAllApplications, approveApplication, denyApplication, deleteUserAccount } from '../assets/js/supabase.js?v=4';
 
 let applications = [];
 let currentFilter = 'pending';
@@ -113,6 +113,7 @@ function renderCard(app){
       <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
         <button class="btn-success w-full" ${disabled?'disabled':''} data-app-action="approved" data-app-id="${e(app.id)}">✓ Approve</button>
         <button class="btn-danger w-full" ${disabled?'disabled':''} data-app-action="denied" data-app-id="${e(app.id)}">✗ Deny</button>
+        <button class="btn-danger w-full" style="background:transparent;border:1px solid var(--rust,#a33)" data-app-action="delete" data-app-id="${e(app.id)}" data-app-name="${e(app.full_name||'this applicant')}">🗑 Delete Account</button>
       </div>
     </div>
   </div>`;
@@ -143,7 +144,11 @@ window.filterApps = function(status, btn){
 document.getElementById('appCards').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-app-action]');
   if (!btn) return;
-  window.__processApp(btn.dataset.appId, btn.dataset.appAction);
+  if (btn.dataset.appAction === 'delete') {
+    window.__deleteApp(btn.dataset.appId, btn.dataset.appName);
+  } else {
+    window.__processApp(btn.dataset.appId, btn.dataset.appAction);
+  }
 });
 
 window.__processApp = async function(userId, action){
@@ -156,6 +161,21 @@ window.__processApp = async function(userId, action){
     renderAll();
   }catch(err){
     showToast(err.message||'Failed to update application.','danger');
+  }
+};
+
+window.__deleteApp = async function(userId, name){
+  const confirmed = confirm(
+    `Permanently delete ${name}'s account?\n\nThis cannot be undone — their profile, applications, listings and any other content tied to this account will be removed immediately.`
+  );
+  if (!confirmed) return;
+  try{
+    await deleteUserAccount(userId);
+    applications = applications.filter(a=>a.id!==userId);
+    showToast(name+"'s account has been permanently deleted.",'danger');
+    renderAll();
+  }catch(err){
+    showToast(err.message||'Failed to delete account.','danger');
   }
 };
 

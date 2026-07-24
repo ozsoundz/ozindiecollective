@@ -424,6 +424,16 @@ export async function denyApplication(userId, emailType = 'denied') {
   }
 }
 
+// Permanently deletes a member's auth account (profile + everything that cascades
+// from it — applications, listings, community posts, etc.) via a service-role
+// Edge Function, since this can't be done with the anon key. Irreversible.
+export async function deleteUserAccount(userId) {
+  const { data, error } = await supabase.functions.invoke('delete-user-account', { body: { userId } })
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+  return data
+}
+
 // ── ARTICLES ──────────────────────────────────────────
 
 // Public: published articles only, for the Articles/resources page.
