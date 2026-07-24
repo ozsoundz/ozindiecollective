@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   initCheckboxPills();
   initCharCount();
   initTabs();
-  initToast();
 });
 
 function initNav(){
@@ -140,7 +139,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import(rootPath()+'assets/js/supabase.js');
+        const mod=await import('/assets/js/supabase.js?v=2');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');

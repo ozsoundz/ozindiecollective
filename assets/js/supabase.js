@@ -69,7 +69,22 @@ export async function getMfaLevel() {
   return data // { currentLevel, nextLevel }
 }
 
+export async function unenrollMfaFactor(factorId) {
+  const { error } = await supabase.auth.mfa.unenroll({ factorId })
+  if (error) throw error
+}
+
 export async function enrollMfa() {
+  // Clean up any stale unverified factors first (e.g. from an interrupted
+  // enrollment attempt) — Supabase can reject a new enroll() call otherwise.
+  try {
+    const existing = await listMfaFactors()
+    const stale = (existing.totp || []).filter(f => f.status !== 'verified')
+    for (const f of stale) {
+      try { await unenrollMfaFactor(f.id) } catch (e) { /* best-effort cleanup */ }
+    }
+  } catch (e) { /* listFactors failing shouldn't block enrollment attempt */ }
+
   const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' })
   if (error) throw error
   return data // { id: factorId, totp: { qr_code, secret, uri } }

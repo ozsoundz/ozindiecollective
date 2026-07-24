@@ -72,7 +72,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=2"></script>
-<script src="../assets/js/main.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
 <script>
 function requireAuth(e, dest) { e.preventDefault(); if(!Auth.get()) { window.location.href='login.html'; } else { window.location.href=dest; } }
 function applyProj(e, title) { e.preventDefault(); if(!Auth.get()){window.location.href='login.html';return;} document.getElementById('projModalTitle').textContent='Apply: '+title; openModal('projectApplyModal'); }

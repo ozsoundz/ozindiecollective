@@ -46,9 +46,9 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=2"></script>
-<script src="../assets/js/main.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getArticles, getArticleBySlug } from '../assets/js/supabase.js';
+import { getArticles, getArticleBySlug } from '../assets/js/supabase.js?v=2';
 
 function tileFor(a){
   const img = a.cover_image_url || `https://picsum.photos/seed/${encodeURIComponent(a.slug||a.id)}/500/300`;

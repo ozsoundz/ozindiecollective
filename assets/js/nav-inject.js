@@ -115,7 +115,7 @@
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');
     if (partnersMount) {
-      import(root + 'assets/js/supabase.js').then(async ({ getPartners }) => {
+      import('/assets/js/supabase.js?v=2').then(async ({ getPartners }) => {
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }

@@ -166,7 +166,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=2"></script>
-<script src="../assets/js/main.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
 <script>
 function showTab(name) {
   ['about','portfolio','credits','reviews','epk'].forEach(t => {
@@ -189,7 +189,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia } from '../assets/js/supabase.js';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia } from '../assets/js/supabase.js?v=2';
 
 let pendingAvatarUrl = null;
 
