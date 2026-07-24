@@ -111,16 +111,17 @@ function timeAgo(iso){
 }
 
 function renderRow(app){
+  const e = escapeHtml;
   const planTag = {free:'tag-gold',pro:'tag-sage',partner:'tag-rust'}[app.plan] || 'tag-gold';
-  return `<tr data-id="${app.id}">
-    <td><div style="font-weight:600;color:var(--cream)">${app.full_name||'(no name)'}</div><div class="text-xs text-muted">${app.email||''}</div></td>
-    <td>${app.role||'—'}</td>
-    <td>${[app.city,app.state].filter(Boolean).join(', ')||'—'}</td>
-    <td><span class="tag ${planTag}" style="font-size:.58rem">${(app.plan||'free')}</span></td>
+  return `<tr data-id="${e(app.id)}">
+    <td><div style="font-weight:600;color:var(--cream)">${e(app.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(app.email||'')}</div></td>
+    <td>${e(app.role||'—')}</td>
+    <td>${e([app.city,app.state].filter(Boolean).join(', ')||'—')}</td>
+    <td><span class="tag ${planTag}" style="font-size:.58rem">${e(app.plan||'free')}</span></td>
     <td>${timeAgo(app.created_at)}</td>
     <td><div class="flex gap-1">
-      <button class="btn-success" onclick="window.__adminApprove('${app.id}')">Approve</button>
-      <button class="btn-danger" onclick="window.__adminDeny('${app.id}')">Deny</button>
+      <button class="btn-success" data-app-action="approve" data-app-id="${e(app.id)}">Approve</button>
+      <button class="btn-danger" data-app-action="deny" data-app-id="${e(app.id)}">Deny</button>
     </div></td>
   </tr>`;
 }
@@ -149,16 +150,24 @@ window.__adminDeny = async function(id){
   catch(err){ showToast(err.message||'Failed to deny.','danger'); }
 };
 
+document.getElementById('appTableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-app-action]');
+  if (!btn) return;
+  if (btn.dataset.appAction === 'approve') window.__adminApprove(btn.dataset.appId);
+  else window.__adminDeny(btn.dataset.appId);
+});
+
 function renderListingRow(l){
+  const e = escapeHtml;
   const poster = l.profiles?.full_name || '(unknown)';
-  return `<tr data-id="${l.id}">
-    <td style="color:var(--cream)">${l.title||'(untitled)'}</td>
-    <td>${poster}</td>
-    <td>${l.category||'—'}</td>
+  return `<tr data-id="${e(l.id)}">
+    <td style="color:var(--cream)">${e(l.title||'(untitled)')}</td>
+    <td>${e(poster)}</td>
+    <td>${e(l.category||'—')}</td>
     <td>${timeAgo(l.created_at)}</td>
     <td><div class="flex gap-1">
-      <button class="btn-success" onclick="window.__adminApproveListing('${l.id}')">Approve</button>
-      <button class="btn-danger" onclick="window.__adminDenyListing('${l.id}')">Deny</button>
+      <button class="btn-success" data-listing-action="approve" data-listing-id="${e(l.id)}">Approve</button>
+      <button class="btn-danger" data-listing-action="deny" data-listing-id="${e(l.id)}">Deny</button>
     </div></td>
   </tr>`;
 }
@@ -179,6 +188,13 @@ window.__adminDenyListing = async function(id){
   try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='denied'; showToast('Listing denied.','danger'); renderListingTable(); }
   catch(err){ showToast(err.message||'Failed to deny listing.','danger'); }
 };
+
+document.getElementById('listingTableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-listing-action]');
+  if (!btn) return;
+  if (btn.dataset.listingAction === 'approve') window.__adminApproveListing(btn.dataset.listingId);
+  else window.__adminDenyListing(btn.dataset.listingId);
+});
 
 async function load(){
   try{

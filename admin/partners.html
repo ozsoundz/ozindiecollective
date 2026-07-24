@@ -116,20 +116,21 @@ document.getElementById('pf_logo_file').addEventListener('change', async (e) => 
 let partners = [];
 
 function renderRow(p){
+  const e = escapeHtml;
   const statusTag = p.status==='active' ? 'tag-approved' : 'tag-denied';
   const statusLabel = p.status.charAt(0).toUpperCase()+p.status.slice(1);
   return `
   <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;justify-content:space-between;gap:1rem;align-items:center">
     <div class="flex gap-3 items-center">
-      ${p.logo_url ? `<img src="${p.logo_url}" alt="${p.name||''}" style="width:64px;height:40px;object-fit:contain;background:rgba(240,237,230,.05);border-radius:3px">` : ''}
+      ${p.logo_url ? `<img src="${e(sanitizeUrl(p.logo_url))}" alt="${e(p.name||'')}" style="width:64px;height:40px;object-fit:contain;background:rgba(240,237,230,.05);border-radius:3px">` : ''}
       <div>
-        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-blue">${p.tier||'partner'}</span></div>
-        <h3 style="font-family:var(--font-display);font-size:1.05rem;color:var(--cream)">${p.name||'(untitled)'}</h3>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-blue">${e(p.tier||'partner')}</span></div>
+        <h3 style="font-family:var(--font-display);font-size:1.05rem;color:var(--cream)">${e(p.name||'(untitled)')}</h3>
       </div>
     </div>
     <div class="flex gap-1" style="flex-shrink:0">
-      <button class="btn-ghost" style="font-size:.62rem" onclick="window.__editPartner('${p.id}')">Edit</button>
-      <button class="btn-danger" style="font-size:.62rem" onclick="window.__deletePartner('${p.id}')">Delete</button>
+      <button class="btn-ghost" style="font-size:.62rem" data-partner-action="edit" data-partner-id="${e(p.id)}">Edit</button>
+      <button class="btn-danger" style="font-size:.62rem" data-partner-action="delete" data-partner-id="${e(p.id)}">Delete</button>
     </div>
   </div>`;
 }
@@ -164,6 +165,13 @@ window.__editPartner = function(id){
 window.__closeEditor = function(){
   document.getElementById('partnerModal').style.display = 'none';
 };
+
+document.getElementById('partnersContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-partner-action]');
+  if (!btn) return;
+  if (btn.dataset.partnerAction === 'edit') window.__editPartner(btn.dataset.partnerId);
+  else window.__deletePartner(btn.dataset.partnerId);
+});
 
 window.__deletePartner = async function(id){
   if(!confirm('Delete this partner permanently?')) return;

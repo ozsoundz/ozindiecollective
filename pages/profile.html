@@ -238,7 +238,7 @@ function fmtMonthYear(iso){
 function renderHeader(p){
   const avatarEl = document.getElementById('ph_avatar');
   if (p.avatar_url) {
-    avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    avatarEl.innerHTML = `<img src="${escapeHtml(p.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
     avatarEl.className = 'avatar avatar-xl';
   } else {
     avatarEl.textContent = initials(p.full_name);
@@ -269,23 +269,23 @@ function renderHeader(p){
   const skillsWrap = document.getElementById('ph_skills');
   const TAG_CLASSES = ['tag-gold','tag-sage','tag-blue','tag-rust'];
   skillsWrap.innerHTML = (p.skills&&p.skills.length)
-    ? p.skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${s}</span>`).join('')
+    ? p.skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${escapeHtml(s)}</span>`).join('')
     : '<span class="text-sm text-muted">No skills listed yet.</span>';
 
   if(p.portfolio_url){
     const link = document.getElementById('ph_portfolioLink');
-    link.href = p.portfolio_url; link.textContent = p.portfolio_url; link.target = '_blank'; link.rel = 'noopener';
+    link.href = sanitizeUrl(p.portfolio_url); link.textContent = p.portfolio_url; link.target = '_blank'; link.rel = 'noopener';
   }
 
   document.getElementById('side_location').textContent = [p.city,p.state].filter(Boolean).join(', ')||'—';
   document.getElementById('side_experience').textContent = p.experience || '—';
   document.getElementById('side_memberSince').textContent = fmtMonthYear(p.created_at);
-  document.getElementById('side_plan').innerHTML = p.plan ? `<span class="tag tag-gold">${p.plan.charAt(0).toUpperCase()+p.plan.slice(1)}</span>` : '—';
-  document.getElementById('side_status').innerHTML = p.status === 'approved' ? '<span class="tag tag-approved">✓ Approved</span>' : `<span class="tag tag-pending">${p.status||'—'}</span>`;
+  document.getElementById('side_plan').innerHTML = p.plan ? `<span class="tag tag-gold">${escapeHtml(p.plan.charAt(0).toUpperCase()+p.plan.slice(1))}</span>` : '—';
+  document.getElementById('side_status').innerHTML = p.status === 'approved' ? '<span class="tag tag-approved">✓ Approved</span>' : `<span class="tag tag-pending">${escapeHtml(p.status||'—')}</span>`;
 
   const links = [];
-  if(p.portfolio_url) links.push(`<a href="${p.portfolio_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🌐 ${p.portfolio_url}</a>`);
-  if(p.instagram_handle) links.push(`<a href="https://instagram.com/${p.instagram_handle.replace('@','')}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">📷 @${p.instagram_handle.replace('@','')}</a>`);
+  if(p.portfolio_url) links.push(`<a href="${escapeHtml(sanitizeUrl(p.portfolio_url))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">🌐 ${escapeHtml(p.portfolio_url)}</a>`);
+  if(p.instagram_handle) links.push(`<a href="https://instagram.com/${encodeURIComponent(p.instagram_handle.replace('@',''))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.5rem">📷 @${escapeHtml(p.instagram_handle.replace('@',''))}</a>`);
   document.getElementById('side_links').innerHTML = links.length ? links.join('') : '<span class="text-sm text-muted">No links added yet.</span>';
 }
 
@@ -309,17 +309,17 @@ function renderEpkPublic(epk){
     wrap.innerHTML = '<p class="text-muted text-sm">This member hasn\'t published an EPK yet.</p>';
     return;
   }
-  const photos = (epk.epk_photos||[]).map(p=>`<img src="${p}" style="width:100%;border-radius:4px;margin-bottom:.75rem" loading="lazy">`).join('');
-  const music = (epk.epk_music_links||[]).map(l=>`<a href="${l}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎵 ${l}</a>`).join('');
-  const videos = (epk.epk_video_links||[]).map(l=>`<a href="${l}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎬 ${l}</a>`).join('');
+  const photos = (epk.epk_photos||[]).map(p=>`<img src="${escapeHtml(sanitizeUrl(p))}" style="width:100%;border-radius:4px;margin-bottom:.75rem" loading="lazy">`).join('');
+  const music = (epk.epk_music_links||[]).map(l=>`<a href="${escapeHtml(sanitizeUrl(l))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎵 ${escapeHtml(l)}</a>`).join('');
+  const videos = (epk.epk_video_links||[]).map(l=>`<a href="${escapeHtml(sanitizeUrl(l))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">🎬 ${escapeHtml(l)}</a>`).join('');
   wrap.innerHTML = `
-    ${epk.epk_bio ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Press Bio</h3><p class="text-muted" style="line-height:1.8;margin-bottom:2rem">${epk.epk_bio}</p>` : ''}
+    ${epk.epk_bio ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Press Bio</h3><p class="text-muted" style="line-height:1.8;margin-bottom:2rem">${escapeHtml(epk.epk_bio)}</p>` : ''}
     ${photos ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Photos</h3><div style="margin-bottom:2rem">${photos}</div>` : ''}
     ${music ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Music</h3><div style="margin-bottom:2rem">${music}</div>` : ''}
     ${videos ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Videos</h3><div style="margin-bottom:2rem">${videos}</div>` : ''}
     ${(epk.epk_stage_plot_url || epk.epk_tech_rider_url) ? `<h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.75rem">Technical</h3>
-      ${epk.epk_stage_plot_url ? `<a href="${epk.epk_stage_plot_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">📐 Stage Plot</a>` : ''}
-      ${epk.epk_tech_rider_url ? `<a href="${epk.epk_tech_rider_url}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block">📋 Tech Rider</a>` : ''}` : ''}
+      ${epk.epk_stage_plot_url ? `<a href="${escapeHtml(sanitizeUrl(epk.epk_stage_plot_url))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block;margin-bottom:.4rem">📐 Stage Plot</a>` : ''}
+      ${epk.epk_tech_rider_url ? `<a href="${escapeHtml(sanitizeUrl(epk.epk_tech_rider_url))}" target="_blank" rel="noopener" class="text-sm" style="color:var(--cyan);text-decoration:none;display:block">📋 Tech Rider</a>` : ''}` : ''}
   `;
 }
 

@@ -127,18 +127,19 @@ document.getElementById('af_cover_file').addEventListener('change', async (e) =>
 let articles = [];
 
 function renderRow(a){
+  const e = escapeHtml;
   const statusTag = a.status==='published' ? 'tag-approved' : 'tag-pending';
   const statusLabel = a.status.charAt(0).toUpperCase()+a.status.slice(1);
   return `
   <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
     <div>
-      <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span>${a.category?`<span class="tag tag-blue">${a.category}</span>`:''}</div>
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${a.title||'(untitled)'}</h3>
-      <div class="text-sm text-muted">/${a.slug||''} · ${a.author_name||'—'} ${a.read_minutes?`· ${a.read_minutes} min read`:''}</div>
+      <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span>${a.category?`<span class="tag tag-blue">${e(a.category)}</span>`:''}</div>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(a.title||'(untitled)')}</h3>
+      <div class="text-sm text-muted">/${e(a.slug||'')} · ${e(a.author_name||'—')} ${a.read_minutes?`· ${e(a.read_minutes)} min read`:''}</div>
     </div>
     <div class="flex gap-1" style="flex-shrink:0">
-      <button class="btn-ghost" style="font-size:.62rem" onclick="window.__editArticle('${a.id}')">Edit</button>
-      <button class="btn-danger" style="font-size:.62rem" onclick="window.__deleteArticle('${a.id}')">Delete</button>
+      <button class="btn-ghost" style="font-size:.62rem" data-article-action="edit" data-article-id="${e(a.id)}">Edit</button>
+      <button class="btn-danger" style="font-size:.62rem" data-article-action="delete" data-article-id="${e(a.id)}">Delete</button>
     </div>
   </div>`;
 }
@@ -176,6 +177,13 @@ window.__editArticle = function(id){
 window.__closeEditor = function(){
   document.getElementById('articleModal').style.display = 'none';
 };
+
+document.getElementById('articlesContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-article-action]');
+  if (!btn) return;
+  if (btn.dataset.articleAction === 'edit') window.__editArticle(btn.dataset.articleId);
+  else window.__deleteArticle(btn.dataset.articleId);
+});
 
 window.__deleteArticle = async function(id){
   if(!confirm('Delete this article permanently?')) return;

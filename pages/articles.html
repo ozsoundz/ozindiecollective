@@ -52,13 +52,14 @@ import { getArticles, getArticleBySlug } from '../assets/js/supabase.js';
 
 function tileFor(a){
   const img = a.cover_image_url || `https://picsum.photos/seed/${encodeURIComponent(a.slug||a.id)}/500/300`;
+  const e = escapeHtml;
   return `
   <a href="articles.html?slug=${encodeURIComponent(a.slug||'')}" class="article-tile">
-    <img src="${img}" alt="${a.title||''}">
+    <img src="${e(sanitizeUrl(img))}" alt="${e(a.title||'')}">
     <div class="article-tile-body">
-      <div class="article-cat">${a.category||'Article'}</div>
-      <div class="article-title">${a.title||'(untitled)'}</div>
-      <div class="article-meta">${a.author_name||'Oz Indie Collective'} ${a.read_minutes?`· ${a.read_minutes} min read`:''}</div>
+      <div class="article-cat">${e(a.category||'Article')}</div>
+      <div class="article-title">${e(a.title||'(untitled)')}</div>
+      <div class="article-meta">${e(a.author_name||'Oz Indie Collective')} ${a.read_minutes?`· ${e(a.read_minutes)} min read`:''}</div>
     </div>
   </a>`;
 }
@@ -80,13 +81,14 @@ async function renderDetail(slug){
   const body = document.getElementById('articleDetailBody');
   try{
     const a = await getArticleBySlug(slug);
+    const e = escapeHtml;
     const img = a.cover_image_url || `https://picsum.photos/seed/${encodeURIComponent(a.slug||a.id)}/1000/450`;
     body.innerHTML = `
-      <div class="article-cat">${a.category||'Article'}</div>
-      <h1 style="font-family:var(--font-display);font-size:2rem;color:var(--cream);margin:.5rem 0 1rem;line-height:1.2">${a.title||''}</h1>
-      <div class="text-sm text-muted" style="margin-bottom:1.5rem">${a.author_name||'Oz Indie Collective'} ${a.read_minutes?`· ${a.read_minutes} min read`:''}</div>
-      <img src="${img}" alt="" style="width:100%;max-height:420px;object-fit:cover;border-radius:4px;margin-bottom:1.75rem">
-      <div class="text-muted" style="line-height:1.9;max-width:720px;white-space:pre-wrap">${a.body||a.excerpt||''}</div>
+      <div class="article-cat">${e(a.category||'Article')}</div>
+      <h1 style="font-family:var(--font-display);font-size:2rem;color:var(--cream);margin:.5rem 0 1rem;line-height:1.2">${e(a.title||'')}</h1>
+      <div class="text-sm text-muted" style="margin-bottom:1.5rem">${e(a.author_name||'Oz Indie Collective')} ${a.read_minutes?`· ${e(a.read_minutes)} min read`:''}</div>
+      <img src="${e(sanitizeUrl(img))}" alt="" style="width:100%;max-height:420px;object-fit:cover;border-radius:4px;margin-bottom:1.75rem">
+      <div class="text-muted" style="line-height:1.9;max-width:720px;white-space:pre-wrap">${e(a.body||a.excerpt||'')}</div>
     `;
   }catch(err){
     body.innerHTML = `<p class="text-muted text-sm">Article not found.</p>`;

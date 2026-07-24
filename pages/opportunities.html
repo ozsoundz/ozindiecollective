@@ -93,24 +93,25 @@ let currentListingId = null;
 const ACCENTS = ['card-accent-gold','card-accent-rust','card-accent-sage'];
 
 function renderCard(job, i){
+  const e = escapeHtml;
   const posterName = job.profiles?.full_name || 'Oz Indie Collective Member';
   const posterPlan = job.profiles?.plan;
   return `
-  <div class="job-card ${ACCENTS[i%ACCENTS.length]}" data-cat="${job.category||''}" data-type="${job.employment_type||''}" data-loc="${job.state||''}">
+  <div class="job-card ${ACCENTS[i%ACCENTS.length]}" data-cat="${e(job.category||'')}" data-type="${e(job.employment_type||'')}" data-loc="${e(job.state||'')}">
     <div class="job-card-header">
       <div>
-        <a href="#" class="job-title" onclick="return false">${job.title||'(untitled listing)'}</a>
-        <div class="job-company">${posterName}${posterPlan==='partner'?' &nbsp;·&nbsp; <span class="tag tag-approved" style="font-size:.55rem">✓ Verified Partner</span>':''}</div>
+        <a href="#" class="job-title" onclick="return false">${e(job.title||'(untitled listing)')}</a>
+        <div class="job-company">${e(posterName)}${posterPlan==='partner'?' &nbsp;·&nbsp; <span class="tag tag-approved" style="font-size:.55rem">✓ Verified Partner</span>':''}</div>
       </div>
-      <span class="tag tag-gold">${job.employment_type||'—'}</span>
+      <span class="tag tag-gold">${e(job.employment_type||'—')}</span>
     </div>
-    <p class="text-sm text-muted mb-2" style="line-height:1.6">${job.description||''}</p>
-    <div class="job-tags">${(job.tags||[]).map(t=>`<span class="tag tag-sage">${t}</span>`).join('')}</div>
+    <p class="text-sm text-muted mb-2" style="line-height:1.6">${e(job.description||'')}</p>
+    <div class="job-tags">${(job.tags||[]).map(t=>`<span class="tag tag-sage">${e(t)}</span>`).join('')}</div>
     <div class="job-footer">
-      <span class="job-location">📍 ${[job.city,job.state].filter(Boolean).join(', ')||'—'}</span>
-      <span class="job-pay">${job.pay||'—'}</span>
+      <span class="job-location">📍 ${e([job.city,job.state].filter(Boolean).join(', ')||'—')}</span>
+      <span class="job-pay">${e(job.pay||'—')}</span>
       <div class="flex gap-1">
-        <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" onclick="window.applyModal('${job.id}','${(job.title||'').replace(/'/g,"\\'")}')">Apply Now</button>
+        <button class="btn-primary" style="font-size:.6rem;padding:.35rem .75rem" data-apply-id="${e(job.id)}" data-apply-title="${e(job.title||'')}">Apply Now</button>
       </div>
     </div>
   </div>`;
@@ -119,7 +120,7 @@ function renderCard(job, i){
 function populateCategoryFilter(){
   const sel = document.getElementById('filterCat');
   const cats = [...new Set(listings.map(j=>j.category).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">All Categories</option>' + cats.map(c=>`<option>${c}</option>`).join('');
+  sel.innerHTML = '<option value="">All Categories</option>' + cats.map(c=>`<option>${escapeHtml(c)}</option>`).join('');
 }
 
 window.filterJobs = function() {
@@ -140,6 +141,12 @@ window.filterJobs = function() {
   });
   document.getElementById('jobCount').textContent = count;
 }
+
+document.getElementById('jobListings').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-apply-id]');
+  if (!btn) return;
+  window.applyModal(btn.dataset.applyId, btn.dataset.applyTitle);
+});
 
 window.applyModal = function(listingId, title) {
   const user = Auth.get();

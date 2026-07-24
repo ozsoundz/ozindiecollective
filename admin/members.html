@@ -81,20 +81,21 @@ function fmtDate(iso){
 }
 
 function renderRow(m){
+  const e = escapeHtml;
   const planTag = {free:'tag-gold',pro:'tag-sage',partner:'tag-rust'}[m.plan] || 'tag-gold';
   const suspended = m.status === 'denied';
   const statusTag = suspended ? 'tag-denied' : 'tag-approved';
-  return `<tr data-id="${m.id}">
-    <td><div class="flex items-center gap-2"><div class="avatar avatar-sm ${avatarClass(m.full_name)}">${initials(m.full_name)}</div><div><div style="color:var(--cream);font-weight:600">${m.full_name||'(no name)'}</div><div class="text-xs text-muted">${m.email||''}</div></div></div></td>
-    <td>${m.role||'—'}</td>
-    <td>${[m.city,m.state].filter(Boolean).join(', ')||'—'}</td>
-    <td><span class="tag ${planTag}" style="font-size:.55rem">${m.plan||'free'}</span></td>
+  return `<tr data-id="${e(m.id)}">
+    <td><div class="flex items-center gap-2"><div class="avatar avatar-sm ${avatarClass(m.full_name)}">${e(initials(m.full_name))}</div><div><div style="color:var(--cream);font-weight:600">${e(m.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(m.email||'')}</div></div></div></td>
+    <td>${e(m.role||'—')}</td>
+    <td>${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</td>
+    <td><span class="tag ${planTag}" style="font-size:.55rem">${e(m.plan||'free')}</span></td>
     <td>${fmtDate(m.created_at)}</td>
     <td><span class="tag ${statusTag}" style="font-size:.55rem">${suspended?'Suspended':'Active'}</span></td>
     <td><div class="flex gap-1">
       ${suspended
-        ? `<button class="btn-success" style="font-size:.58rem;padding:.3rem .6rem" onclick="window.__reinstateMember('${m.id}')">Reinstate</button>`
-        : `<button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" onclick="window.__suspendMember('${m.id}','${(m.full_name||'this member').replace(/'/g,"\\'")}')">Suspend</button>`}
+        ? `<button class="btn-success" style="font-size:.58rem;padding:.3rem .6rem" data-member-action="reinstate" data-member-id="${e(m.id)}">Reinstate</button>`
+        : `<button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" data-member-action="suspend" data-member-id="${e(m.id)}" data-member-name="${e(m.full_name||'this member')}">Suspend</button>`}
     </div></td>
   </tr>`;
 }
@@ -102,7 +103,7 @@ function renderRow(m){
 function populateStateFilter(){
   const sel = document.getElementById('fState');
   const states = [...new Set(members.map(m=>m.state).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option>${s}</option>`).join('');
+  sel.innerHTML = '<option value="">All States</option>' + states.map(s=>`<option>${escapeHtml(s)}</option>`).join('');
 }
 
 window.searchMembers = function(){
@@ -132,7 +133,7 @@ window.searchMembers = function(){
 window.__suspendMember = async function(id, name){
   if(!confirm('Suspend '+name+'? They will lose access until reinstated.')) return;
   try{
-    await denyApplication(id);
+    await denyApplication(id, 'suspended');
     const m = members.find(x=>x.id===id); if(m) m.status='denied';
     showToast(name+' suspended.','danger');
     searchMembers();
@@ -147,12 +148,25 @@ window.__reinstateMember = async function(id){
   }catch(err){ showToast(err.message||'Failed to reinstate.','danger'); }
 };
 
+document.getElementById('membersTableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-member-action]');
+  if (!btn) return;
+  if (btn.dataset.memberAction === 'reinstate') window.__reinstateMember(btn.dataset.memberId);
+  else window.__suspendMember(btn.dataset.memberId, btn.dataset.memberName);
+});
+
 window.__exportCsv = function(){
   const rows = window.__filteredMembers || [];
   if(!rows.length){ showToast('Nothing to export.','info'); return; }
   const headers = ['Name','Email','Role','City','State','Plan','Status','Joined'];
+  // Prefix values starting with =, +, -, @ with a tab char to defuse CSV formula injection
+  // if this file is later opened in Excel/Sheets by an admin.
   const csvRows = rows.map(m => [m.full_name,m.email,m.role,m.city,m.state,m.plan,m.status,m.created_at]
-    .map(v => `"${(v??'').toString().replace(/"/g,'""')}"`).join(','));
+    .map(v => {
+      let s = (v??'').toString();
+      if(/^[=+\-@]/.test(s)) s = "'" + s;
+      return `"${s.replace(/"/g,'""')}"`;
+    }).join(','));
   const csv = [headers.join(','), ...csvRows].join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);

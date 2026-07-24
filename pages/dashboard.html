@@ -143,12 +143,13 @@ function statusTagFor(status){
 }
 
 function jobCardFor(l){
+  const e = escapeHtml;
   const accent = ['card-accent-gold','card-accent-rust','card-accent-sage'][Math.floor(Math.random()*3)];
   return `
   <div class="job-card ${accent}">
-    <div class="job-card-header"><div><a href="opportunities.html" class="job-title">${l.title||'(untitled)'}</a><div class="job-company">${l.profiles?.full_name||'Oz Indie Collective member'}</div></div><span class="tag tag-gold">${l.employment_type||'—'}</span></div>
-    <div class="job-tags">${(l.tags||[]).slice(0,3).map(t=>`<span class="tag tag-sage">${t}</span>`).join('')}</div>
-    <div class="job-footer"><span class="job-location">📍 ${[l.city,l.state].filter(Boolean).join(', ')||'—'}</span><span class="job-pay">${l.pay||'—'}</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">View</a></div>
+    <div class="job-card-header"><div><a href="opportunities.html" class="job-title">${e(l.title||'(untitled)')}</a><div class="job-company">${e(l.profiles?.full_name||'Oz Indie Collective member')}</div></div><span class="tag tag-gold">${e(l.employment_type||'—')}</span></div>
+    <div class="job-tags">${(l.tags||[]).slice(0,3).map(t=>`<span class="tag tag-sage">${e(t)}</span>`).join('')}</div>
+    <div class="job-footer"><span class="job-location">📍 ${e([l.city,l.state].filter(Boolean).join(', ')||'—')}</span><span class="job-pay">${e(l.pay||'—')}</span><a href="opportunities.html" class="btn-primary" style="font-size:.6rem;padding:.35rem .8rem">View</a></div>
   </div>`;
 }
 
@@ -168,7 +169,7 @@ async function loadApplications(){
     const apps = await getMyApplications();
     document.getElementById('statApplications').textContent = apps.length;
     body.innerHTML = apps.length
-      ? apps.map(a=>`<tr><td>${a.listings?.title||'(listing removed)'}</td><td>${timeAgo(a.created_at)}</td><td>${statusTagFor(a.status)}</td></tr>`).join('')
+      ? apps.map(a=>`<tr><td>${escapeHtml(a.listings?.title||'(listing removed)')}</td><td>${timeAgo(a.created_at)}</td><td>${statusTagFor(a.status)}</td></tr>`).join('')
       : '<tr><td colspan="3" class="text-muted text-sm">You haven\'t applied to anything yet.</td></tr>';
   }catch(err){
     body.innerHTML = `<tr><td colspan="3" class="text-muted text-sm">Failed to load applications.</td></tr>`;

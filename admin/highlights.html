@@ -116,18 +116,19 @@ document.getElementById('hf_thumb_file').addEventListener('change', async (e) =>
 let highlights = [];
 
 function renderRow(h){
+  const e = escapeHtml;
   const statusTag = h.status==='published' ? 'tag-approved' : 'tag-pending';
   const statusLabel = h.status.charAt(0).toUpperCase()+h.status.slice(1);
   return `
   <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
     <div>
-      <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span>${h.category?`<span class="tag tag-blue">${h.category}</span>`:''}</div>
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${h.title||'(untitled)'}</h3>
-      <div class="text-sm text-muted">${h.member_name||'—'}</div>
+      <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span>${h.category?`<span class="tag tag-blue">${e(h.category)}</span>`:''}</div>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(h.title||'(untitled)')}</h3>
+      <div class="text-sm text-muted">${e(h.member_name||'—')}</div>
     </div>
     <div class="flex gap-1" style="flex-shrink:0">
-      <button class="btn-ghost" style="font-size:.62rem" onclick="window.__editHighlight('${h.id}')">Edit</button>
-      <button class="btn-danger" style="font-size:.62rem" onclick="window.__deleteHighlight('${h.id}')">Delete</button>
+      <button class="btn-ghost" style="font-size:.62rem" data-highlight-action="edit" data-highlight-id="${e(h.id)}">Edit</button>
+      <button class="btn-danger" style="font-size:.62rem" data-highlight-action="delete" data-highlight-id="${e(h.id)}">Delete</button>
     </div>
   </div>`;
 }
@@ -163,6 +164,13 @@ window.__editHighlight = function(id){
 window.__closeEditor = function(){
   document.getElementById('highlightModal').style.display = 'none';
 };
+
+document.getElementById('highlightsContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-highlight-action]');
+  if (!btn) return;
+  if (btn.dataset.highlightAction === 'edit') window.__editHighlight(btn.dataset.highlightId);
+  else window.__deleteHighlight(btn.dataset.highlightId);
+});
 
 window.__deleteHighlight = async function(id){
   if(!confirm('Delete this highlight permanently?')) return;

@@ -119,10 +119,12 @@
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }
+          const e = window.escapeHtml || (s=>s);
+          const su = window.sanitizeUrl || (s=>s||'#');
           partnersMount.innerHTML = `
             <div class="text-xs mono text-muted" style="letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem">Partner Organisations</div>
             <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center">
-              ${partners.map(p => `<a href="${p.website_url||'#'}" target="_blank" rel="noopener" title="${p.name||''}" style="opacity:.75;transition:.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.75">${p.logo_url ? `<img src="${p.logo_url}" alt="${p.name||''}" style="height:32px;max-width:120px;object-fit:contain">` : `<span class="text-sm" style="color:var(--cream)">${p.name||''}</span>`}</a>`).join('')}
+              ${partners.map(p => `<a href="${e(su(p.website_url||'#'))}" target="_blank" rel="noopener" title="${e(p.name||'')}" style="opacity:.75;transition:.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.75">${p.logo_url ? `<img src="${e(su(p.logo_url))}" alt="${e(p.name||'')}" style="height:32px;max-width:120px;object-fit:contain">` : `<span class="text-sm" style="color:var(--cream)">${e(p.name||'')}</span>`}</a>`).join('')}
             </div>`;
         } catch(err) { partnersMount.remove(); }
       }).catch(() => partnersMount.remove());

@@ -37,6 +37,25 @@
       </div>
       <button type="submit" class="btn-primary btn-lg w-full">Sign In</button>
     </form>
+
+    <!-- MFA enrollment (first-time setup, required for every account) -->
+    <div id="mfaEnrollPanel" class="hidden">
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem">Set up two-factor authentication</h2>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem;line-height:1.6">Every Oz Indie Collective account requires an authenticator app (like Google Authenticator, Authy or 1Password). Scan the code below, then enter the 6-digit code it shows.</p>
+      <div style="text-align:center;margin-bottom:1.25rem" id="mfaQrWrap"></div>
+      <p class="text-xs text-muted" style="margin-bottom:1rem;word-break:break-all">Can't scan? Enter this key manually: <span id="mfaSecret" style="color:var(--cream)"></span></p>
+      <div class="form-group"><label>6-digit code</label><input type="text" id="mfaEnrollCode" inputmode="numeric" maxlength="6" placeholder="000000"></div>
+      <button type="button" class="btn-primary btn-lg w-full" id="mfaEnrollBtn">Verify & Enable</button>
+    </div>
+
+    <!-- MFA challenge (returning user who already has MFA enrolled) -->
+    <div id="mfaChallengePanel" class="hidden">
+      <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem">Enter your authentication code</h2>
+      <p class="text-muted text-sm" style="margin-bottom:1.25rem;line-height:1.6">Open your authenticator app and enter the current 6-digit code.</p>
+      <div class="form-group"><label>6-digit code</label><input type="text" id="mfaChallengeCode" inputmode="numeric" maxlength="6" placeholder="000000"></div>
+      <button type="button" class="btn-primary btn-lg w-full" id="mfaChallengeBtn">Verify</button>
+    </div>
+
     <div class="divider"></div>
     <p class="text-sm text-muted text-center">Don't have an account? <a href="join.html" class="text-gold">Apply to join</a></p>
   </div>
@@ -45,7 +64,9 @@
 <script src="../assets/js/nav-inject.js"></script>
 <script src="../assets/js/main.js?v=2"></script>
 <script type="module">
-import { signIn, getCurrentProfile } from '../assets/js/supabase.js';
+import { signIn, getCurrentProfile, listMfaFactors, enrollMfa, verifyMfaEnrollment, challengeAndVerifyMfa } from '../assets/js/supabase.js';
+
+let pendingFactorId = null;
 
 function profileToAuthUser(profile) {
   return {
@@ -64,6 +85,24 @@ function profileToAuthUser(profile) {
   };
 }
 
+async function completeLogin(){
+  const profile = await getCurrentProfile();
+  if(!profile) { showToast('Signed in, but no profile was found. Contact support.','danger'); return; }
+  const user = profileToAuthUser(profile);
+  Auth.set(user);
+  showToast('Welcome back, '+user.name+'!','success');
+  setTimeout(() => {
+    if(user.isAdmin) window.location.href = '../admin/index.html';
+    else window.location.href = 'dashboard.html';
+  }, 600);
+}
+
+function showPanel(name){
+  document.getElementById('loginForm').classList.toggle('hidden', name !== 'login');
+  document.getElementById('mfaEnrollPanel').classList.toggle('hidden', name !== 'enroll');
+  document.getElementById('mfaChallengePanel').classList.toggle('hidden', name !== 'challenge');
+}
+
 const form = document.getElementById('loginForm');
 form.addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -76,20 +115,63 @@ form.addEventListener('submit', async function(e) {
 
   try {
     await signIn({ email, password: pw });
-    const profile = await getCurrentProfile();
-    if(!profile) { showToast('Signed in, but no profile was found. Contact support.','danger'); return; }
 
-    const user = profileToAuthUser(profile);
-    Auth.set(user);
-    showToast('Welcome back, '+user.name+'!','success');
-    setTimeout(() => {
-      if(user.isAdmin) window.location.href = '../admin/index.html';
-      else window.location.href = 'dashboard.html';
-    }, 600);
+    // Every account requires MFA. If a verified factor already exists, challenge
+    // for it now; otherwise this is the account's first login — force enrollment
+    // before letting them any further into the site.
+    const factors = await listMfaFactors();
+    const verifiedFactor = factors.totp?.find(f => f.status === 'verified');
+
+    if (verifiedFactor) {
+      pendingFactorId = verifiedFactor.id;
+      showPanel('challenge');
+    } else {
+      const enrollment = await enrollMfa();
+      pendingFactorId = enrollment.id;
+      document.getElementById('mfaQrWrap').innerHTML = `<img src="${enrollment.totp.qr_code}" alt="Scan with your authenticator app" style="width:200px;height:200px;background:#fff;padding:.5rem;border-radius:4px">`;
+      document.getElementById('mfaSecret').textContent = enrollment.totp.secret;
+      showPanel('enroll');
+    }
   } catch (err) {
-    showToast(err.message || 'Sign in failed. Check your email and password.','danger');
+    const msg = err.message || 'Sign in failed. Check your email and password.';
+    if (/email not confirmed/i.test(msg)) {
+      showToast('Please confirm your email address first — check your inbox for a confirmation link.','danger');
+    } else {
+      showToast(msg,'danger');
+    }
   } finally {
     submitBtn.disabled = false; submitBtn.textContent = 'Sign In';
+  }
+});
+
+document.getElementById('mfaEnrollBtn').addEventListener('click', async () => {
+  const code = document.getElementById('mfaEnrollCode').value.trim();
+  if(!/^\d{6}$/.test(code)) { showToast('Enter the 6-digit code from your authenticator app.','danger'); return; }
+  const btn = document.getElementById('mfaEnrollBtn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try {
+    await verifyMfaEnrollment(pendingFactorId, code);
+    showToast('Two-factor authentication enabled!','success');
+    await completeLogin();
+  } catch (err) {
+    showToast(err.message || 'Incorrect code — try again.','danger');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Verify & Enable';
+  }
+});
+
+document.getElementById('mfaChallengeBtn').addEventListener('click', async () => {
+  const code = document.getElementById('mfaChallengeCode').value.trim();
+  if(!/^\d{6}$/.test(code)) { showToast('Enter the 6-digit code from your authenticator app.','danger'); return; }
+  const btn = document.getElementById('mfaChallengeBtn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try {
+    await challengeAndVerifyMfa(pendingFactorId, code);
+    await completeLogin();
+  } catch (err) {
+    showToast(err.message || 'Incorrect code — try again.','danger');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Verify';
   }
 });
 </script>

@@ -52,6 +52,45 @@ export async function signOut() {
   // Note: redirect is handled by the caller (see main.js's logout handler)
 }
 
+// ── MFA (TOTP, mandatory for all accounts) ───────────
+
+// Any verified TOTP factor the current user already has enrolled.
+export async function listMfaFactors() {
+  const { data, error } = await supabase.auth.mfa.listFactors()
+  if (error) throw error
+  return data
+}
+
+// Current Authenticator Assurance Level — 'aal2' means an MFA challenge has
+// been completed this session; 'aal1' means password-only so far.
+export async function getMfaLevel() {
+  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+  if (error) throw error
+  return data // { currentLevel, nextLevel }
+}
+
+export async function enrollMfa() {
+  const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' })
+  if (error) throw error
+  return data // { id: factorId, totp: { qr_code, secret, uri } }
+}
+
+export async function verifyMfaEnrollment(factorId, code) {
+  const { data: challenge, error: chErr } = await supabase.auth.mfa.challenge({ factorId })
+  if (chErr) throw chErr
+  const { data, error } = await supabase.auth.mfa.verify({ factorId, challengeId: challenge.id, code })
+  if (error) throw error
+  return data
+}
+
+export async function challengeAndVerifyMfa(factorId, code) {
+  const { data: challenge, error: chErr } = await supabase.auth.mfa.challenge({ factorId })
+  if (chErr) throw chErr
+  const { data, error } = await supabase.auth.mfa.verify({ factorId, challengeId: challenge.id, code })
+  if (error) throw error
+  return data
+}
+
 export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
@@ -241,21 +280,26 @@ export async function approveApplication(userId) {
     .update({ status: 'approved' })
     .eq('id', userId)
   if (error) throw error
-  // Best-effort: trigger welcome email via Edge Function if one has been deployed.
-  // Not deployed yet by default, so failure here must never block the approval itself.
+  // Best-effort: trigger a notification email via Edge Function. Failure here
+  // must never block the approval itself — the function may not be deployed yet.
   try {
-    await supabase.functions.invoke('send-welcome-email', { body: { userId } })
+    await supabase.functions.invoke('send-membership-email', { body: { userId, type: 'approved' } })
   } catch (err) {
-    console.warn('send-welcome-email function not available yet:', err.message)
+    console.warn('send-membership-email function not available yet:', err.message)
   }
 }
 
-export async function denyApplication(userId) {
+export async function denyApplication(userId, emailType = 'denied') {
   const { error } = await supabase
     .from('profiles')
     .update({ status: 'denied' })
     .eq('id', userId)
   if (error) throw error
+  try {
+    await supabase.functions.invoke('send-membership-email', { body: { userId, type: emailType } })
+  } catch (err) {
+    console.warn('send-membership-email function not available yet:', err.message)
+  }
 }
 
 // ── ARTICLES ──────────────────────────────────────────

@@ -104,7 +104,7 @@ function renderBarChart(containerId, counts, colorVar){
   const max = entries[0][1];
   el.innerHTML = entries.map(([label,val],i) => `
     <div class="chart-bar-row">
-      <div class="chart-bar-label">${label}</div>
+      <div class="chart-bar-label">${escapeHtml(label)}</div>
       <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(4,Math.round(val/max*100))}%;${i>2?`background:var(${colorVar})`:''}"></div></div>
       <div class="chart-bar-val">${val}</div>
     </div>`).join('');

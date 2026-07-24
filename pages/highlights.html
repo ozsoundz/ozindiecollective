@@ -65,25 +65,28 @@ function toEmbedUrl(url){
 }
 
 function tileFor(h){
+  const e = escapeHtml;
   const thumb = h.thumbnail_url || `https://picsum.photos/seed/${encodeURIComponent(h.id)}/500/300`;
   return `
-  <div class="highlight-tile" onclick='window.__playHighlight(${JSON.stringify(h.video_url||'')})'>
+  <div class="highlight-tile" data-video-url="${e(h.video_url||'')}">
     <div class="highlight-thumb-wrap">
-      <img src="${thumb}" alt="${h.title||''}">
+      <img src="${e(sanitizeUrl(thumb))}" alt="${e(h.title||'')}">
       <div class="play-badge">▶</div>
     </div>
     <div class="highlight-body">
-      <div class="highlight-cat">${h.category||'Highlight'}</div>
-      <div class="highlight-title">${h.title||'(untitled)'}</div>
-      <div class="highlight-meta">${h.member_name||'Oz Indie Collective'}</div>
+      <div class="highlight-cat">${e(h.category||'Highlight')}</div>
+      <div class="highlight-title">${e(h.title||'(untitled)')}</div>
+      <div class="highlight-meta">${e(h.member_name||'Oz Indie Collective')}</div>
     </div>
   </div>`;
 }
 
-window.__playHighlight = function(videoUrl){
-  document.getElementById('videoFrame').src = toEmbedUrl(videoUrl);
+document.getElementById('highlightsGrid').addEventListener('click', (e) => {
+  const tile = e.target.closest('.highlight-tile');
+  if (!tile) return;
+  document.getElementById('videoFrame').src = toEmbedUrl(sanitizeUrl(tile.dataset.videoUrl));
   document.getElementById('videoModal').style.display = 'flex';
-};
+});
 
 async function load(){
   try{

@@ -70,45 +70,46 @@ function initials(name=''){
 }
 
 function renderCard(app){
+  const e = escapeHtml;
   const statusTag = app.status==='approved' ? 'tag-approved' : app.status==='denied' ? 'tag-denied' : 'tag-pending';
   const statusLabel = app.status.charAt(0).toUpperCase()+app.status.slice(1);
   const disabled = app.status !== 'pending';
   return `
-  <div class="app-card" data-status="${app.status}" data-id="${app.id}" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
+  <div class="app-card" data-status="${e(app.status)}" data-id="${e(app.id)}" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
     <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
       <div>
         <div class="flex items-center gap-2 mb-2">
-          <div class="avatar avatar-sm av-gold">${initials(app.full_name)}</div>
-          <div><div style="font-weight:600;color:var(--cream)">${app.full_name||'(no name)'}</div><div class="text-xs text-muted">${app.email||''} · Applied ${timeAgo(app.created_at)}</div></div>
+          <div class="avatar avatar-sm av-gold">${e(initials(app.full_name))}</div>
+          <div><div style="font-weight:600;color:var(--cream)">${e(app.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(app.email||'')} · Applied ${timeAgo(app.created_at)}</div></div>
           <span class="tag ${statusTag}" style="margin-left:.5rem">${statusLabel}</span>
-          <span class="tag tag-gold" style="font-size:.55rem">${(app.plan||'free')} Plan</span>
+          <span class="tag tag-gold" style="font-size:.55rem">${e(app.plan||'free')} Plan</span>
         </div>
         <div class="grid-4 mb-2" style="gap:.75rem">
-          <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${app.role||'—'}</div></div>
-          <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${[app.city,app.state].filter(Boolean).join(', ')||'—'}</div></div>
-          <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">${app.referral_source||'—'}</div></div>
-          <div><div class="text-xs mono text-gold mb-1">Skills</div><div class="text-sm" style="color:var(--cream)">${(app.skills||[]).join(', ')||'—'}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${e(app.role||'—')}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${e([app.city,app.state].filter(Boolean).join(', ')||'—')}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">${e(app.referral_source||'—')}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Skills</div><div class="text-sm" style="color:var(--cream)">${e((app.skills||[]).join(', ')||'—')}</div></div>
         </div>
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
           <div class="text-xs mono text-gold mb-1">Bio</div>
-          <p class="text-sm text-muted" style="line-height:1.6">${app.bio||'—'}</p>
+          <p class="text-sm text-muted" style="line-height:1.6">${e(app.bio||'—')}</p>
         </div>
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
           <div class="text-xs mono text-gold mb-1">Proud Project</div>
-          <p class="text-sm text-muted" style="line-height:1.6">${app.proud_project||'—'}</p>
+          <p class="text-sm text-muted" style="line-height:1.6">${e(app.proud_project||'—')}</p>
         </div>
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
           <div class="text-xs mono text-gold mb-1">Goals</div>
-          <p class="text-sm text-muted" style="line-height:1.6">${app.goals||'—'}</p>
+          <p class="text-sm text-muted" style="line-height:1.6">${e(app.goals||'—')}</p>
         </div>
         <div class="flex items-center gap-2 mt-2">
           <div class="text-xs mono text-gold">Portfolio:</div>
-          <a href="${app.portfolio_url||'#'}" target="_blank" class="text-sm text-gold">${app.portfolio_url||'—'}</a>
+          <a href="${e(sanitizeUrl(app.portfolio_url||'#'))}" target="_blank" rel="noopener" class="text-sm text-gold">${e(app.portfolio_url||'—')}</a>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:.6rem;min-width:140px">
-        <button class="btn-success w-full" ${disabled?'disabled':''} onclick="window.__processApp('${app.id}','approved')">✓ Approve</button>
-        <button class="btn-danger w-full" ${disabled?'disabled':''} onclick="window.__processApp('${app.id}','denied')">✗ Deny</button>
+        <button class="btn-success w-full" ${disabled?'disabled':''} data-app-action="approved" data-app-id="${e(app.id)}">✓ Approve</button>
+        <button class="btn-danger w-full" ${disabled?'disabled':''} data-app-action="denied" data-app-id="${e(app.id)}">✗ Deny</button>
       </div>
     </div>
   </div>`;
@@ -135,6 +136,12 @@ window.filterApps = function(status, btn){
   btn.className = 'btn-primary';
   renderAll();
 };
+
+document.getElementById('appCards').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-app-action]');
+  if (!btn) return;
+  window.__processApp(btn.dataset.appId, btn.dataset.appAction);
+});
 
 window.__processApp = async function(userId, action){
   try{

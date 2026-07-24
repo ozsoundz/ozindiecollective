@@ -190,7 +190,7 @@
       <div id="joinSuccess" class="hidden text-center" style="padding:3rem 1rem">
         <div style="font-size:3rem;margin-bottom:1.25rem">🎉</div>
         <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--cream);margin-bottom:.75rem">Application Submitted!</h2>
-        <p class="text-muted" style="max-width:420px;margin:0 auto 2rem;line-height:1.7">Thanks for applying to the Oz Indie Collective. Our team will review your application and email you within 48 hours.</p>
+        <p class="text-muted" style="max-width:420px;margin:0 auto 2rem;line-height:1.7">Thanks for applying to the Oz Indie Collective. Check your inbox for a confirmation email first — once confirmed, our team will review your application and email you within 48 hours.</p>
         <a href="../index.html" class="btn-secondary">Return to Home</a>
       </div>
     </div>
@@ -295,14 +295,15 @@ function captureStep(step) {
 
 function buildReview() {
   const el = document.getElementById('reviewSummary');
+  const e = escapeHtml;
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-      <div><div class="text-xs mono text-gold mb-1">Name</div><div class="text-sm" style="color:var(--cream)">${formData.firstName||''} ${formData.lastName||''}</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Email</div><div class="text-sm" style="color:var(--cream)">${formData.email||''}</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${formData.role||'—'}</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${formData.city||''}, ${formData.state||''}</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Plan</div><div class="text-sm" style="color:var(--cream)">${formData.plan||'free'}</div></div>
-      <div><div class="text-xs mono text-gold mb-1">Portfolio</div><div class="text-sm text-muted" style="word-break:break-all">${formData.portfolio||'—'}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Name</div><div class="text-sm" style="color:var(--cream)">${e(formData.firstName||'')} ${e(formData.lastName||'')}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Email</div><div class="text-sm" style="color:var(--cream)">${e(formData.email||'')}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Role</div><div class="text-sm" style="color:var(--cream)">${e(formData.role||'—')}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Location</div><div class="text-sm" style="color:var(--cream)">${e(formData.city||'')}, ${e(formData.state||'')}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Plan</div><div class="text-sm" style="color:var(--cream)">${e(formData.plan||'free')}</div></div>
+      <div><div class="text-xs mono text-gold mb-1">Portfolio</div><div class="text-sm text-muted" style="word-break:break-all">${e(formData.portfolio||'—')}</div></div>
     </div>`;
 }
 

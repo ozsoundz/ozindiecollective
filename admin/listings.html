@@ -65,6 +65,7 @@ function timeAgo(iso){
 }
 
 function renderRow(listing){
+  const e = escapeHtml;
   const statusTag = listing.status==='live' ? 'tag-approved' : listing.status==='denied' ? 'tag-denied' : 'tag-pending';
   const statusLabel = listing.status.charAt(0).toUpperCase()+listing.status.slice(1);
   const disabled = listing.status !== 'pending';
@@ -73,21 +74,21 @@ function renderRow(listing){
   <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
     <div class="flex justify-between items-start mb-2">
       <div>
-        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-gold">${listing.employment_type||'—'}</span><span class="tag tag-blue">${listing.category||'—'}</span></div>
-        <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${listing.title||'(untitled)'}</h3>
-        <div class="text-sm text-muted">Posted by ${poster} · ${[listing.city,listing.state].filter(Boolean).join(', ')||'—'} · Submitted ${timeAgo(listing.created_at)}</div>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-gold">${e(listing.employment_type||'—')}</span><span class="tag tag-blue">${e(listing.category||'—')}</span></div>
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(listing.title||'(untitled)')}</h3>
+        <div class="text-sm text-muted">Posted by ${e(poster)} · ${e([listing.city,listing.state].filter(Boolean).join(', ')||'—')} · Submitted ${timeAgo(listing.created_at)}</div>
       </div>
       <div class="flex gap-1">
-        <button class="btn-success" ${disabled?'disabled':''} onclick="window.__listingApprove('${listing.id}')">✓ Approve</button>
-        <button class="btn-danger" ${disabled?'disabled':''} onclick="window.__listingDeny('${listing.id}')">✗ Deny</button>
+        <button class="btn-success" ${disabled?'disabled':''} data-listing-action="approve" data-listing-id="${e(listing.id)}">✓ Approve</button>
+        <button class="btn-danger" ${disabled?'disabled':''} data-listing-action="deny" data-listing-id="${e(listing.id)}">✗ Deny</button>
       </div>
     </div>
     <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
-      <p class="text-sm text-muted" style="line-height:1.6">${listing.description||''}</p>
+      <p class="text-sm text-muted" style="line-height:1.6">${e(listing.description||'')}</p>
     </div>
     <div class="flex gap-3 mt-2 text-xs text-muted">
-      <span>💰 ${listing.pay||'—'}</span>
-      <span>📍 ${[listing.city,listing.state].filter(Boolean).join(', ')||'—'}</span>
+      <span>💰 ${e(listing.pay||'—')}</span>
+      <span>📍 ${e([listing.city,listing.state].filter(Boolean).join(', ')||'—')}</span>
     </div>
   </div>`;
 }
@@ -119,6 +120,13 @@ window.__listingDeny = async function(id){
   try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='denied'; showToast('Listing denied.','danger'); renderAll(); }
   catch(err){ showToast(err.message||'Failed to deny listing.','danger'); }
 };
+
+document.getElementById('listingsContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-listing-action]');
+  if (!btn) return;
+  if (btn.dataset.listingAction === 'approve') window.__listingApprove(btn.dataset.listingId);
+  else window.__listingDeny(btn.dataset.listingId);
+});
 
 async function load(){
   try{

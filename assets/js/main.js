@@ -24,6 +24,37 @@ function initials(name=''){
 }
 window.initials=initials;
 
+/* SECURITY: escape any user-supplied text before it goes into innerHTML.
+   Member names, bios, article bodies, listing descriptions, etc. all come
+   from the database and are ultimately editable by members/admins — without
+   this, a crafted value like "<img src=x onerror=...>" stored in a profile
+   or listing would execute as script in every visitor's (including admins')
+   browser. Wrap any interpolated user value in escapeHtml() before rendering. */
+function escapeHtml(str){
+  if(str===null||str===undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+window.escapeHtml=escapeHtml;
+
+/* SECURITY: only allow http(s) URLs through to href/src attributes that come
+   from user-supplied data (portfolio links, EPK links, partner websites...).
+   Without this, a value like "javascript:fetch(...)" stored in a profile
+   field would run as script the moment someone clicked the link. */
+function sanitizeUrl(url){
+  if(!url) return '#';
+  try {
+    const u = new URL(url, window.location.origin);
+    if(u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+  } catch(e) { /* not a valid absolute URL */ }
+  return '#';
+}
+window.sanitizeUrl=sanitizeUrl;
+
 document.addEventListener('DOMContentLoaded',()=>{
   initNav();
   initMobileMenu();
