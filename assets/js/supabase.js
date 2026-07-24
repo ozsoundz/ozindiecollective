@@ -46,6 +46,21 @@ export async function signIn({ email, password }) {
   return data
 }
 
+// Sends a password-reset email with a link back to reset-password.html.
+// Supabase establishes a temporary recovery session on that page automatically
+// when the user clicks the link (detectSessionInUrl, on by default).
+export async function requestPasswordReset(email) {
+  const redirectTo = `${window.location.origin}/pages/reset-password.html`
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+  if (error) throw error
+}
+
+// Called on reset-password.html once a recovery session is active.
+export async function updatePassword(newPassword) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw error
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
