@@ -654,6 +654,16 @@ export async function subscribeToNewsletter(email) {
   return { alreadySubscribed: false }
 }
 
+// Admin: every newsletter subscriber, for the dashboard + admin/newsletter.html.
+export async function getNewsletterSubscribers() {
+  const { data, error } = await supabase
+    .from('newsletter_subscribers')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
 export async function getAllPartners() {
   const { data, error } = await supabase
     .from('partners')

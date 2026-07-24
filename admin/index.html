@@ -28,6 +28,7 @@
     <a href="partners.html" class="admin-nav-item">Partners</a>
     <a href="community.html" class="admin-nav-item">Community</a>
     <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
     <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
       <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
@@ -47,6 +48,10 @@
       <div class="stat-box"><div class="stat-num" id="statTotal">…</div><div class="stat-lbl">Total Members</div></div>
       <div class="stat-box card-accent-rust"><div class="stat-num" style="color:var(--rust)" id="statListingsPending">…</div><div class="stat-lbl">Listings Awaiting Review</div></div>
       <div class="stat-box"><div class="stat-num" id="statNew">…</div><div class="stat-lbl">New Members This Week</div></div>
+    </div>
+    <div class="grid-4 mb-4">
+      <div class="stat-box"><div class="stat-num" id="statNewsletterTotal">…</div><div class="stat-lbl">Newsletter Subscribers</div></div>
+      <div class="stat-box card-accent-gold"><div class="stat-num" id="statNewsletterWeek">…</div><div class="stat-lbl">New Subscribers This Week</div></div>
     </div>
 
     <!-- Pending Applications -->
@@ -81,6 +86,22 @@
       </div>
     </div>
 
+    <!-- Recent Newsletter Signups -->
+    <div style="margin-bottom:2.5rem">
+      <div class="flex justify-between items-center mb-2">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">Recent Newsletter Signups</h2>
+        <a href="newsletter.html" class="text-sm text-gold" style="text-decoration:none">View All →</a>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+        <table class="data-table">
+          <thead><tr><th>Email</th><th>Source</th><th>Subscribed</th></tr></thead>
+          <tbody id="newsletterTableBody">
+            <tr><td colspan="3" class="text-muted text-sm">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Recent Activity -->
     <div>
       <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Recent Activity</h2>
@@ -98,10 +119,11 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing } from '../assets/js/supabase.js?v=4';
+import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers } from '../assets/js/supabase.js?v=4';
 
 let applications = [];
 let listings = [];
+let subscribers = [];
 
 function timeAgo(iso){
   if(!iso) return '';
@@ -199,6 +221,29 @@ document.getElementById('listingTableBody').addEventListener('click', (e) => {
   else window.__adminDenyListing(btn.dataset.listingId);
 });
 
+function fmtDateTime(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+function renderNewsletterRow(s){
+  const e = escapeHtml;
+  return `<tr>
+    <td style="color:var(--cream)">${e(s.email||'')}</td>
+    <td><span class="tag tag-blue" style="font-size:.55rem">${e(s.source||'footer')}</span></td>
+    <td>${fmtDateTime(s.created_at)}</td>
+  </tr>`;
+}
+
+function renderNewsletterTable(){
+  document.getElementById('newsletterTableBody').innerHTML = subscribers.length
+    ? subscribers.slice(0,5).map(renderNewsletterRow).join('')
+    : '<tr><td colspan="3" class="text-muted text-sm">No newsletter subscribers yet.</td></tr>';
+  document.getElementById('statNewsletterTotal').textContent = subscribers.length;
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  document.getElementById('statNewsletterWeek').textContent = '+'+subscribers.filter(s => new Date(s.created_at).getTime() > weekAgo).length;
+}
+
 async function load(){
   try{
     applications = await getAllApplications();
@@ -211,6 +256,12 @@ async function load(){
     renderListingTable();
   }catch(err){
     document.getElementById('listingTableBody').innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+  }
+  try{
+    subscribers = await getNewsletterSubscribers();
+    renderNewsletterTable();
+  }catch(err){
+    document.getElementById('newsletterTableBody').innerHTML = `<tr><td colspan="3" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
   }
 }
 
