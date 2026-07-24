@@ -57,8 +57,8 @@
       <div class="footer-brand-name">Oz Indie Collective</div>
       <p class="footer-tagline">Australia's independent creative community — connecting artists, engineers, producers, managers and makers across the country.</p>
       <div class="footer-newsletter">
-        <input type="email" placeholder="Your email address" aria-label="Newsletter email">
-        <button onclick="showToast('Thanks! You\\'re subscribed.','success')">Subscribe</button>
+        <input type="email" id="newsletterEmail" placeholder="Your email address" aria-label="Newsletter email">
+        <button id="newsletterSubscribeBtn">Subscribe</button>
       </div>
     </div>
     <div class="footer-col">
@@ -111,6 +111,35 @@
     if (navEl) navEl.outerHTML = navHTML;
     const footEl = document.getElementById('footer-placeholder');
     if (footEl) footEl.outerHTML = footerHTML;
+
+    // Wire up the newsletter signup form in the footer, site-wide.
+    const newsletterBtn = document.getElementById('newsletterSubscribeBtn');
+    const newsletterInput = document.getElementById('newsletterEmail');
+    if (newsletterBtn && newsletterInput) {
+      newsletterBtn.addEventListener('click', async () => {
+        const email = newsletterInput.value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          if (window.showToast) showToast('Please enter a valid email address.', 'danger');
+          return;
+        }
+        newsletterBtn.disabled = true;
+        const originalText = newsletterBtn.textContent;
+        newsletterBtn.textContent = 'Subscribing…';
+        try {
+          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=2');
+          const result = await subscribeToNewsletter(email);
+          newsletterInput.value = '';
+          if (window.showToast) {
+            showToast(result.alreadySubscribed ? 'You\'re already subscribed!' : 'Thanks! You\'re subscribed.', 'success');
+          }
+        } catch (err) {
+          if (window.showToast) showToast(err.message || 'Failed to subscribe. Please try again.', 'danger');
+        } finally {
+          newsletterBtn.disabled = false;
+          newsletterBtn.textContent = originalText;
+        }
+      });
+    }
 
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');

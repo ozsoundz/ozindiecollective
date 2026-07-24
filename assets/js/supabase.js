@@ -621,6 +621,20 @@ export async function getPartners() {
   return data
 }
 
+// ── NEWSLETTER (footer signup form, site-wide) ──
+
+export async function subscribeToNewsletter(email) {
+  const { error } = await supabase
+    .from('newsletter_subscribers')
+    .insert({ email, source: 'footer' })
+  if (error) {
+    // Unique-violation on email — treat as an already-subscribed success, not an error.
+    if (error.code === '23505') return { alreadySubscribed: true }
+    throw error
+  }
+  return { alreadySubscribed: false }
+}
+
 export async function getAllPartners() {
   const { data, error } = await supabase
     .from('partners')

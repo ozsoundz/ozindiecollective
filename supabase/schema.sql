@@ -660,3 +660,34 @@ create policy "Members can view own registrations"
 create policy "Admins can view all registrations"
   on public.event_registrations for select
   using (public.is_admin());
+
+-- 16. NEWSLETTER SUBSCRIBERS TABLE (footer signup form, on every page)
+-- Open to anyone (including signed-out visitors) — insert-only from the public,
+-- no update/delete needed yet. Admins can view the list to export it.
+create table if not exists public.newsletter_subscribers (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.newsletter_subscribers add column if not exists email text;
+alter table public.newsletter_subscribers add column if not exists source text default 'footer';
+alter table public.newsletter_subscribers add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'newsletter_subscribers_email_unique') then
+    alter table public.newsletter_subscribers add constraint newsletter_subscribers_email_unique unique (email);
+  end if;
+end $$;
+
+alter table public.newsletter_subscribers enable row level security;
+
+drop policy if exists "Anyone can subscribe" on public.newsletter_subscribers;
+drop policy if exists "Admins can view subscribers" on public.newsletter_subscribers;
+
+create policy "Anyone can subscribe"
+  on public.newsletter_subscribers for insert
+  with check (true);
+
+create policy "Admins can view subscribers"
+  on public.newsletter_subscribers for select
+  using (public.is_admin());
