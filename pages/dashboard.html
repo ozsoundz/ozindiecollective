@@ -100,10 +100,8 @@
         <!-- Upcoming Events -->
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem">
           <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Upcoming Events</h3>
-          <div style="display:flex;flex-direction:column;gap:.85rem">
-            <div style="border-bottom:1px solid var(--border);padding-bottom:.85rem"><div class="text-xs mono text-gold">Jul 18 · Sydney</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Creative Networking Night</div></div>
-            <div style="border-bottom:1px solid var(--border);padding-bottom:.85rem"><div class="text-xs mono text-gold">Jul 25 · Online</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Music Business Fundamentals</div></div>
-            <div><div class="text-xs mono text-gold">Aug 02 · Melbourne</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">Industry Panel: Future of Live Music</div></div>
+          <div style="display:flex;flex-direction:column;gap:.85rem" id="dashUpcomingEvents">
+            <p class="text-muted text-sm">Loading…</p>
           </div>
           <a href="events.html" class="text-xs text-gold mt-2 d-block" style="text-decoration:none;display:block;margin-top:1rem">View all events →</a>
         </div>
@@ -136,7 +134,31 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=5"></script>
 <script type="module">
-import { getCurrentProfile, getMyApplications, getMyListings, getListings, updatePassword } from '../assets/js/supabase.js?v=13';
+import { getCurrentProfile, getMyApplications, getMyListings, getListings, getEvents, updatePassword } from '../assets/js/supabase.js?v=13';
+
+const DASH_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dashEventRow(ev, isLast){
+  const e = escapeHtml;
+  const d = ev.event_date ? new Date(ev.event_date + 'T00:00:00') : null;
+  const dateStr = d ? `${DASH_MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}` : '—';
+  const loc = ev.state === 'Online' || ev.city === 'Online' ? 'Online' : (ev.city || ev.venue || '');
+  const border = isLast ? '' : 'border-bottom:1px solid var(--border);padding-bottom:.85rem';
+  return `<div style="${border}"><div class="text-xs mono text-gold">${e(dateStr)}${loc?` · ${e(loc)}`:''}</div><div class="text-sm" style="color:var(--cream);margin-top:.2rem">${e(ev.title||'(untitled)')}</div></div>`;
+}
+
+async function loadDashEvents(){
+  const wrap = document.getElementById('dashUpcomingEvents');
+  try{
+    const events = await getEvents();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = events.filter(ev => !ev.event_date || new Date(ev.event_date + 'T00:00:00') >= today).slice(0,3);
+    wrap.innerHTML = upcoming.length
+      ? upcoming.map((ev,i) => dashEventRow(ev, i === upcoming.length-1)).join('')
+      : '<p class="text-muted text-sm">No upcoming events right now.</p>';
+  }catch(err){
+    wrap.innerHTML = `<p class="text-muted text-sm">Failed to load events.</p>`;
+  }
+}
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -246,6 +268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadRecommended();
   loadApplications();
   loadListingsCount();
+  loadDashEvents();
 });
 </script>
 </body>
