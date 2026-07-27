@@ -149,6 +149,7 @@ function initAuthUI(){
   document.querySelectorAll('[data-auth="logged-in"]').forEach(el=>el.style.display=user?'':'none');
   document.querySelectorAll('[data-auth="logged-out"]').forEach(el=>el.style.display=user?'none':'');
   document.querySelectorAll('[data-auth="approved"]').forEach(el=>el.style.display=Auth.isApproved()?'':'none');
+  document.querySelectorAll('[data-auth="admin"]').forEach(el=>el.style.display=(user&&user.isAdmin)?'':'none');
   if(user){
     document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=user.name||'Member');
     document.querySelectorAll('[data-user-initials]').forEach(el=>el.textContent=initials(user.name));

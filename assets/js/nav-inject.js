@@ -26,6 +26,7 @@
       <a href="${root}pages/join.html" class="btn-primary" style="margin-left:.5rem">Join</a>
     </div>
     <div data-auth="logged-in" style="display:none;align-items:center;gap:.65rem">
+      <a href="${root}admin/index.html" class="btn-ghost" data-auth="admin" style="display:none">Admin</a>
       <a href="${root}pages/dashboard.html" class="btn-ghost">Dashboard</a>
       <a href="${root}pages/dashboard.html" class="avatar avatar-sm av-gold" data-user-initials style="text-decoration:none"></a>
     </div>
@@ -46,6 +47,7 @@
   <a href="${root}pages/highlights.html">Highlights</a>
   <a href="${root}pages/podcast.html">Podcast</a>
   <a href="${root}pages/login.html" data-auth="logged-out">Sign In</a>
+  <a href="${root}admin/index.html" data-auth="admin" style="display:none">Admin Portal</a>
   <a href="${root}pages/dashboard.html" data-auth="logged-in" style="display:none">Dashboard</a>
   <a href="${root}pages/join.html" class="btn-primary">Join The Collective</a>
 </div>`;
