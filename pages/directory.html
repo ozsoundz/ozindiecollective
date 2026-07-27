@@ -52,6 +52,37 @@
       </div>
     </div>
 
+    <!-- Advanced Filters — paid-tier perk -->
+    <div id="advancedFiltersBox" class="hidden" style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.25rem">
+      <div class="text-xs mono text-gold mb-2" style="letter-spacing:.1em;text-transform:uppercase">Advanced Filters</div>
+      <div class="filter-bar">
+        <div class="form-group" style="flex:2">
+          <label>Skills (any match)</label>
+          <div id="fSkillsWrap" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
+        </div>
+        <div class="form-group"><label>Experience</label>
+          <select id="fExp" onchange="filterDir()">
+            <option value="">Any</option>
+            <option value="0-2">0–2 years</option>
+            <option value="3-5">3–5 years</option>
+            <option value="6-10">6–10 years</option>
+            <option value="11-">10+ years</option>
+          </select>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:1rem;padding-top:1rem">
+        <div class="text-xs mono text-gold mb-2" style="letter-spacing:.1em;text-transform:uppercase">Saved Searches</div>
+        <div id="savedSearchesList" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem"><span class="text-sm text-muted">No saved searches yet.</span></div>
+        <div class="flex gap-2">
+          <input type="text" id="saveSearchName" placeholder="Name this search…" style="flex:1;max-width:280px">
+          <button class="btn-secondary" style="font-size:.65rem;padding:.5rem 1rem" onclick="saveCurrentSearch()">Save Current Search</button>
+        </div>
+      </div>
+    </div>
+    <div id="advancedFiltersUpsell" class="alert alert-info hidden mb-3">
+      <span>🔍</span><span class="text-sm">Advanced filters (skills, experience, saved searches) are available on paid membership plans. <a href="../index.html#membership" class="text-gold">See plans →</a></span>
+    </div>
+
     <div class="flex justify-between items-center mb-3">
       <div class="text-sm text-muted"><span id="dirCount">…</span> members found</div>
     </div>
@@ -65,7 +96,7 @@
 <script src="../assets/js/nav-inject.js?v=4"></script>
 <script src="../assets/js/main.js?v=8"></script>
 <script type="module">
-import { getMembers } from '../assets/js/supabase.js?v=15';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan } from '../assets/js/supabase.js?v=15';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -80,12 +111,21 @@ const TAG_CLASSES = ['tag-gold','tag-sage','tag-blue','tag-rust'];
 
 let members = [];
 
+// Parses a leading integer out of a free-text experience string (e.g.
+// "8 years" -> 8, "10+ years touring" -> 10). Returns null if unparseable —
+// those members simply won't match any experience-range filter.
+function parseExpYears(experience){
+  const m = String(experience||'').match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
 function renderCard(m){
   const skills = (m.skills||[]).slice(0,3);
   const e = escapeHtml;
   const badge = window.tierBadgeHtml ? window.tierBadgeHtml(m.plan) : '';
+  const expYears = parseExpYears(m.experience);
   return `
-  <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}">
+  <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}" data-skills="${e((m.skills||[]).join('|').toLowerCase())}" data-exp="${expYears===null?'':expYears}">
     <div class="member-card-top"><div class="avatar avatar-md ${m.avatar_url?'':avatarClass(m.full_name)}">${m.avatar_url?`<img src="${e(m.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(m.full_name))}</div><div><div class="member-name">${e(m.full_name||'(no name)')}</div><div class="member-role">${e(m.role||'—')}</div></div></div>
     ${badge ? `<div class="mb-2">${badge}</div>` : ''}
     <div class="member-location">📍 ${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</div>
@@ -100,6 +140,30 @@ function populateRoleFilter(){
   sel.innerHTML = '<option value="">All Disciplines</option>' + roles.map(r=>`<option>${escapeHtml(r)}</option>`).join('');
 }
 
+function populateSkillsFilter(){
+  const wrap = document.getElementById('fSkillsWrap');
+  const allSkills = [...new Set(members.flatMap(m=>m.skills||[]).filter(Boolean))].sort();
+  if(!allSkills.length){ wrap.innerHTML = '<span class="text-sm text-muted">No skills listed yet.</span>'; return; }
+  wrap.innerHTML = allSkills.slice(0,24).map(s => `
+    <label class="checkbox-pill" style="font-size:.72rem">
+      <input type="checkbox" value="${escapeHtml(s)}" class="fSkillBox" onchange="filterDir()"> ${escapeHtml(s)}
+    </label>`).join('');
+}
+
+function selectedSkills(){
+  return [...document.querySelectorAll('.fSkillBox:checked')].map(cb=>cb.value.toLowerCase());
+}
+
+function expMatches(cardExp, range){
+  if(!range) return true;
+  if(cardExp === '' || cardExp === undefined) return false;
+  const exp = Number(cardExp);
+  const [minStr, maxStr] = range.split('-');
+  const min = Number(minStr);
+  const max = maxStr === '' ? Infinity : Number(maxStr);
+  return exp >= min && exp <= max;
+}
+
 const PLAN_RANK = {free:0,sme_small:1,sme_medium:2,corporate:3,enterprise:4};
 window.filterDir = function() {
   const role = document.getElementById('fRole').value;
@@ -107,27 +171,112 @@ window.filterDir = function() {
   const avail = document.getElementById('fAvail').value;
   const plan = document.getElementById('fPlan').value;
   const q = document.getElementById('dirSearch').value.toLowerCase();
+  const skills = selectedSkills();
+  const exp = document.getElementById('fExp') ? document.getElementById('fExp').value : '';
   let count = 0;
   document.querySelectorAll('#dirGrid .member-card').forEach(card => {
     const text = card.textContent.toLowerCase();
     const cardRank = PLAN_RANK[card.dataset.plan] ?? 0;
+    const cardSkills = (card.dataset.skills||'').split('|');
     const ok = (!role || card.dataset.role === role)
       && (!state || card.dataset.state === state)
       && (!avail || card.dataset.avail === avail)
       && (!plan || cardRank >= (PLAN_RANK[plan] ?? 0))
-      && (!q || text.includes(q));
+      && (!q || text.includes(q))
+      && (!skills.length || skills.some(s=>cardSkills.includes(s)))
+      && expMatches(card.dataset.exp, exp);
     card.style.display = ok ? '' : 'none';
     if(ok) count++;
   });
   document.getElementById('dirCount').textContent = count;
 }
 
+// -- Saved Searches (paid tier) --
+
+function currentFilterState(){
+  return {
+    role: document.getElementById('fRole').value,
+    state: document.getElementById('fState').value,
+    avail: document.getElementById('fAvail').value,
+    plan: document.getElementById('fPlan').value,
+    q: document.getElementById('dirSearch').value,
+    skills: selectedSkills(),
+    exp: document.getElementById('fExp').value,
+  };
+}
+
+function applyFilterState(f){
+  document.getElementById('fRole').value = f.role || '';
+  document.getElementById('fState').value = f.state || '';
+  document.getElementById('fAvail').value = f.avail || '';
+  document.getElementById('fPlan').value = f.plan || '';
+  document.getElementById('dirSearch').value = f.q || '';
+  document.getElementById('fExp').value = f.exp || '';
+  document.querySelectorAll('.fSkillBox').forEach(cb => { cb.checked = (f.skills||[]).includes(cb.value.toLowerCase()); });
+  filterDir();
+}
+
+function savedSearchChip(s){
+  const e = escapeHtml;
+  return `<span class="tag tag-blue" style="cursor:pointer;display:inline-flex;align-items:center;gap:.4rem" data-search-id="${e(s.id)}">
+    <span data-search-apply="${e(s.id)}">${e(s.name)}</span>
+    <span data-search-delete="${e(s.id)}" title="Delete" style="opacity:.7">✕</span>
+  </span>`;
+}
+
+async function loadSavedSearches(){
+  const wrap = document.getElementById('savedSearchesList');
+  try{
+    const searches = await getSavedSearches();
+    savedSearches = searches;
+    wrap.innerHTML = searches.length ? searches.map(savedSearchChip).join('') : '<span class="text-sm text-muted">No saved searches yet.</span>';
+  }catch(err){
+    wrap.innerHTML = '<span class="text-sm text-muted">Failed to load saved searches.</span>';
+  }
+}
+
+let savedSearches = [];
+
+document.getElementById('savedSearchesList').addEventListener('click', async (e) => {
+  const applyId = e.target.closest('[data-search-apply]')?.dataset.searchApply;
+  const delId = e.target.closest('[data-search-delete]')?.dataset.searchDelete;
+  if(applyId){
+    const s = savedSearches.find(x=>x.id===applyId);
+    if(s) applyFilterState(s.filters||{});
+  } else if(delId){
+    try{ await deleteSavedSearch(delId); await loadSavedSearches(); }
+    catch(err){ showToast('Failed to delete saved search.','danger'); }
+  }
+});
+
+window.saveCurrentSearch = async function(){
+  const nameInput = document.getElementById('saveSearchName');
+  const name = nameInput.value.trim();
+  if(!name){ showToast('Give this search a name first.','danger'); return; }
+  try{
+    await createSavedSearch(name, currentFilterState());
+    nameInput.value = '';
+    showToast('Search saved!','success');
+    await loadSavedSearches();
+  }catch(err){
+    showToast(err.message || 'Failed to save search.','danger');
+  }
+};
+
 async function load(){
   const grid = document.getElementById('dirGrid');
+  const user = Auth.get();
+  if(isPaidPlan(user?.plan)){
+    document.getElementById('advancedFiltersBox').classList.remove('hidden');
+    loadSavedSearches();
+  } else {
+    document.getElementById('advancedFiltersUpsell').classList.remove('hidden');
+  }
   try{
     members = await getMembers();
     grid.innerHTML = members.length ? members.map(renderCard).join('') : '<p class="text-muted text-sm">No approved members yet.</p>';
     populateRoleFilter();
+    populateSkillsFilter();
     document.getElementById('dirCount').textContent = members.length;
 
     // Handle URL params for pre-filtering, matched loosely against real role strings
