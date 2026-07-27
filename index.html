@@ -250,11 +250,8 @@
   <div class="inner">
     <div class="section-label">Success Stories</div>
     <h2 class="section-title">Real people.<br><em>Real breakthroughs.</em></h2>
-    <div class="stories-grid">
-      <div class="story-card fade-in"><div class="story-thumb s1">🎸</div><div class="story-body"><div class="story-role">Guitarist → Touring Artist</div><div class="story-name">Jordan Mackay</div><div class="story-desc">Found a manager through the directory, recorded an EP with a community producer, and landed their first national support slot — all within 8 months of joining.</div></div></div>
-      <div class="story-card fade-in"><div class="story-thumb s2">🎚️</div><div class="story-body"><div class="story-role">Home Studio → Commercial Studio</div><div class="story-name">Priya Nair</div><div class="story-desc">Used OIC's business resources to structure her freelance mixing business and grew from 2 clients to a 14-client roster with a studio lease in 12 months.</div></div></div>
-      <div class="story-card fade-in"><div class="story-thumb s3">💡</div><div class="story-body"><div class="story-role">Freelance LD → Company Director</div><div class="story-name">Marcus Chen</div><div class="story-desc">Connected with two other lighting designers through OIC events. Together they launched a production company now crewing major Australian festivals.</div></div></div>
-      <div class="story-card fade-in"><div class="story-thumb s4">🎤</div><div class="story-body"><div class="story-role">Unsigned → Label Deal</div><div class="story-name">Sienna Walsh</div><div class="story-desc">Met her manager at an OIC Melbourne meetup. Six months later she signed with an independent label and released her debut album to national press.</div></div></div>
+    <div class="stories-grid" id="storiesGrid">
+      <p class="text-muted text-sm">Loading stories…</p>
     </div>
   </div>
 </section>
@@ -334,7 +331,7 @@ function demoLogin(){
 <script src="assets/js/nav-inject.js?v=3"></script>
 <script src="assets/js/main.js?v=4"></script>
 <script type="module">
-import { getProjects, getListings, getHomeStats } from 'assets/js/supabase.js?v=9';
+import { getProjects, getListings, getHomeStats, getSuccessStories } from 'assets/js/supabase.js?v=10';
 
 const PCARD_COLORS = ['pm','pp','pv','pe'];
 function colorFor(seed=''){
@@ -401,6 +398,24 @@ async function loadFeatured(){
   }
 }
 
+const STORY_ACCENTS = ['s1','s2','s3','s4'];
+function storyCard(s, i){
+  const e = window.escapeHtml;
+  return `
+  <div class="story-card fade-in"><div class="story-thumb ${STORY_ACCENTS[i%STORY_ACCENTS.length]}">${e(s.thumb_emoji||'⭐')}</div><div class="story-body"><div class="story-role">${e(s.role_title||'')}</div><div class="story-name">${e(s.name||'')}</div><div class="story-desc">${e(s.description||'')}</div></div></div>`;
+}
+
+async function loadStories(){
+  try{
+    const stories = await getSuccessStories();
+    document.getElementById('storiesGrid').innerHTML = stories.length
+      ? stories.map(storyCard).join('')
+      : '<p class="text-muted text-sm">Stories coming soon.</p>';
+  }catch(err){
+    document.getElementById('storiesGrid').innerHTML = `<p class="text-muted text-sm">Failed to load stories: ${err.message}</p>`;
+  }
+}
+
 async function loadStats(){
   try{
     const stats = await getHomeStats();
@@ -421,6 +436,7 @@ async function loadStats(){
 document.addEventListener('DOMContentLoaded', () => {
   loadFeatured();
   loadStats();
+  loadStories();
 });
 </script>
 </body>

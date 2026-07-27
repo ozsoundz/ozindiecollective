@@ -978,3 +978,35 @@ create policy "Public can view projects behind confirmed collaborations"
     select 1 from public.project_applications a
     where a.project_id = projects.id and a.status = 'confirmed'
   ));
+
+-- 22. SUCCESS STORIES TABLE (homepage "Real Stories" showcase, admin-curated)
+create table if not exists public.success_stories (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.success_stories add column if not exists name text;
+alter table public.success_stories add column if not exists role_title text;
+alter table public.success_stories add column if not exists thumb_emoji text;
+alter table public.success_stories add column if not exists description text;
+alter table public.success_stories add column if not exists status text default 'draft';
+alter table public.success_stories add column if not exists display_order int default 0;
+alter table public.success_stories add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'success_stories_status_check') then
+    alter table public.success_stories add constraint success_stories_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.success_stories enable row level security;
+drop policy if exists "Public can view published success stories" on public.success_stories;
+drop policy if exists "Admins can view all success stories" on public.success_stories;
+drop policy if exists "Admins can insert success stories" on public.success_stories;
+drop policy if exists "Admins can update success stories" on public.success_stories;
+drop policy if exists "Admins can delete success stories" on public.success_stories;
+
+create policy "Public can view published success stories" on public.success_stories for select using (status = 'published');
+create policy "Admins can view all success stories" on public.success_stories for select using (public.is_admin());
+create policy "Admins can insert success stories" on public.success_stories for insert with check (public.is_admin());
+create policy "Admins can update success stories" on public.success_stories for update using (public.is_admin());
+create policy "Admins can delete success stories" on public.success_stories for delete using (public.is_admin());

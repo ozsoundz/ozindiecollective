@@ -730,6 +730,53 @@ export async function deleteHighlight(id) {
   if (error) throw error
 }
 
+// ── SUCCESS STORIES (homepage "Real Stories" showcase) ──
+
+export async function getSuccessStories() {
+  const { data, error } = await supabase
+    .from('success_stories')
+    .select('*')
+    .eq('status', 'published')
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function getAllSuccessStories() {
+  const { data, error } = await supabase
+    .from('success_stories')
+    .select('*')
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createSuccessStory(storyData) {
+  const { data, error } = await supabase
+    .from('success_stories')
+    .insert(storyData)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateSuccessStory(id, storyData) {
+  const { data, error } = await supabase
+    .from('success_stories')
+    .update(storyData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteSuccessStory(id) {
+  const { error } = await supabase.from('success_stories').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ── PARTNERS (Partner Organisations) ─────────────────
 
 export async function getPartners() {
