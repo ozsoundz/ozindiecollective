@@ -194,13 +194,28 @@ function rootPath(){
 }
 window.rootPath=rootPath;
 
+/* BUG FIX: the original version of this function only ever observed the
+   .fade-in elements present at the moment it ran (on DOMContentLoaded).
+   Pages like directory.html, community.html, events.html and projects.html
+   render their cards later, after an async Supabase fetch resolves — those
+   elements were never observed, so they never got the .visible class that
+   removes opacity:0, and stayed permanently invisible (correct data, correct
+   layout, computed opacity 0 forever) no matter how long you waited or
+   scrolled. Fixed with a MutationObserver that keeps watching the page and
+   picks up any .fade-in element added at any time, not just at page load. */
 function initFadeIn(){
-  const els=document.querySelectorAll('.fade-in');
-  if(!els.length)return;
-  const obs=new IntersectionObserver(entries=>{
+  const observed = new WeakSet();
+  const obs = new IntersectionObserver(entries=>{
     entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
   },{threshold:.08});
-  els.forEach(el=>obs.observe(el));
+  function observeAll(){
+    document.querySelectorAll('.fade-in:not(.visible)').forEach(el=>{
+      if(!observed.has(el)){ observed.add(el); obs.observe(el); }
+    });
+  }
+  observeAll();
+  const mo = new MutationObserver(observeAll);
+  mo.observe(document.body, { childList: true, subtree: true });
 }
 
 function initCheckboxPills(){
