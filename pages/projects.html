@@ -66,7 +66,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=3"></script>
-<script src="../assets/js/main.js?v=4"></script>
+<script src="../assets/js/main.js?v=5"></script>
 <script type="module">
 import { getProjects, applyToProject, sendConnectionEmail } from '../assets/js/supabase.js?v=11';
 
@@ -93,9 +93,11 @@ function cardHtml(p){
   const e = escapeHtml;
   const meta = [p.category, p.project_type].filter(Boolean).join(' / ');
   const loc = [p.city, p.state].filter(Boolean).join(', ') || '—';
+  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(p.profiles?.plan) : '';
   return `<div class="pcard ${colorFor(p.id)} fade-in" data-id="${e(p.id)}">
     <div class="tag tag-gold mb-2">${e(meta||'Project')}</div>
     <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">${e(p.title||'(untitled)')}</h3>
+    ${badge ? `<div class="mb-2">${badge}</div>` : ''}
     <p class="text-xs text-muted mb-2">📍 ${e(loc)} · ${e(p.timeframe || timeAgo(p.created_at))}</p>
     <p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">${e(p.description||'')}</p>
     <a href="#" data-action="apply" data-id="${e(p.id)}" data-title="${e(p.title||'this project')}" class="apply-link">Apply Now →</a>

@@ -29,7 +29,7 @@
     <div style="flex:1">
       <div class="flex items-center gap-2 mb-1" id="ph_tags">
         <span class="tag" id="ph_statusTag">…</span>
-        <span class="tag tag-gold" id="ph_planTag" style="display:none"></span>
+        <span id="ph_planTag" style="display:none"></span>
       </div>
       <h1 style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:.35rem" id="ph_name">Loading…</h1>
       <div style="font-family:var(--font-mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem" id="ph_role"></div>
@@ -173,7 +173,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=3"></script>
-<script src="../assets/js/main.js?v=4"></script>
+<script src="../assets/js/main.js?v=5"></script>
 <script>
 function showTab(name) {
   ['about','portfolio','collaborations','credits','reviews','epk'].forEach(t => {
@@ -265,10 +265,10 @@ function renderHeader(p){
   if(p.status === 'approved'){ statusTag.textContent = '✓ Approved Member'; statusTag.className = 'tag tag-approved'; }
   else if(p.status === 'pending'){ statusTag.textContent = 'Pending Review'; statusTag.className = 'tag tag-pending'; }
   else { statusTag.textContent = p.status || ''; statusTag.className = 'tag tag-denied'; }
-  if(p.plan && p.plan !== 'free'){
-    const PLAN_LABELS = {sme_small:'SME Small',sme_medium:'SME Medium',corporate:'Corporate',enterprise:'Enterprise'};
+  const planBadge = window.tierBadgeHtml ? window.tierBadgeHtml(p.plan) : '';
+  if(planBadge){
     const planTag = document.getElementById('ph_planTag');
-    planTag.textContent = PLAN_LABELS[p.plan] || p.plan;
+    planTag.innerHTML = planBadge;
     planTag.style.display = '';
   }
   document.getElementById('ph_memberSince').textContent = fmtMonthYear(p.created_at);

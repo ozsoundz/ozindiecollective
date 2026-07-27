@@ -104,6 +104,10 @@ textarea{resize:vertical;min-height:110px}
 .tag-purple{background:rgba(167,139,250,.16);color:var(--violet)}
 .tag-pending{background:rgba(245,166,35,.1);color:var(--marigold)}
 .tag-approved{background:rgba(74,222,128,.12);color:var(--sage)}
+
+/* TIER BADGES (see tierBadgeHtml() in main.js) */
+.tier-badge{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.04em;color:var(--cream);vertical-align:middle}
+.tier-badge-icon{width:15px;height:15px;flex-shrink:0;vertical-align:middle}
 .tag-denied{background:rgba(196,98,58,.1);color:var(--rust)}
 
 /* AVATAR */

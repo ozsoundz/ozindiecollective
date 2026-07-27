@@ -84,7 +84,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=3"></script>
-<script src="../assets/js/main.js?v=4"></script>
+<script src="../assets/js/main.js?v=5"></script>
 <script type="module">
 import { getListings, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=11';
 
@@ -93,9 +93,8 @@ let currentListingId = null;
 const ACCENTS = ['card-accent-gold','card-accent-rust','card-accent-sage'];
 
 function posterBadge(plan){
-  if(plan==='corporate' || plan==='enterprise') return ' &nbsp;·&nbsp; <span class="tag tag-approved" style="font-size:.55rem">★ Featured</span>';
-  if(plan==='sme_small' || plan==='sme_medium') return ' &nbsp;·&nbsp; <span class="tag tag-blue" style="font-size:.55rem">✓ Verified Business</span>';
-  return '';
+  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(plan) : '';
+  return badge ? ` &nbsp;·&nbsp; ${badge}` : '';
 }
 
 function renderCard(job, i){

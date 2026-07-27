@@ -55,6 +55,27 @@ function sanitizeUrl(url){
 }
 window.sanitizeUrl=sanitizeUrl;
 
+/* TIER BADGES — small graphic medallions (assets/img/badges/*.svg) shown
+   next to a member's name wherever their plan should be visually flagged
+   (job/project listing cards, directory cards, profile header). Free plan
+   members never get a badge — badges are a paid-tier perk. Both SME tiers
+   share the same "Verified Business" badge; Corporate and Enterprise each
+   get their own "Featured" medallion since that's a distinct paid perk. */
+const TIER_BADGES={
+  sme_small:{icon:'verified-business.svg',label:'Verified Business'},
+  sme_medium:{icon:'verified-business.svg',label:'Verified Business'},
+  corporate:{icon:'featured-corporate.svg',label:'Featured'},
+  enterprise:{icon:'featured-enterprise.svg',label:'Enterprise Partner'}
+};
+function tierBadgeHtml(plan){
+  const b=TIER_BADGES[plan];
+  if(!b) return '';
+  const isSubPage=window.location.pathname.includes('/pages/')||window.location.pathname.includes('/admin/');
+  const root=isSubPage?'../':'';
+  return `<span class="tier-badge"><img src="${root}assets/img/badges/${b.icon}" alt="" class="tier-badge-icon">${escapeHtml(b.label)}</span>`;
+}
+window.tierBadgeHtml=tierBadgeHtml;
+
 document.addEventListener('DOMContentLoaded',()=>{
   initNav();
   initMobileMenu();
