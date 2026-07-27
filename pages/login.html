@@ -101,10 +101,9 @@ async function completeLogin(){
   const user = profileToAuthUser(profile);
   Auth.set(user);
   showToast('Welcome back, '+user.name+'!','success');
-  setTimeout(() => {
-    if(user.isAdmin) window.location.href = '../admin/index.html';
-    else window.location.href = 'dashboard.html';
-  }, 600);
+  // Everyone lands on their own dashboard/profile first — admins get an
+  // "Admin Dashboard" button there rather than being redirected straight past it.
+  setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
 }
 
 function showPanel(name){

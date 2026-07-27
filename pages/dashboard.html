@@ -110,6 +110,7 @@
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
           <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem">Quick Actions</h3>
           <div style="display:flex;flex-direction:column;gap:.6rem">
+            <a href="../admin/index.html" id="adminDashboardLink" class="btn-primary w-full text-center hidden" style="font-size:.65rem;padding:.6rem">⚙ Go to Admin Dashboard</a>
             <a href="directory.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">Browse Directory</a>
             <a href="opportunities.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">View Opportunities</a>
             <a href="post-job.html" class="btn-ghost w-full text-center" style="font-size:.65rem;padding:.6rem">Post an Opportunity</a>
@@ -257,7 +258,10 @@ function loadProfileStrength(profile){
 document.addEventListener('DOMContentLoaded', async () => {
   const user = Auth.get();
   if(!user) { window.location.href = 'login.html'; return; }
-  if(user.isAdmin) { window.location.href = '../admin/index.html'; return; }
+  if(user.isAdmin) {
+    const adminLink = document.getElementById('adminDashboardLink');
+    if (adminLink) adminLink.classList.remove('hidden');
+  }
   if(user.status === 'pending') {
     document.getElementById('pendingNotice').classList.remove('hidden');
   }
