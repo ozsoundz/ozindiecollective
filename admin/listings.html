@@ -74,6 +74,8 @@ function renderRow(listing){
   const statusLabel = listing.status.charAt(0).toUpperCase()+listing.status.slice(1);
   const disabled = listing.status !== 'pending';
   const poster = listing.profiles?.full_name || '(unknown)';
+  const applyMethodLabel = {platform:'Via OIC Platform', email:'Direct Email', external:'External Link'}[listing.apply_method] || (listing.apply_method || '—');
+  const visibilityLabel = listing.visibility==='pro' ? 'Professional + Partners Only' : 'All Members';
   return `
   <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
     <div class="flex justify-between items-start mb-2">
@@ -93,6 +95,26 @@ function renderRow(listing){
     <div class="flex gap-3 mt-2 text-xs text-muted">
       <span>💰 ${e(listing.pay||'—')}</span>
       <span>📍 ${e([listing.city,listing.state].filter(Boolean).join(', ')||'—')}</span>
+    </div>
+    <button type="button" class="btn-ghost mt-2" style="font-size:.6rem;padding:.35rem .8rem" data-listing-toggle="${e(listing.id)}">▾ View Full Details</button>
+    <div id="listingDetail-${e(listing.id)}" style="display:none;margin-top:.85rem;padding-top:.85rem;border-top:1px solid var(--border)">
+      <div class="grid-4 mb-2" style="gap:.75rem">
+        <div><div class="text-xs mono text-gold mb-1">Start Date</div><div class="text-sm" style="color:var(--cream)">${e(listing.start_date||'—')}</div></div>
+        <div><div class="text-xs mono text-gold mb-1">Duration</div><div class="text-sm" style="color:var(--cream)">${e(listing.duration||'—')}</div></div>
+        <div><div class="text-xs mono text-gold mb-1">Application Deadline</div><div class="text-sm" style="color:var(--cream)">${e(listing.deadline||'—')}</div></div>
+        <div><div class="text-xs mono text-gold mb-1">Visibility</div><div class="text-sm" style="color:var(--cream)">${e(visibilityLabel)}</div></div>
+      </div>
+      <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
+        <div class="text-xs mono text-gold mb-1">Key Requirements</div>
+        <p class="text-sm text-muted" style="line-height:1.6;white-space:pre-line">${e(listing.requirements||'—')}</p>
+      </div>
+      <div class="flex gap-2 mb-2" style="flex-wrap:wrap">
+        ${(listing.tags||[]).length ? listing.tags.map(t=>`<span class="tag tag-gold" style="font-size:.55rem">${e(t)}</span>`).join('') : '<span class="text-xs text-muted">No skill tags selected</span>'}
+      </div>
+      <div class="flex gap-3 text-xs text-muted">
+        <span>📩 How to Apply: ${e(applyMethodLabel)}</span>
+        <span>✉️ Private Contact: ${e(listing.contact_email||'—')}</span>
+      </div>
     </div>
   </div>`;
 }
@@ -126,6 +148,15 @@ window.__listingDeny = async function(id){
 };
 
 document.getElementById('listingsContainer').addEventListener('click', (e) => {
+  const toggleBtn = e.target.closest('[data-listing-toggle]');
+  if (toggleBtn) {
+    const id = toggleBtn.dataset.listingToggle;
+    const detail = document.getElementById(`listingDetail-${id}`);
+    const expanded = detail.style.display !== 'none';
+    detail.style.display = expanded ? 'none' : 'block';
+    toggleBtn.textContent = expanded ? '▾ View Full Details' : '▴ Hide Full Details';
+    return;
+  }
   const btn = e.target.closest('[data-listing-action]');
   if (!btn) return;
   if (btn.dataset.listingAction === 'approve') window.__listingApprove(btn.dataset.listingId);

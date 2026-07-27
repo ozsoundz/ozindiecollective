@@ -94,6 +94,10 @@ function renderCard(app){
           <div><div class="text-xs mono text-gold mb-1">Referral</div><div class="text-sm" style="color:var(--cream)">${e(app.referral_source||'—')}</div></div>
           <div><div class="text-xs mono text-gold mb-1">Skills</div><div class="text-sm" style="color:var(--cream)">${e((app.skills||[]).join(', ')||'—')}</div></div>
         </div>
+        <div class="grid-4 mb-2" style="gap:.75rem">
+          <div><div class="text-xs mono text-gold mb-1">Experience</div><div class="text-sm" style="color:var(--cream)">${e(app.experience||'—')}</div></div>
+          <div><div class="text-xs mono text-gold mb-1">Availability</div><div class="text-sm" style="color:var(--cream)">${e(app.availability||'—')}</div></div>
+        </div>
         <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-bottom:.75rem">
           <div class="text-xs mono text-gold mb-1">Bio</div>
           <p class="text-sm text-muted" style="line-height:1.6">${e(app.bio||'—')}</p>
