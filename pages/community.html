@@ -77,9 +77,9 @@
 </section>
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=7"></script>
+<script src="../assets/js/main.js?v=8"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+window.onReady(() => {
   if(!Auth.get()) {
     document.getElementById('composeArea').style.display='none';
     document.getElementById('guestPrompt').classList.remove('hidden');

@@ -48,7 +48,7 @@
 </section>
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=7"></script>
+<script src="../assets/js/main.js?v=8"></script>
 <script type="module">
 import {
   getMyListingApplicants, getMyProjectApplicants,
@@ -213,7 +213,7 @@ async function loadHistory(){
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+window.onReady(async () => {
   if(!Auth.get()) { window.location.href='login.html'; return; }
   await Promise.all([loadApplicants(), loadMyApplications()]);
   loadHistory();

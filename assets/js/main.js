@@ -19,6 +19,23 @@ const Auth={
 };
 window.Auth=Auth;
 
+/* RACE-CONDITION FIX: page module scripts (<script type="module">) do a static
+   `import` of supabase.js, which itself statically imports ~7 sub-packages from
+   a CDN before any of the page's own code runs. On a slow connection that CDN
+   round-trip can take longer than the browser needs to finish parsing the rest
+   of the page — meaning `DOMContentLoaded` fires and is gone before the module
+   script gets around to calling addEventListener('DOMContentLoaded', ...). The
+   listener is then never invoked, and the page silently gets stuck on its
+   "Loading…" placeholders forever with no error. Use window.onReady(fn) instead
+   of addEventListener('DOMContentLoaded', fn) in module scripts: it runs fn
+   immediately if the DOM is already past the 'loading' state, and only falls
+   back to the event listener if parsing is still in progress. */
+function onReady(fn){
+  if (document.readyState !== 'loading') fn();
+  else document.addEventListener('DOMContentLoaded', fn);
+}
+window.onReady=onReady;
+
 function initials(name=''){
   return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'OI';
 }

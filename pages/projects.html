@@ -66,7 +66,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=7"></script>
+<script src="../assets/js/main.js?v=8"></script>
 <script type="module">
 import { getProjects, applyToProject, sendConnectionEmail } from '../assets/js/supabase.js?v=14';
 
@@ -157,7 +157,7 @@ async function load(){
   }
 }
 
-document.addEventListener('DOMContentLoaded', load);
+window.onReady(load);
 </script>
 </body>
 </html>

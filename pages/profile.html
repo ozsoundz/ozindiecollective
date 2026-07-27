@@ -173,7 +173,7 @@
 
 <div id="footer-placeholder"></div>
 <script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=7"></script>
+<script src="../assets/js/main.js?v=8"></script>
 <script>
 function showTab(name) {
   ['about','portfolio','collaborations','credits','reviews','epk'].forEach(t => {
@@ -358,7 +358,7 @@ function renderEpkPublic(epk){
   `;
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+window.onReady(async () => {
   const params = new URLSearchParams(window.location.search);
   const session = await getSession();
   const viewedId = params.get('id') || (session ? session.user.id : null);

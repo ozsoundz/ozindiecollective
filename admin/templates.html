@@ -108,7 +108,7 @@
 </div>
 
 <script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=7"></script>
+<script src="../assets/js/main.js?v=8"></script>
 <script type="module">
 import { getAllResourceTemplates, createResourceTemplate, updateResourceTemplate, deleteResourceTemplate, uploadAdminMedia, updatePassword } from '../assets/js/supabase.js?v=14';
 
@@ -259,7 +259,7 @@ async function load(){
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onReady(() => {
   if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
   load();
 });
