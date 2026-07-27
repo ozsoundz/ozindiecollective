@@ -283,6 +283,29 @@ export async function getMyListings() {
   return data
 }
 
+// Mirrors plan_listing_cap() in schema.sql — kept in sync manually. Used for
+// friendly client-side messaging only; the real enforcement is server-side
+// RLS (can_post_listing()/can_post_project()), so this being out of sync
+// would at worst show a slightly wrong message, never a security gap.
+export const PLAN_LISTING_CAPS = { free: 1, sme_small: 5, sme_medium: 15, corporate: null, enterprise: null }
+
+// Active job listing count + cap for the current member, so post-job.html
+// can show "you've reached your limit" before/instead of a raw RLS error.
+export async function getListingCapStatus() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const profile = await getCurrentProfile()
+  const plan = profile?.plan || 'free'
+  const cap = PLAN_LISTING_CAPS[plan] ?? null
+  const { count, error } = await supabase
+    .from('listings')
+    .select('id', { count: 'exact', head: true })
+    .eq('posted_by', session.user.id)
+    .in('status', ['pending', 'live'])
+  if (error) throw error
+  return { plan, cap, count: count || 0, atCap: cap !== null && (count || 0) >= cap }
+}
+
 // ── COLLABORATIONS (connections between listing/project posters and applicants) ──
 // A "collaboration" only counts once BOTH sides confirm: the poster accepts
 // the applicant, then the applicant confirms. Neither party alone is enough —
@@ -483,6 +506,23 @@ export async function getMyProjects() {
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
+}
+
+// Active project listing count + cap for the current member — see
+// getListingCapStatus() above, same idea, mirrors can_post_project().
+export async function getProjectCapStatus() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const profile = await getCurrentProfile()
+  const plan = profile?.plan || 'free'
+  const cap = PLAN_LISTING_CAPS[plan] ?? null
+  const { count, error } = await supabase
+    .from('projects')
+    .select('id', { count: 'exact', head: true })
+    .eq('posted_by', session.user.id)
+    .in('status', ['pending', 'live'])
+  if (error) throw error
+  return { plan, cap, count: count || 0, atCap: cap !== null && (count || 0) >= cap }
 }
 
 // ── ADMIN ─────────────────────────────────────────────

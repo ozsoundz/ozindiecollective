@@ -26,6 +26,9 @@
 <section style="background:var(--ink)">
   <div class="post-layout">
     <div class="post-card">
+      <div id="capNotice" class="hidden">
+        <div class="alert alert-danger"><span>🔒</span><span class="text-sm" id="capNoticeText">You've reached your plan's active listing limit.</span></div>
+      </div>
       <form id="postProjectForm" novalidate>
         <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Project Details</h2>
 
@@ -107,8 +110,25 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { createProject } from '../assets/js/supabase.js?v=10';
+import { createProject, getProjectCapStatus } from '../assets/js/supabase.js?v=11';
 window.__ozCreateProject = createProject;
+
+const PLAN_LABELS = { free: 'Free', sme_small: 'SME Small', sme_medium: 'SME Medium', corporate: 'Corporate', enterprise: 'Enterprise' };
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if(!Auth.get()) { window.location.href = 'login.html'; return; }
+  try {
+    const { plan, cap, count, atCap } = await getProjectCapStatus();
+    if (atCap) {
+      document.getElementById('capNoticeText').textContent =
+        `Your ${PLAN_LABELS[plan] || plan} plan allows ${cap} active project${cap===1?'':'s'}, and you currently have ${count}. Close or let one expire to post a new one, or upgrade for a higher limit.`;
+      document.getElementById('capNotice').classList.remove('hidden');
+      document.getElementById('postProjectForm').classList.add('hidden');
+    }
+  } catch(err) {
+    console.warn('Could not check project cap:', err.message);
+  }
+});
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -152,7 +172,10 @@ document.getElementById('postProjectForm').addEventListener('submit', async func
     showToast('Project submitted for review! You\'ll hear from us within 24 hours.','success');
     setTimeout(() => { window.location.href = 'projects.html'; }, 1800);
   } catch(err) {
-    showToast(err.message || 'Failed to submit project.','danger');
+    const msg = (err.message || '').toLowerCase().includes('row-level security')
+      ? 'You\'ve reached your plan\'s active project limit.'
+      : (err.message || 'Failed to submit project.');
+    showToast(msg,'danger');
     submitBtn.disabled = false; submitBtn.textContent = 'Submit Project';
   }
 });

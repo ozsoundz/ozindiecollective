@@ -160,9 +160,8 @@ create policy "Posters can view own listings"
   on public.listings for select
   using (auth.uid() = posted_by);
 
-create policy "Authenticated users can create listings"
-  on public.listings for insert
-  with check (auth.uid() = posted_by);
+-- Insert policy for listings is defined in section 24 below (plan-based
+-- posting caps) — "Authenticated users can create listings within plan cap".
 
 create policy "Admins can view all listings"
   on public.listings for select
@@ -559,9 +558,8 @@ create policy "Posters can view own projects"
   on public.projects for select
   using (auth.uid() = posted_by);
 
-create policy "Authenticated users can create projects"
-  on public.projects for insert
-  with check (auth.uid() = posted_by);
+-- Insert policy for projects is defined in section 24 below (plan-based
+-- posting caps) — "Authenticated users can create projects within plan cap".
 
 create policy "Admins can view all projects"
   on public.projects for select
@@ -1058,3 +1056,79 @@ begin
   alter table public.profiles add constraint profiles_plan_check
     check (plan in ('free','sme_small','sme_medium','corporate','enterprise'));
 end $$;
+
+-- 24. PLAN-BASED POSTING CAPS
+-- Active job/project listing limits per tier: free=1, sme_small=5,
+-- sme_medium=15, corporate/enterprise=unlimited (null = no cap). "Active"
+-- means status in ('pending','live') — a listing awaiting admin review
+-- still counts against the cap, otherwise a free member could queue up
+-- unlimited pending listings and only ever have 1 live at a time.
+
+create or replace function public.plan_listing_cap(p_plan text)
+returns int
+language sql
+immutable
+as $$
+  select case p_plan
+    when 'free' then 1
+    when 'sme_small' then 5
+    when 'sme_medium' then 15
+    else null
+  end
+$$;
+
+create or replace function public.can_post_listing()
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+stable
+as $$
+declare
+  v_plan text;
+  v_cap int;
+  v_count int;
+begin
+  select plan into v_plan from public.profiles where id = auth.uid();
+  if v_plan is null then return false; end if;
+  v_cap := public.plan_listing_cap(v_plan);
+  if v_cap is null then return true; end if;
+  select count(*) into v_count from public.listings
+    where posted_by = auth.uid() and status in ('pending','live');
+  return v_count < v_cap;
+end;
+$$;
+
+create or replace function public.can_post_project()
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+stable
+as $$
+declare
+  v_plan text;
+  v_cap int;
+  v_count int;
+begin
+  select plan into v_plan from public.profiles where id = auth.uid();
+  if v_plan is null then return false; end if;
+  v_cap := public.plan_listing_cap(v_plan);
+  if v_cap is null then return true; end if;
+  select count(*) into v_count from public.projects
+    where posted_by = auth.uid() and status in ('pending','live');
+  return v_count < v_cap;
+end;
+$$;
+
+drop policy if exists "Authenticated users can create listings" on public.listings;
+drop policy if exists "Authenticated users can create listings within plan cap" on public.listings;
+create policy "Authenticated users can create listings within plan cap"
+  on public.listings for insert
+  with check (auth.uid() = posted_by and public.can_post_listing());
+
+drop policy if exists "Authenticated users can create projects" on public.projects;
+drop policy if exists "Authenticated users can create projects within plan cap" on public.projects;
+create policy "Authenticated users can create projects within plan cap"
+  on public.projects for insert
+  with check (auth.uid() = posted_by and public.can_post_project());
