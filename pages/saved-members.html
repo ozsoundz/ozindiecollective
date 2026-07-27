@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Saved Members — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-saved/1600/400');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Advanced Networking Tools</div>
+    <h1 class="section-title">Your <em>Saved Members</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">A private shortlist of members you're keeping an eye on. Add notes to remember why you saved them.</p>
+  </div>
+</div>
+<section style="background:var(--ink);min-height:40vh">
+  <div class="inner">
+    <div id="savedUpsell" class="alert alert-info hidden mb-3">
+      <span>⭐</span><span class="text-sm">Saving/shortlisting members is available on paid membership plans. <a href="../index.html#membership" class="text-gold">See plans →</a></span>
+    </div>
+    <div id="savedList" style="display:flex;flex-direction:column;gap:1rem">
+      <p class="text-muted text-sm">Loading your saved members…</p>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=4"></script>
+<script src="../assets/js/main.js?v=8"></script>
+<script type="module">
+import { getMyBookmarks, removeBookmark, updateBookmarkNote, isPaidPlan } from '../assets/js/supabase.js?v=15';
+
+function initials(name=''){
+  return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?';
+}
+const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
+function avatarClass(seed=''){
+  let h = 0;
+  for(let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
+  return AVATAR_CLASSES[h % AVATAR_CLASSES.length];
+}
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diffMs / 86400000);
+  if(days < 1) return 'today';
+  if(days === 1) return '1 day ago';
+  if(days < 30) return days + ' days ago';
+  return new Date(iso).toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
+}
+
+function savedCard(b){
+  const e = escapeHtml;
+  const p = b.profiles || {};
+  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(p.plan) : '';
+  return `
+  <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;display:flex;gap:1rem;align-items:flex-start" data-bookmark-row="${e(b.id)}">
+    <a href="profile.html?id=${e(p.id||'')}" class="avatar avatar-md ${p.avatar_url?'':avatarClass(p.full_name)}" style="flex-shrink:0;text-decoration:none">${p.avatar_url?`<img src="${e(p.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(p.full_name))}</a>
+    <div style="flex:1">
+      <div class="flex items-center gap-2">
+        <a href="profile.html?id=${e(p.id||'')}" class="member-name" style="text-decoration:none;color:var(--cream);font-weight:600">${e(p.full_name||'(member removed)')}</a>
+        ${badge}
+      </div>
+      <div class="member-role text-xs mono" style="color:var(--marigold);margin-top:.15rem">${e(p.role||'')}</div>
+      <div class="text-xs text-muted mt-1">📍 ${e([p.city,p.state].filter(Boolean).join(', ')||'—')} &middot; Saved ${timeAgo(b.created_at)}</div>
+      <div class="form-group mt-2" style="margin-bottom:0">
+        <textarea data-note-input="${e(b.id)}" rows="2" placeholder="Add a private note (e.g. why you saved them)…" style="font-size:.82rem">${e(b.note||'')}</textarea>
+      </div>
+      <div class="flex gap-2 mt-2">
+        <button class="btn-secondary" style="font-size:.62rem;padding:.4rem .8rem" data-save-note="${e(b.id)}">Save Note</button>
+        <a href="profile.html?id=${e(p.id||'')}" class="btn-ghost" style="font-size:.62rem;padding:.4rem .8rem;text-decoration:none">View Profile</a>
+        <button class="btn-ghost" style="font-size:.62rem;padding:.4rem .8rem;color:var(--rust)" data-remove="${e(b.id)}">Remove</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function load(){
+  const list = document.getElementById('savedList');
+  const user = Auth.get();
+  if(!user){ window.location.href = 'login.html'; return; }
+  if(!isPaidPlan(user.plan)){
+    document.getElementById('savedUpsell').classList.remove('hidden');
+    list.innerHTML = '';
+    return;
+  }
+  try{
+    const bookmarks = await getMyBookmarks();
+    list.innerHTML = bookmarks.length
+      ? bookmarks.map(savedCard).join('')
+      : '<p class="text-muted text-sm">You haven\'t saved any members yet. Browse the <a href="directory.html" class="text-gold">Directory</a> and click the ☆ on a profile to save them here.</p>';
+  }catch(err){
+    list.innerHTML = `<p class="text-muted text-sm">Failed to load saved members: ${err.message}</p>`;
+  }
+}
+
+document.getElementById('savedList').addEventListener('click', async (e) => {
+  const removeId = e.target.closest('[data-remove]')?.dataset.remove;
+  const saveNoteId = e.target.closest('[data-save-note]')?.dataset.saveNote;
+  if(removeId){
+    try{
+      await removeBookmark(removeId);
+      document.querySelector(`[data-bookmark-row="${removeId}"]`)?.remove();
+      showToast('Removed from saved members.','info');
+    }catch(err){ showToast('Failed to remove.','danger'); }
+  } else if(saveNoteId){
+    const textarea = document.querySelector(`[data-note-input="${saveNoteId}"]`);
+    const btn = e.target.closest('[data-save-note]');
+    const originalText = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try{
+      await updateBookmarkNote(saveNoteId, textarea.value);
+      showToast('Note saved.','success');
+    }catch(err){
+      showToast('Failed to save note.','danger');
+    }finally{
+      btn.disabled = false; btn.textContent = originalText;
+    }
+  }
+});
+
+window.onReady(load);
+</script>
+</body>
+</html>

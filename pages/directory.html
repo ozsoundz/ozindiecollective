@@ -96,7 +96,7 @@
 <script src="../assets/js/nav-inject.js?v=4"></script>
 <script src="../assets/js/main.js?v=8"></script>
 <script type="module">
-import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan } from '../assets/js/supabase.js?v=15';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=15';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -110,6 +110,8 @@ function initials(name=''){
 const TAG_CLASSES = ['tag-gold','tag-sage','tag-blue','tag-rust'];
 
 let members = [];
+let bookmarkedIds = new Set();
+let canBookmark = false;
 
 // Parses a leading integer out of a free-text experience string (e.g.
 // "8 years" -> 8, "10+ years touring" -> 10). Returns null if unparseable —
@@ -119,13 +121,20 @@ function parseExpYears(experience){
   return m ? parseInt(m[0], 10) : null;
 }
 
+function bookmarkBtnHtml(memberId){
+  if(!canBookmark) return '';
+  const isSaved = bookmarkedIds.has(memberId);
+  return `<button type="button" class="bookmark-toggle-btn" data-bookmark-btn="${escapeHtml(memberId)}" onclick="event.preventDefault();event.stopPropagation();toggleBookmark('${escapeHtml(memberId)}')" title="${isSaved?'Remove from saved members':'Save member'}" style="position:absolute;top:.85rem;right:.85rem;background:none;border:none;font-size:1.15rem;line-height:1;cursor:pointer;color:${isSaved?'var(--marigold)':'var(--muted)'}">${isSaved?'★':'☆'}</button>`;
+}
+
 function renderCard(m){
   const skills = (m.skills||[]).slice(0,3);
   const e = escapeHtml;
   const badge = window.tierBadgeHtml ? window.tierBadgeHtml(m.plan) : '';
   const expYears = parseExpYears(m.experience);
   return `
-  <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}" data-skills="${e((m.skills||[]).join('|').toLowerCase())}" data-exp="${expYears===null?'':expYears}">
+  <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" style="position:relative" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}" data-skills="${e((m.skills||[]).join('|').toLowerCase())}" data-exp="${expYears===null?'':expYears}">
+    ${bookmarkBtnHtml(m.id)}
     <div class="member-card-top"><div class="avatar avatar-md ${m.avatar_url?'':avatarClass(m.full_name)}">${m.avatar_url?`<img src="${e(m.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(m.full_name))}</div><div><div class="member-name">${e(m.full_name||'(no name)')}</div><div class="member-role">${e(m.role||'—')}</div></div></div>
     ${badge ? `<div class="mb-2">${badge}</div>` : ''}
     <div class="member-location">📍 ${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</div>
@@ -249,6 +258,34 @@ document.getElementById('savedSearchesList').addEventListener('click', async (e)
   }
 });
 
+// -- Save/Shortlist Members (paid tier) --
+
+window.toggleBookmark = async function(memberId){
+  const btn = document.querySelector(`[data-bookmark-btn="${memberId}"]`);
+  const wasSaved = bookmarkedIds.has(memberId);
+  try{
+    if(wasSaved){
+      const mine = await getMyBookmarks();
+      const rec = mine.find(b => b.bookmarked_id === memberId);
+      if(rec) await removeBookmark(rec.id);
+      bookmarkedIds.delete(memberId);
+      showToast('Removed from saved members.','info');
+    } else {
+      await addBookmark(memberId);
+      bookmarkedIds.add(memberId);
+      showToast('Member saved! View your shortlist from the dashboard.','success');
+    }
+    if(btn){
+      const nowSaved = bookmarkedIds.has(memberId);
+      btn.textContent = nowSaved ? '★' : '☆';
+      btn.style.color = nowSaved ? 'var(--marigold)' : 'var(--muted)';
+      btn.title = nowSaved ? 'Remove from saved members' : 'Save member';
+    }
+  }catch(err){
+    showToast(err.message || 'Failed to update saved members.','danger');
+  }
+};
+
 window.saveCurrentSearch = async function(){
   const nameInput = document.getElementById('saveSearchName');
   const name = nameInput.value.trim();
@@ -269,6 +306,11 @@ async function load(){
   if(isPaidPlan(user?.plan)){
     document.getElementById('advancedFiltersBox').classList.remove('hidden');
     loadSavedSearches();
+    canBookmark = true;
+    try{
+      const mine = await getMyBookmarks();
+      bookmarkedIds = new Set(mine.map(b => b.bookmarked_id));
+    }catch(err){ /* leave bookmarks empty if this fails */ }
   } else {
     document.getElementById('advancedFiltersUpsell').classList.remove('hidden');
   }

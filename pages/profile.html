@@ -40,6 +40,7 @@
       </div>
       <div class="flex gap-2 mt-3" id="ph_actions">
         <button class="btn-secondary" id="ph_editBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none" onclick="toggleEdit()">Edit Profile</button>
+        <button class="btn-secondary" id="ph_bookmarkBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none" onclick="toggleProfileBookmark()">☆ Save Member</button>
       </div>
     </div>
     <div style="text-align:right;flex-shrink:0">
@@ -196,9 +197,10 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations } from '../assets/js/supabase.js?v=15';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=15';
 
 let pendingAvatarUrl = null;
+let bookmarkRecordId = null;
 
 document.getElementById('ef_avatar_file').addEventListener('change', async (e) => {
   const file = e.target.files[0];
@@ -358,6 +360,25 @@ function renderEpkPublic(epk){
   `;
 }
 
+window.toggleProfileBookmark = async function(viewedId){
+  const btn = document.getElementById('ph_bookmarkBtn');
+  try{
+    if(bookmarkRecordId){
+      await removeBookmark(bookmarkRecordId);
+      bookmarkRecordId = null;
+      btn.textContent = '☆ Save Member';
+      showToast('Removed from saved members.','info');
+    } else {
+      const rec = await addBookmark(viewedId);
+      bookmarkRecordId = rec && rec.id ? rec.id : true;
+      btn.textContent = '★ Saved';
+      showToast('Member saved! View your shortlist from the dashboard.','success');
+    }
+  }catch(err){
+    showToast(err.message || 'Failed to update saved members.','danger');
+  }
+};
+
 window.onReady(async () => {
   const params = new URLSearchParams(window.location.search);
   const session = await getSession();
@@ -369,6 +390,18 @@ window.onReady(async () => {
   }
 
   const isOwnProfile = !!(session && session.user.id === viewedId);
+  const currentUser = window.Auth ? Auth.get() : null;
+
+  if (!isOwnProfile && isPaidPlan(currentUser?.plan)) {
+    const bookmarkBtn = document.getElementById('ph_bookmarkBtn');
+    bookmarkBtn.style.display = '';
+    bookmarkBtn.setAttribute('onclick', `toggleProfileBookmark('${viewedId}')`);
+    try{
+      const mine = await getMyBookmarks();
+      const rec = mine.find(b => b.bookmarked_id === viewedId);
+      if(rec){ bookmarkRecordId = rec.id; bookmarkBtn.textContent = '★ Saved'; }
+    }catch(err){ /* leave as unsaved if this fails */ }
+  }
 
   loadCollaborations(viewedId);
 

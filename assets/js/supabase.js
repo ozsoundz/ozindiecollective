@@ -1477,6 +1477,11 @@ export async function removeBookmark(id) {
   if (error) throw error
 }
 
+export async function updateBookmarkNote(id, note) {
+  const { error } = await supabase.from('member_bookmarks').update({ note }).eq('id', id)
+  if (error) throw error
+}
+
 // -- Profile View Insights --
 
 // Logs a view of `viewedId`'s profile. Fire-and-forget: a logging failure
