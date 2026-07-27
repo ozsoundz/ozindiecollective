@@ -57,7 +57,7 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getAllSponsoredPrograms, approveSponsoredProgram, denySponsoredProgram } from '../assets/js/supabase.js?v=7';
+import { getAllSponsoredPrograms, approveSponsoredProgram, denySponsoredProgram, sendConnectionEmail } from '../assets/js/supabase.js?v=8';
 
 let programs = [];
 let currentFilter = 'pending';
@@ -129,10 +129,12 @@ document.getElementById('sponsorshipsContainer').addEventListener('click', async
     if (btn.dataset.sponsorshipAction === 'approve') {
       await approveSponsoredProgram(id);
       const p = programs.find(x=>x.id===id); if(p) p.status='live';
+      sendConnectionEmail('sponsorship_approved', { programId: id });
       showToast('Sponsorship approved and now live!','success');
     } else {
       await denySponsoredProgram(id);
       const p = programs.find(x=>x.id===id); if(p) p.status='denied';
+      sendConnectionEmail('sponsorship_denied', { programId: id });
       showToast('Sponsorship denied.','danger');
     }
     renderAll();

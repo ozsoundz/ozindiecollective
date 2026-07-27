@@ -68,7 +68,7 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getProjects, applyToProject } from '../assets/js/supabase.js?v=7';
+import { getProjects, applyToProject, sendConnectionEmail } from '../assets/js/supabase.js?v=8';
 
 const CARD_COLORS = ['c-gold','c-rust','c-sage','c-purple'];
 let projects = [];
@@ -137,7 +137,8 @@ window.submitProj = async function() {
   const message = document.getElementById('projApplyMessage').value;
   const portfolio = document.getElementById('projApplyPortfolio').value;
   try {
-    await applyToProject({ projectId: currentProjectId, coverMessage: message, portfolioLink: portfolio });
+    const [application] = await applyToProject({ projectId: currentProjectId, coverMessage: message, portfolioLink: portfolio });
+    if (application?.id) sendConnectionEmail('application_received', { applicationId: application.id, kind: 'project' });
     showToast('Application sent!','success');
     closeModal('projectApplyModal');
   } catch(err) {

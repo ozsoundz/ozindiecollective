@@ -222,6 +222,7 @@ export async function applyToListing({ listingId, coverMessage, portfolioLink })
       cover_message: coverMessage,
       portfolio_link: portfolioLink
     })
+    .select()
   if (error) throw error
   return data
 }
@@ -433,6 +434,7 @@ export async function applyToProject({ projectId, coverMessage, portfolioLink })
       cover_message: coverMessage,
       portfolio_link: portfolioLink
     })
+    .select()
   if (error) throw error
   return data
 }
@@ -1196,4 +1198,17 @@ export async function approveSponsoredProgram(id) {
 export async function denySponsoredProgram(id) {
   const { error } = await supabase.from('sponsored_programs').update({ status: 'denied' }).eq('id', id)
   if (error) throw error
+}
+
+// Fire-and-forget notification email via the send-connection-email Edge
+// Function. Never blocks or breaks the caller's primary action — the function
+// does its own authorization checks server-side, and if it's not deployed
+// yet or fails for any reason we just log a warning.
+export async function sendConnectionEmail(type, params = {}) {
+  try {
+    const { error } = await supabase.functions.invoke('send-connection-email', { body: { type, ...params } })
+    if (error) throw error
+  } catch (err) {
+    console.warn('send-connection-email function not available yet:', err.message)
+  }
 }

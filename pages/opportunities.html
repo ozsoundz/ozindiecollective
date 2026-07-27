@@ -86,7 +86,7 @@
 <script src="../assets/js/nav-inject.js?v=3"></script>
 <script src="../assets/js/main.js?v=4"></script>
 <script type="module">
-import { getListings, applyToListing } from '../assets/js/supabase.js?v=7';
+import { getListings, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=8';
 
 let listings = [];
 let currentListingId = null;
@@ -161,7 +161,8 @@ window.submitApplication = async function() {
   const portfolioLink = document.querySelector('#applyModal [name=portfolioLink]').value;
   if(!currentListingId) return;
   try{
-    await applyToListing({ listingId: currentListingId, coverMessage: cover, portfolioLink });
+    const [application] = await applyToListing({ listingId: currentListingId, coverMessage: cover, portfolioLink });
+    if (application?.id) sendConnectionEmail('application_received', { applicationId: application.id, kind: 'job' });
     showToast('Application submitted! The poster will be in touch.','success');
     closeModal('applyModal');
   }catch(err){

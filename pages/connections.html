@@ -54,8 +54,9 @@ import {
   getMyListingApplicants, getMyProjectApplicants,
   getMyApplications, getMyProjectApplications,
   respondToApplication, respondToProjectApplication,
-  confirmApplication, confirmProjectApplication
-} from '../assets/js/supabase.js?v=7';
+  confirmApplication, confirmProjectApplication,
+  sendConnectionEmail
+} from '../assets/js/supabase.js?v=8';
 
 let applicants = [];
 let myApps = [];
@@ -126,6 +127,7 @@ document.getElementById('applicantsList').addEventListener('click', async (e) =>
   try{
     if (kind === 'Job Listing') await respondToApplication(id, status);
     else await respondToProjectApplication(id, status);
+    sendConnectionEmail(status === 'accepted' ? 'application_accepted' : 'application_declined', { applicationId: id, kind: kind === 'Job Listing' ? 'job' : 'project' });
     showToast(status === 'accepted' ? 'Applicant accepted — waiting on their confirmation.' : 'Applicant declined.', status==='accepted'?'success':'info');
     await loadApplicants();
   }catch(err){
@@ -173,6 +175,7 @@ document.getElementById('myApplicationsList').addEventListener('click', async (e
   try{
     if (kind === 'Job Listing') await confirmApplication(id);
     else await confirmProjectApplication(id);
+    sendConnectionEmail('collaboration_confirmed', { applicationId: id, kind: kind === 'Job Listing' ? 'job' : 'project' });
     showToast('Collaboration confirmed! 🎉', 'success');
     await Promise.all([loadMyApplications(), loadHistory()]);
   }catch(err){
