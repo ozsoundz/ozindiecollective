@@ -32,6 +32,7 @@
     <a href="community.html" class="admin-nav-item">Community</a>
     <a href="events.html" class="admin-nav-item">Events</a>
     <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="content.html" class="admin-nav-item">Page Content</a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
     <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
       <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
@@ -82,10 +83,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=9"></script>
+<script src="../assets/js/nav-inject.js?v=5"></script>
+<script src="../assets/js/main.js?v=10"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, updatePassword } from '../assets/js/supabase.js?v=15';
+import { getAllApplications, approveApplication, denyApplication, updatePassword } from '../assets/js/supabase.js?v=16';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;

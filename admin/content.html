@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page Content — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.snow.min.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+<style>
+.cms-page-group{margin-bottom:2.5rem}
+.cms-page-title{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.cms-block{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1rem}
+.cms-block-label{font-size:.85rem;color:var(--cream);font-weight:600;margin-bottom:.15rem}
+.cms-block-meta{font-size:.68rem;color:var(--muted);margin-bottom:.75rem}
+.cms-editor{background:#fff;border-radius:3px;margin-bottom:.85rem}
+.ql-editor{min-height:100px;font-size:.9rem}
+.cms-plain-input{width:100%}
+.cms-save-row{display:flex;align-items:center;gap:.75rem}
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="projects.html" class="admin-nav-item">Projects</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="knowledge.html" class="admin-nav-item">Knowledge</a>
+    <a href="grants.html" class="admin-nav-item">Grants</a>
+    <a href="templates.html" class="admin-nav-item">Templates</a>
+    <a href="sponsorships.html" class="admin-nav-item">Sponsorships</a>
+    <a href="stories.html" class="admin-nav-item">Success Stories</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="content.html" class="admin-nav-item active">Page Content</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
+      <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
+      <a href="#" onclick="openModal('changePasswordModal');return false;" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">⚙ Change Password</a>
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Page Content</h1>
+        <p class="text-muted text-sm mt-1">Edit the marketing &amp; legal copy on About Us, the Homepage, Community Guidelines, Privacy Policy and Contact — changes go live immediately, no code change needed.</p>
+      </div>
+    </div>
+    <div class="alert alert-info mb-4">
+      <span>ℹ️</span>
+      <span class="text-sm">Blocks marked <strong>Rich text</strong> use the same editor for every page they appear on. Editing a block that currently has special layout (colored callout boxes, icon cards) will replace it with plain formatted text — the wording stays yours, but custom styling in that block is lost. Blocks show the text currently live on the site until you save a change.</span>
+    </div>
+    <div id="cmsContainer"><p class="text-muted text-sm">Loading content blocks…</p></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('changePasswordModal')">✕</button>
+    <div class="modal-title">Change Password</div>
+    <div class="modal-sub">Choose a new password for your account.</div>
+    <div class="form-group"><label>New Password</label><input type="password" id="cpNewPassword" placeholder="At least 8 characters" autocomplete="new-password"></div>
+    <div class="form-group"><label>Confirm New Password</label><input type="password" id="cpConfirmPassword" placeholder="Re-enter new password" autocomplete="new-password"></div>
+    <button class="btn-primary w-full btn-lg" id="cpSubmitBtn" onclick="submitChangePassword()">Update Password</button>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js?v=5"></script>
+<script src="../assets/js/main.js?v=10"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script>
+<script type="module">
+import { getAllPageContent, savePageContent, updatePassword } from '../assets/js/supabase.js?v=16';
+
+window.submitChangePassword = async function(){
+  const pw = document.getElementById('cpNewPassword').value;
+  const confirmPw = document.getElementById('cpConfirmPassword').value;
+  if(!pw || pw.length < 8){ showToast('Password must be at least 8 characters.','danger'); return; }
+  if(pw !== confirmPw){ showToast('Passwords do not match.','danger'); return; }
+  const btn = document.getElementById('cpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  try{
+    await updatePassword(pw);
+    showToast('Password updated!','success');
+    document.getElementById('cpNewPassword').value = '';
+    document.getElementById('cpConfirmPassword').value = '';
+    closeModal('changePasswordModal');
+  }catch(err){
+    showToast(err.message || 'Failed to update password.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+};
+
+// Registry of every editable block on the public site. `default` is the
+// exact copy currently hardcoded into the page's HTML — it's what the block
+// shows here until an admin saves a change, so this editor always starts
+// from what's actually live rather than a blank field. `plain: true` blocks
+// (short standalone values like stat numbers) get a simple text input
+// instead of a rich text editor.
+const CONTENT_REGISTRY = [
+  { page: 'Homepage', key: 'home.hero_eyebrow', label: 'Hero — Eyebrow text', plain: true,
+    default: `Australia's Indie Creative Community` },
+  { page: 'Homepage', key: 'home.hero_headline', label: 'Hero — Headline',
+    default: `Where Creativity<br><em>Comes Together.</em>` },
+  { page: 'Homepage', key: 'home.hero_sub', label: 'Hero — Subheading',
+    default: `A vetted community connecting artists, musicians, engineers, managers, technicians, creators and industry professionals across Australia.` },
+  { page: 'Homepage', key: 'home.why_heading', label: '"Why We Exist" — Heading',
+    default: `Built for the<br><em>creative class.</em>` },
+  { page: 'Homepage', key: 'home.why_quote', label: '"Why We Exist" — Pull Quote', plain: true,
+    default: `"Most creatives work in isolation."` },
+  { page: 'Homepage', key: 'home.why_body', label: '"Why We Exist" — Body Paragraph',
+    default: `The Oz Indie Collective exists to change that. We connect talent, create opportunities and build a stronger, more resilient creative industry — from bedroom studios to festival stages, across every city and region in Australia. Every member is personally vetted.` },
+
+  { page: 'About Us', key: 'about.hero_heading', label: 'Hero — Heading',
+    default: `We Built What We <em>Wished Existed.</em>` },
+  { page: 'About Us', key: 'about.hero_body', label: 'Hero — Body Paragraph',
+    default: `The Oz Indie Collective was founded by a group of Australian musicians, engineers and creative professionals who were tired of working in isolation — and tired of the industry's gatekeeping. We decided to build the community we always wanted.` },
+  { page: 'About Us', key: 'about.manifesto_quote', label: 'Manifesto Pull-Quote',
+    default: `"Australia's creative industry is full of extraordinary talent. What it lacks is infrastructure — the networks, resources and community that make careers possible. We're building that infrastructure."` },
+  { page: 'About Us', key: 'about.vet_heading', label: '"Why We Vet Everyone" — Heading',
+    default: `Why We <em>Vet Everyone</em>` },
+  { page: 'About Us', key: 'about.vet_body', label: '"Why We Vet Everyone" — Body',
+    default: `<p>Most creative platforms are open to anyone. That means spam, fake profiles, time-wasters and bad actors — noise that drowns out genuine connection.</p><p>We personally review every single application. Not because we want to be exclusive — but because we want every person you connect with here to be real, genuine and worthy of your time.</p><p>Vetting isn't gatekeeping. It's curation. It's quality control. It's how we make sure the Collective stays valuable for everyone in it.</p>` },
+  { page: 'About Us', key: 'about.values_heading', label: '"What We Stand For" — Heading',
+    default: `What We <em>Stand For</em>` },
+  { page: 'About Us', key: 'about.value1_desc', label: 'Value 1 (🤝 Genuine Connection) — Description',
+    default: `Real relationships between real professionals — not follower counts and vanity metrics.` },
+  { page: 'About Us', key: 'about.value2_desc', label: 'Value 2 (🌏 Australian First) — Description',
+    default: `Built for and by the Australian creative community. Every decision reflects our industry's needs.` },
+  { page: 'About Us', key: 'about.value3_desc', label: 'Value 3 (⚖️ Fair & Inclusive) — Description',
+    default: `Emerging artists and seasoned pros are both welcome here. Experience isn't a barrier.` },
+  { page: 'About Us', key: 'about.stat1_value', label: 'Stat 1 — Value (Vetted Members)', plain: true,
+    default: `4,200+` },
+  { page: 'About Us', key: 'about.stat2_value', label: 'Stat 2 — Value (Founded)', plain: true,
+    default: `2025` },
+  { page: 'About Us', key: 'about.stat3_value', label: 'Stat 3 — Value (States & Territories)', plain: true,
+    default: `8` },
+  { page: 'About Us', key: 'about.stat4_value', label: 'Stat 4 — Value (Avg Review Time)', plain: true,
+    default: `48hrs` },
+  { page: 'About Us', key: 'about.cta_heading', label: 'Closing CTA — Heading',
+    default: `Ready to join the <em>Collective?</em>` },
+  { page: 'About Us', key: 'about.cta_body', label: 'Closing CTA — Body',
+    default: `Applications take about 10 minutes. We review within 48 hours. There are no wrong answers — just be genuine.` },
+
+  { page: 'Community Guidelines', key: 'guidelines.full_content', label: 'Full Page Content',
+    default: `<div class="rule-box"><p style="margin:0;color:var(--cream)"><strong>The short version:</strong> Be a genuine, respectful professional. Support your fellow creatives. Don't be a dickhead. Everything else flows from that.</p></div><h2>1. Be Real</h2><p>Every member of the Oz Indie Collective has been personally vetted. That trust comes with responsibility. Your profile must accurately represent who you are and what you do.</p><ul><li>Use your real name and a genuine profile photo</li><li>Accurately describe your skills, experience and availability</li><li>Don't misrepresent your credits or portfolio</li><li>Keep your profile up to date</li></ul><h2>2. Be Professional</h2><p>The Collective is a professional community. Treat every interaction — in the community feed, direct messages, at events and in collaborations — with the professionalism you'd expect from others.</p><ul><li>Respond to messages and enquiries in a timely manner</li><li>Be clear and upfront about your rates, availability and expectations</li><li>Honour your commitments and communicate proactively if things change</li><li>Provide constructive, honest feedback when asked</li></ul><h2>3. Support the Community</h2><p>The strength of the Collective comes from members genuinely helping each other. Share knowledge, celebrate others' wins and pay it forward.</p><ul><li>Share resources, opportunities and industry information generously</li><li>Celebrate and amplify the achievements of fellow members</li><li>Offer help when you can — even when there's nothing in it for you</li><li>Refer and recommend others honestly and specifically</li></ul><h2>4. Post with Purpose</h2><p>The community feed is for genuine creative industry conversation — not self-promotion spam or low-effort content.</p><ul><li>Share work, wins, questions, resources and opportunities</li><li>Keep promotional posts to a reasonable frequency</li><li>Don't post the same content repeatedly</li><li>Engage with others' posts — it's a community, not a billboard</li></ul><h2>5. Zero Tolerance</h2><div class="rule-box danger"><p style="margin:0;color:var(--cream)">The following will result in <strong>immediate and permanent removal</strong> from the Collective, with no warning and no refund of any membership fees:</p></div><ul><li>Harassment, bullying or intimidation of any member</li><li>Discrimination on the basis of race, gender, sexuality, disability, age or religion</li><li>Sharing another member's private information without consent</li><li>Scamming, fraud or misrepresentation for financial gain</li><li>Posting spam, pyramid schemes or unsolicited commercial messages</li><li>Creating a fake profile or impersonating another person</li><li>Sexual harassment of any kind, in any context</li></ul><h2>6. Disputes &amp; Conflicts</h2><p>Creative collaborations sometimes go wrong. If you have a dispute with another member, we encourage you to resolve it directly and professionally first. If that's not possible, contact us at <a href="mailto:hello@ozindiecollective.com.au">hello@ozindiecollective.com.au</a> and we'll help mediate.</p><p>Don't air disputes publicly in the community feed. Private conflicts should stay private until resolved.</p><h2>7. Reporting</h2><p>If you see behaviour that violates these guidelines, please report it. Use the report button on any post or profile, or email us directly. All reports are handled confidentially.</p><p>We take every report seriously and respond within 48 hours.</p><h2>8. Consequences</h2><p>Depending on the severity of the breach, consequences range from a private warning through to temporary suspension and permanent removal. Serious violations — particularly those in section 5 — go straight to permanent removal.</p><p>We don't issue warnings for serious harm. We act immediately to protect the community.</p>` },
+
+  { page: 'Privacy Policy', key: 'privacy.full_content', label: 'Full Page Content',
+    default: `<div class="alert alert-info mb-4"><span>🔒</span><span>We take your privacy seriously. We will never sell your personal information to third parties. Ever.</span></div><h2>1. Who We Are</h2><p>Oz Indie Collective ("OIC", "we", "us", "our") is an online community platform for Australian creative industry professionals. This Privacy Policy explains how we handle personal information collected through our website, platform and related services.</p><h2>2. What Information We Collect</h2><h3>Information you provide directly</h3><ul><li>Name, email address and password when you create an account</li><li>Profile information including your role, location, bio, skills and portfolio links</li><li>Application responses submitted during the vetting process</li><li>Content you post in the community feed, messages and comments</li><li>Payment information (processed securely by Stripe — we do not store card details)</li><li>Communications you send to us via contact forms or email</li></ul><h3>Information collected automatically</h3><ul><li>Device and browser information (type, operating system, screen resolution)</li><li>IP address and approximate location</li><li>Pages visited and time spent on the platform</li><li>Referring URLs and search terms</li></ul><h2>3. How We Use Your Information</h2><ul><li>To create and manage your member account</li><li>To display your public profile in the member directory</li><li>To facilitate connections and messaging between members</li><li>To process and review your membership application</li><li>To send you platform notifications, newsletters and event information (you can opt out at any time)</li><li>To process payments for paid membership plans</li><li>To improve our platform and services based on usage data</li><li>To comply with legal obligations</li></ul><h2>4. Who We Share Information With</h2><p>We do not sell, rent or trade your personal information. We share limited information with:</p><ul><li><strong>Other members</strong> — your public profile information is visible to approved OIC members</li><li><strong>Stripe</strong> — payment processing only</li><li><strong>Email service provider</strong> — to send transactional and newsletter emails</li><li><strong>Analytics providers</strong> — aggregated, anonymised usage data only</li><li><strong>Law enforcement</strong> — only when required by Australian law</li></ul><h2>5. Your Profile &amp; Visibility</h2><p>Your member profile is visible to other approved OIC members. You control what information appears on your profile and can update or remove it at any time via your dashboard.</p><p>Your email address, phone number (if provided) and application responses are never shown publicly and are only used internally.</p><h2>6. Data Security</h2><p>We use industry-standard security practices including HTTPS encryption, secure password hashing and access controls. However, no internet transmission is 100% secure. We encourage you to use a strong, unique password.</p><h2>7. Data Retention</h2><p>We retain your data for as long as your account is active. If you delete your account, we remove your personal data within 30 days, except where we are required to retain it for legal or financial compliance reasons (e.g. payment records for 7 years under Australian tax law).</p><h2>8. Your Rights</h2><p>Under the Australian Privacy Act 1988, you have the right to:</p><ul><li>Access the personal information we hold about you</li><li>Request correction of inaccurate information</li><li>Request deletion of your account and personal data</li><li>Opt out of marketing communications at any time</li><li>Lodge a complaint with the Office of the Australian Information Commissioner (OAIC)</li></ul><p>To exercise any of these rights, contact us at <a href="mailto:privacy@ozindiecollective.com.au">privacy@ozindiecollective.com.au</a>.</p><h2>9. Cookies</h2><p>We use essential cookies to maintain your login session and platform functionality. We use analytics cookies (anonymised) to understand how the platform is used. You can disable cookies in your browser settings, though this may affect platform functionality.</p><h2>10. Changes to This Policy</h2><p>We may update this policy from time to time. We'll notify members of significant changes via email. Continued use of the platform after changes constitutes acceptance of the updated policy.</p><h2>11. Contact Us</h2><p>Questions about this policy? Contact our Privacy Officer at <a href="mailto:privacy@ozindiecollective.com.au">privacy@ozindiecollective.com.au</a> or via our <a href="contact.html">contact form</a>.</p>` },
+
+  { page: 'Contact', key: 'contact.hero_body', label: 'Hero — Body Paragraph',
+    default: `Whether you have a question, want to partner with us, pitch for the podcast or host an OIC event — we'd love to hear from you.` },
+  { page: 'Contact', key: 'contact.reach_us', label: '"Other Ways to Reach Us" block',
+    default: `<div class="contact-method"><div class="contact-icon">✉️</div><div><div class="contact-label">General</div><div class="contact-value">hello@ozindiecollective.com.au</div><div class="contact-sub">General enquiries and support</div></div></div><div class="contact-method"><div class="contact-icon">🤝</div><div><div class="contact-label">Partnerships</div><div class="contact-value">partners@ozindiecollective.com.au</div><div class="contact-sub">Sponsorship, brand and industry partnerships</div></div></div><div class="contact-method"><div class="contact-icon">🎙️</div><div><div class="contact-label">Podcast</div><div class="contact-value">podcast@ozindiecollective.com.au</div><div class="contact-sub">Guest pitches and media enquiries</div></div></div><div class="contact-method"><div class="contact-icon">📍</div><div><div class="contact-label">Based In</div><div class="contact-value">Australia-wide</div><div class="contact-sub">Sydney HQ · Community across all states</div></div></div>` },
+];
+
+let savedContent = {};
+const quillInstances = {};
+
+function groupByPage(registry){
+  const groups = [];
+  const byPage = {};
+  registry.forEach(item => {
+    if(!byPage[item.page]){ byPage[item.page] = []; groups.push(item.page); }
+    byPage[item.page].push(item);
+  });
+  return { order: groups, byPage };
+}
+
+function safeIdFor(key){
+  return key.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function renderRegistry(){
+  const container = document.getElementById('cmsContainer');
+  const { order, byPage } = groupByPage(CONTENT_REGISTRY);
+  container.innerHTML = order.map(page => `
+    <div class="cms-page-group">
+      <div class="cms-page-title">${page}</div>
+      ${byPage[page].map(item => `
+        <div class="cms-block">
+          <div class="cms-block-label">${item.label}</div>
+          <div class="cms-block-meta" id="meta-${safeIdFor(item.key)}"></div>
+          ${item.plain
+            ? `<input type="text" class="input cms-plain-input" id="plain-${safeIdFor(item.key)}" style="margin-bottom:.85rem">`
+            : `<div class="cms-editor" id="editor-${safeIdFor(item.key)}"></div>`}
+          <div class="cms-save-row">
+            <button class="btn-primary" style="font-size:.68rem;padding:.5rem 1.1rem" data-save-key="${item.key}">Save Changes</button>
+            <span class="text-xs text-muted" id="status-${safeIdFor(item.key)}"></span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  CONTENT_REGISTRY.forEach(item => {
+    const id = safeIdFor(item.key);
+    const current = savedContent[item.key];
+    const value = (current !== undefined && current !== null && current !== '') ? current : item.default;
+    const metaEl = document.getElementById(`meta-${id}`);
+    metaEl.textContent = current !== undefined ? 'Currently: saved edit' : 'Currently: default site copy (not yet edited)';
+
+    if(item.plain){
+      document.getElementById(`plain-${id}`).value = value;
+    } else {
+      const editorEl = document.getElementById(`editor-${id}`);
+      const quill = new Quill(editorEl, { theme: 'snow', modules: { toolbar: ['bold','italic','underline','link',{list:'bullet'},{list:'ordered'},{header:[2,3,false]},'clean'] } });
+      quill.root.innerHTML = value;
+      quillInstances[item.key] = quill;
+    }
+  });
+}
+
+document.getElementById('cmsContainer').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-save-key]');
+  if(!btn) return;
+  const key = btn.dataset.saveKey;
+  const item = CONTENT_REGISTRY.find(x => x.key === key);
+  const id = safeIdFor(key);
+  const html = item.plain ? document.getElementById(`plain-${id}`).value : quillInstances[key].root.innerHTML;
+  const statusEl = document.getElementById(`status-${id}`);
+  const metaEl = document.getElementById(`meta-${id}`);
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Saving…';
+  try{
+    await savePageContent(key, html);
+    savedContent[key] = html;
+    statusEl.textContent = 'Saved just now.';
+    metaEl.textContent = 'Currently: saved edit';
+    showToast('Content saved — live on the site now.','success');
+  }catch(err){
+    statusEl.textContent = '';
+    showToast(err.message || 'Failed to save this block.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = originalText;
+  }
+});
+
+async function load(){
+  try{
+    const rows = await getAllPageContent();
+    savedContent = Object.fromEntries(rows.map(r => [r.key, r.content_html]));
+  }catch(err){
+    showToast('Could not load existing saved content — showing defaults only.','danger');
+  }
+  renderRegistry();
+}
+
+window.onReady(() => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

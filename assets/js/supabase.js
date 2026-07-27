@@ -1541,3 +1541,36 @@ export async function deleteSavedSearch(id) {
   const { error } = await supabase.from('saved_directory_searches').delete().eq('id', id)
   if (error) throw error
 }
+
+// -- Static Page Content (simple CMS) --
+
+// Bulk fetch by key for the site-wide loader (see applyPageContent() in
+// main.js). Returns a { key: content_html } map containing only the keys
+// that actually have a saved row — callers should leave their existing
+// hardcoded fallback text in place for any key missing from the result.
+export async function getPageContent(keys) {
+  if (!keys || !keys.length) return {}
+  const { data, error } = await supabase
+    .from('page_content')
+    .select('key, content_html')
+    .in('key', keys)
+  if (error) throw error
+  return Object.fromEntries((data || []).map(r => [r.key, r.content_html]))
+}
+
+// Every saved row, for the admin content editor.
+export async function getAllPageContent() {
+  const { data, error } = await supabase.from('page_content').select('*').order('key')
+  if (error) throw error
+  return data
+}
+
+// Admin-only (RLS enforces this) — creates or updates the row for `key`.
+export async function savePageContent(key, contentHtml) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { error } = await supabase
+    .from('page_content')
+    .upsert({ key, content_html: contentHtml, updated_at: new Date().toISOString(), updated_by: session.user.id })
+  if (error) throw error
+}

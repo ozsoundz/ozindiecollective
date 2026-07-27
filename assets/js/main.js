@@ -103,7 +103,32 @@ document.addEventListener('DOMContentLoaded',()=>{
   initCheckboxPills();
   initCharCount();
   initTabs();
+  applyPageContent();
 });
+
+/* SITE-WIDE CMS LOADER: any element on any page can opt into being
+   admin-editable by adding a data-cms-key="some.key" attribute. This scans
+   for all such elements, does one batched lookup against the page_content
+   table, and swaps in the saved content_html for any key that has been
+   edited by an admin (see admin/content.html). Elements whose key has never
+   been saved are left completely untouched, so the existing hardcoded copy
+   already in the HTML acts as the fallback/default — nothing breaks before
+   an admin edits anything, and a failed fetch (offline, RLS issue, etc.)
+   just silently leaves the static content in place. */
+function applyPageContent(){
+  const els = [...document.querySelectorAll('[data-cms-key]')];
+  if(!els.length) return;
+  const keys = els.map(el => el.dataset.cmsKey);
+  import('/assets/js/supabase.js?v=16').then(async ({ getPageContent }) => {
+    try{
+      const content = await getPageContent(keys);
+      els.forEach(el => {
+        const html = content[el.dataset.cmsKey];
+        if(html) el.innerHTML = html;
+      });
+    }catch(err){ /* leave static fallback content in place */ }
+  }).catch(()=>{ /* supabase.js unreachable — leave static fallback content in place */ });
+}
 
 function initNav(){
   const nav=document.getElementById('nav');
@@ -178,7 +203,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import('/assets/js/supabase.js?v=15');
+        const mod=await import('/assets/js/supabase.js?v=16');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');

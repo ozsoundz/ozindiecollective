@@ -138,9 +138,9 @@
   </div>
   <div class="hero-content">
     <img src="assets/img/logo.jpg" alt="Oz Indie Collective" class="hero-logo">
-    <div class="hero-eyebrow">Australia's Indie Creative Community</div>
-    <h1 class="hero-headline">Where Creativity<br><em>Comes Together.</em></h1>
-    <p class="hero-sub">A vetted community connecting artists, musicians, engineers, managers, technicians, creators and industry professionals across Australia.</p>
+    <div class="hero-eyebrow" data-cms-key="home.hero_eyebrow">Australia's Indie Creative Community</div>
+    <h1 class="hero-headline" data-cms-key="home.hero_headline">Where Creativity<br><em>Comes Together.</em></h1>
+    <p class="hero-sub" data-cms-key="home.hero_sub">A vetted community connecting artists, musicians, engineers, managers, technicians, creators and industry professionals across Australia.</p>
     <div class="hero-btns">
       <a href="pages/join.html" class="btn-primary btn-lg">Join The Collective</a>
       <a href="pages/opportunities.html" class="btn-secondary btn-lg">Explore Opportunities</a>
@@ -155,9 +155,9 @@
     <div class="why-grid">
       <div>
         <div class="section-label">Why We Exist</div>
-        <h2 class="section-title">Built for the<br><em>creative class.</em></h2>
-        <p class="why-quote">"Most creatives work in isolation."</p>
-        <p style="color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:2rem">The Oz Indie Collective exists to change that. We connect talent, create opportunities and build a stronger, more resilient creative industry — from bedroom studios to festival stages, across every city and region in Australia. Every member is personally vetted.</p>
+        <h2 class="section-title" data-cms-key="home.why_heading">Built for the<br><em>creative class.</em></h2>
+        <p class="why-quote" data-cms-key="home.why_quote">"Most creatives work in isolation."</p>
+        <p style="color:var(--muted);font-size:1rem;line-height:1.8;margin-bottom:2rem" data-cms-key="home.why_body">The Oz Indie Collective exists to change that. We connect talent, create opportunities and build a stronger, more resilient creative industry — from bedroom studios to festival stages, across every city and region in Australia. Every member is personally vetted.</p>
         <div class="pillars">
           <div class="pillar fade-in"><div class="pillar-icon pi-c">CNT</div><div><div class="pillar-name">Connect</div><p class="pillar-desc">Meet the people who can help bring your ideas to life. Build real relationships across every discipline in the creative industry.</p></div></div>
           <div class="pillar fade-in"><div class="pillar-icon pi-co">COL</div><div><div class="pillar-name">Collaborate</div><p class="pillar-desc">Find projects, gigs and creative partnerships. Whether you're seeking or offering, the right match is here.</p></div></div>
@@ -320,10 +320,10 @@
 </section>
 
 <div id="footer-placeholder"></div>
-<script src="assets/js/nav-inject.js?v=4"></script>
-<script src="assets/js/main.js?v=9"></script>
+<script src="assets/js/nav-inject.js?v=5"></script>
+<script src="assets/js/main.js?v=10"></script>
 <script type="module">
-import { getProjects, getListings, getHomeStats, getSuccessStories, getEvents } from './assets/js/supabase.js?v=15';
+import { getProjects, getListings, getHomeStats, getSuccessStories, getEvents } from './assets/js/supabase.js?v=16';
 
 const PCARD_COLORS = ['pm','pp','pv','pe'];
 function colorFor(seed=''){

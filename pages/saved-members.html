@@ -28,10 +28,10 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=4"></script>
-<script src="../assets/js/main.js?v=9"></script>
+<script src="../assets/js/nav-inject.js?v=5"></script>
+<script src="../assets/js/main.js?v=10"></script>
 <script type="module">
-import { getMyBookmarks, removeBookmark, updateBookmarkNote, isPaidPlan } from '../assets/js/supabase.js?v=15';
+import { getMyBookmarks, removeBookmark, updateBookmarkNote, isPaidPlan } from '../assets/js/supabase.js?v=16';
 
 function initials(name=''){
   return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?';

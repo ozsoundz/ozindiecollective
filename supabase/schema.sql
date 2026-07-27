@@ -1357,3 +1357,42 @@ create policy "Paid members can create saved searches"
 create policy "Members can delete their own saved searches"
   on public.saved_directory_searches for delete
   using (auth.uid() = owner_id);
+
+-- 26. STATIC PAGE CONTENT (simple CMS)
+-- Lets admins edit marketing/legal copy (About Us, Homepage sections,
+-- Community Guidelines, Privacy Policy, Contact page, etc.) through an admin
+-- UI instead of a code change. Each row is one editable block of a page,
+-- keyed by a stable string like 'about.hero_heading'. The public site reads
+-- these by key and falls back to the hardcoded HTML already in the page if
+-- no row exists yet for that key, so nothing breaks before an admin has
+-- edited anything.
+
+create table if not exists public.page_content (
+  key text primary key
+);
+alter table public.page_content add column if not exists content_html text not null default '';
+alter table public.page_content add column if not exists updated_at timestamptz not null default now();
+alter table public.page_content add column if not exists updated_by uuid references auth.users(id) on delete set null;
+
+alter table public.page_content enable row level security;
+
+drop policy if exists "Public can view page content" on public.page_content;
+drop policy if exists "Admins can insert page content" on public.page_content;
+drop policy if exists "Admins can update page content" on public.page_content;
+drop policy if exists "Admins can delete page content" on public.page_content;
+
+create policy "Public can view page content"
+  on public.page_content for select
+  using (true);
+
+create policy "Admins can insert page content"
+  on public.page_content for insert
+  with check (public.is_admin());
+
+create policy "Admins can update page content"
+  on public.page_content for update
+  using (public.is_admin());
+
+create policy "Admins can delete page content"
+  on public.page_content for delete
+  using (public.is_admin());
