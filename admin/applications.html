@@ -33,7 +33,9 @@
     <a href="events.html" class="admin-nav-item">Events</a>
     <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
-    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
+      <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
+      <a href="#" onclick="openModal('changePasswordModal');return false;" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">⚙ Change Password</a>
       <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
     </div>
   </aside>
@@ -56,10 +58,42 @@
     </div>
   </main>
 </div>
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('changePasswordModal')">✕</button>
+    <div class="modal-title">Change Password</div>
+    <div class="modal-sub">Choose a new password for your account.</div>
+    <div class="form-group"><label>New Password</label><input type="password" id="cpNewPassword" placeholder="At least 8 characters" autocomplete="new-password"></div>
+    <div class="form-group"><label>Confirm New Password</label><input type="password" id="cpConfirmPassword" placeholder="Re-enter new password" autocomplete="new-password"></div>
+    <button class="btn-primary w-full btn-lg" id="cpSubmitBtn" onclick="submitChangePassword()">Update Password</button>
+  </div>
+</div>
+
 <script src="../assets/js/nav-inject.js?v=3"></script>
-<script src="../assets/js/main.js?v=5"></script>
+<script src="../assets/js/main.js?v=6"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, deleteUserAccount } from '../assets/js/supabase.js?v=13';
+import { getAllApplications, approveApplication, denyApplication, deleteUserAccount, updatePassword } from '../assets/js/supabase.js?v=13';
+
+window.submitChangePassword = async function(){
+  const pw = document.getElementById('cpNewPassword').value;
+  const confirmPw = document.getElementById('cpConfirmPassword').value;
+  if(!pw || pw.length < 8){ showToast('Password must be at least 8 characters.','danger'); return; }
+  if(pw !== confirmPw){ showToast('Passwords do not match.','danger'); return; }
+  const btn = document.getElementById('cpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  try{
+    await updatePassword(pw);
+    showToast('Password updated!','success');
+    document.getElementById('cpNewPassword').value = '';
+    document.getElementById('cpConfirmPassword').value = '';
+    closeModal('changePasswordModal');
+  }catch(err){
+    showToast(err.message || 'Failed to update password.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+};
+
 
 let applications = [];
 let currentFilter = 'pending';

@@ -36,6 +36,7 @@
     <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
     <a href="reports.html" class="admin-nav-item">Reports</a>
     <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
+      <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
       <a href="#" onclick="openModal('changePasswordModal');return false;" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">⚙ Change Password</a>
       <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
     </div>
@@ -134,7 +135,7 @@
 </div>
 
 <script src="../assets/js/nav-inject.js?v=3"></script>
-<script src="../assets/js/main.js?v=5"></script>
+<script src="../assets/js/main.js?v=6"></script>
 <script type="module">
 import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers, updatePassword } from '../assets/js/supabase.js?v=13';
 
