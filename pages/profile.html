@@ -63,6 +63,7 @@
           <button class="ptab" onclick="showTab('credits')">Credits</button>
           <button class="ptab" onclick="showTab('reviews')">Reviews</button>
           <button class="ptab" onclick="showTab('epk')" id="epkTabBtn">EPK</button>
+          <button class="ptab hidden" onclick="showTab('insights')" id="insightsTabBtn">Insights</button>
         </div>
 
         <div id="tab-about">
@@ -99,6 +100,16 @@
           <div id="epkPublicView">
             <p class="text-muted text-sm">Loading EPK…</p>
           </div>
+        </div>
+
+        <div id="tab-insights" class="hidden">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem">Profile View Insights</h3>
+          <p class="text-muted text-sm" style="margin-bottom:1.25rem">See who's been checking out your profile. This is a paid membership perk — only visible to you.</p>
+          <div class="grid-4 mb-4" style="max-width:260px">
+            <div class="stat-box"><div class="stat-num" id="insightsTotal">…</div><div class="stat-lbl">Total Views</div></div>
+          </div>
+          <h4 style="font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:.75rem">Recent Viewers</h4>
+          <div id="insightsList" style="display:flex;flex-direction:column;gap:.75rem"><p class="text-muted text-sm">Loading…</p></div>
         </div>
       </div>
 
@@ -176,14 +187,16 @@
 <script src="../assets/js/nav-inject.js?v=4"></script>
 <script src="../assets/js/main.js?v=8"></script>
 <script>
+const PROFILE_TABS = ['about','portfolio','collaborations','credits','reviews','epk','insights'];
 function showTab(name) {
-  ['about','portfolio','collaborations','credits','reviews','epk'].forEach(t => {
+  PROFILE_TABS.forEach(t => {
     document.getElementById('tab-'+t).classList.add('hidden');
   });
   document.getElementById('tab-'+name).classList.remove('hidden');
   document.querySelectorAll('.ptab').forEach((btn,i) => {
-    btn.classList.toggle('active', ['about','portfolio','collaborations','credits','reviews','epk'][i] === name);
+    btn.classList.toggle('active', PROFILE_TABS[i] === name);
   });
+  if(name === 'insights' && window.__loadInsights) window.__loadInsights();
 }
 function toggleEdit() {
   const view = document.getElementById('viewMode');
@@ -197,7 +210,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=15';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights } from '../assets/js/supabase.js?v=15';
 
 let pendingAvatarUrl = null;
 let bookmarkRecordId = null;
@@ -340,6 +353,30 @@ async function loadCollaborations(userId){
   }
 }
 
+function viewerRow(v){
+  const e = escapeHtml;
+  const p = v.profiles;
+  const when = new Date(v.created_at).toLocaleString('en-AU', { day:'numeric', month:'short', hour:'numeric', minute:'2-digit' });
+  if(!p){
+    return `<div class="flex items-center gap-3" style="padding:.6rem 0;border-bottom:1px solid var(--border)"><div class="avatar avatar-sm av-gold">?</div><div><div class="text-sm" style="color:var(--cream)">Anonymous visitor</div><div class="text-xs text-muted">${when}</div></div></div>`;
+  }
+  return `<div class="flex items-center gap-3" style="padding:.6rem 0;border-bottom:1px solid var(--border)">
+    <div class="avatar avatar-sm ${p.avatar_url?'':avatarClass(p.full_name)}">${p.avatar_url?`<img src="${e(p.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(p.full_name))}</div>
+    <div style="flex:1"><div class="text-sm" style="color:var(--cream)">${e(p.full_name||'Member')}</div><div class="text-xs text-muted">${e(p.role||'')} &middot; ${when}</div></div>
+  </div>`;
+}
+
+async function loadInsights(){
+  const listEl = document.getElementById('insightsList');
+  try{
+    const { total, recent } = await getProfileViewInsights();
+    document.getElementById('insightsTotal').textContent = total;
+    listEl.innerHTML = recent && recent.length ? recent.map(viewerRow).join('') : '<p class="text-muted text-sm">No profile views yet.</p>';
+  }catch(err){
+    listEl.innerHTML = `<p class="text-muted text-sm">Failed to load view insights: ${err.message}</p>`;
+  }
+}
+
 function renderEpkPublic(epk){
   const wrap = document.getElementById('epkPublicView');
   if(!epk || !epk.epk_enabled){
@@ -392,6 +429,8 @@ window.onReady(async () => {
   const isOwnProfile = !!(session && session.user.id === viewedId);
   const currentUser = window.Auth ? Auth.get() : null;
 
+  if (!isOwnProfile) logProfileView(viewedId);
+
   if (!isOwnProfile && isPaidPlan(currentUser?.plan)) {
     const bookmarkBtn = document.getElementById('ph_bookmarkBtn');
     bookmarkBtn.style.display = '';
@@ -410,6 +449,10 @@ window.onReady(async () => {
     renderHeader(profile);
     if (isOwnProfile) {
       document.getElementById('ph_editBtn').style.display = '';
+      if (isPaidPlan(profile.plan)) {
+        document.getElementById('insightsTabBtn').classList.remove('hidden');
+        window.__loadInsights = loadInsights;
+      }
       populateEditForm(profile);
       document.getElementById('epk_enabled').checked = !!profile.epk_enabled;
       document.getElementById('epk_bio').value = profile.epk_bio || '';
