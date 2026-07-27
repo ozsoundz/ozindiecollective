@@ -58,7 +58,7 @@ import { createSponsoredProgram } from '../assets/js/supabase.js?v=9';
 document.addEventListener('DOMContentLoaded', () => {
   const user = Auth.get();
   if(!user) { window.location.href = 'login.html'; return; }
-  if(user.plan !== 'partner') {
+  if(user.plan !== 'partner' && !user.isAdmin) {
     document.getElementById('notPartnerNotice').classList.remove('hidden');
     document.getElementById('sponsorFormWrap').classList.add('hidden');
   }

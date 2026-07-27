@@ -921,6 +921,7 @@ alter table public.sponsored_programs enable row level security;
 drop policy if exists "Public can view live sponsored programs" on public.sponsored_programs;
 drop policy if exists "Submitters can view own sponsored programs" on public.sponsored_programs;
 drop policy if exists "Partners can submit sponsored programs" on public.sponsored_programs;
+drop policy if exists "Partners and admins can submit sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can view all sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can update sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can delete sponsored programs" on public.sponsored_programs;
@@ -933,11 +934,11 @@ create policy "Submitters can view own sponsored programs"
   on public.sponsored_programs for select
   using (auth.uid() = submitted_by);
 
--- Only Industry Partner members can submit — enforced server-side via
--- is_partner(), not just hidden in the UI.
-create policy "Partners can submit sponsored programs"
+-- Industry Partner members OR admins can submit — enforced server-side via
+-- is_partner()/is_admin(), not just hidden in the UI.
+create policy "Partners and admins can submit sponsored programs"
   on public.sponsored_programs for insert
-  with check (auth.uid() = submitted_by and public.is_partner());
+  with check (auth.uid() = submitted_by and (public.is_partner() or public.is_admin()));
 
 create policy "Admins can view all sponsored programs"
   on public.sponsored_programs for select
