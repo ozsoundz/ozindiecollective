@@ -950,3 +950,30 @@ create policy "Admins can update sponsored programs"
 create policy "Admins can delete sponsored programs"
   on public.sponsored_programs for delete
   using (public.is_admin());
+
+-- 21. PUBLIC COLLABORATION HISTORY ON PROFILES
+-- A confirmed collaboration should still show its listing/project title on a
+-- member's Profile page even after that listing/project has closed (status
+-- no longer 'live'), and even to a visitor who isn't the poster. Without
+-- this, the existing "Public can view live listings/projects" policy would
+-- silently hide the title once the post closes. Declined/pending
+-- applications are NOT covered here — those stay visible only to the two
+-- parties involved, via the applications/project_applications RLS policies
+-- above, and are never exposed on a profile.
+
+drop policy if exists "Public can view listings behind confirmed collaborations" on public.listings;
+drop policy if exists "Public can view projects behind confirmed collaborations" on public.projects;
+
+create policy "Public can view listings behind confirmed collaborations"
+  on public.listings for select
+  using (exists (
+    select 1 from public.applications a
+    where a.listing_id = listings.id and a.status = 'confirmed'
+  ));
+
+create policy "Public can view projects behind confirmed collaborations"
+  on public.projects for select
+  using (exists (
+    select 1 from public.project_applications a
+    where a.project_id = projects.id and a.status = 'confirmed'
+  ));

@@ -58,6 +58,7 @@
         <div class="profile-tab-nav">
           <button class="ptab active" onclick="showTab('about')">About</button>
           <button class="ptab" onclick="showTab('portfolio')">Portfolio</button>
+          <button class="ptab" onclick="showTab('collaborations')">Collaborations</button>
           <button class="ptab" onclick="showTab('credits')">Credits</button>
           <button class="ptab" onclick="showTab('reviews')">Reviews</button>
           <button class="ptab" onclick="showTab('epk')" id="epkTabBtn">EPK</button>
@@ -75,6 +76,12 @@
         <div id="tab-portfolio" class="hidden">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Portfolio</h3>
           <p class="text-muted text-sm">Portfolio showcase is coming soon. In the meantime check out this member's <a href="#" id="ph_portfolioLink" style="color:var(--cyan)">portfolio link</a> if they've added one.</p>
+        </div>
+
+        <div id="tab-collaborations" class="hidden">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem">Collaborations</h3>
+          <p class="text-muted text-sm" style="margin-bottom:1.25rem">Confirmed collaborations formed through the Collective. This is a public record — only collaborations both sides confirmed are shown here.</p>
+          <div id="collaborationsList"><p class="text-muted text-sm">Loading…</p></div>
         </div>
 
         <div id="tab-credits" class="hidden">
@@ -169,12 +176,12 @@
 <script src="../assets/js/main.js?v=4"></script>
 <script>
 function showTab(name) {
-  ['about','portfolio','credits','reviews','epk'].forEach(t => {
+  ['about','portfolio','collaborations','credits','reviews','epk'].forEach(t => {
     document.getElementById('tab-'+t).classList.add('hidden');
   });
   document.getElementById('tab-'+name).classList.remove('hidden');
   document.querySelectorAll('.ptab').forEach((btn,i) => {
-    btn.classList.toggle('active', ['about','portfolio','credits','reviews','epk'][i] === name);
+    btn.classList.toggle('active', ['about','portfolio','collaborations','credits','reviews','epk'][i] === name);
   });
 }
 function toggleEdit() {
@@ -189,7 +196,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia } from '../assets/js/supabase.js?v=8';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations } from '../assets/js/supabase.js?v=9';
 
 let pendingAvatarUrl = null;
 
@@ -303,6 +310,33 @@ function populateEditForm(p){
   document.getElementById('ef_availability').value = p.availability || 'available';
 }
 
+function timeAgoMonthYear(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+}
+
+function collaborationCard(c){
+  const e = escapeHtml;
+  return `
+  <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:.75rem">
+    <div class="flex gap-2 mb-1"><span class="tag tag-approved">✓ Confirmed</span><span class="tag tag-blue">${e(c.kind)}</span></div>
+    <div style="font-family:var(--font-display);font-size:1rem;color:var(--cream);margin-bottom:.15rem">${e(c.title||'(untitled)')}</div>
+    <div class="text-sm text-muted">Collaborated with ${e(c.otherPartyName)} &middot; ${e(timeAgoMonthYear(c.created_at))}</div>
+  </div>`;
+}
+
+async function loadCollaborations(userId){
+  const wrap = document.getElementById('collaborationsList');
+  try{
+    const collabs = await getPublicCollaborations(userId);
+    wrap.innerHTML = collabs.length
+      ? collabs.map(collaborationCard).join('')
+      : '<p class="text-muted text-sm">No confirmed collaborations yet.</p>';
+  }catch(err){
+    wrap.innerHTML = `<p class="text-muted text-sm">Failed to load collaborations: ${err.message}</p>`;
+  }
+}
+
 function renderEpkPublic(epk){
   const wrap = document.getElementById('epkPublicView');
   if(!epk || !epk.epk_enabled){
@@ -334,6 +368,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const isOwnProfile = !!(session && session.user.id === viewedId);
+
+  loadCollaborations(viewedId);
 
   try {
     const profile = await getProfileById(viewedId);

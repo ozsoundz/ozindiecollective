@@ -1212,3 +1212,39 @@ export async function sendConnectionEmail(type, params = {}) {
     console.warn('send-connection-email function not available yet:', err.message)
   }
 }
+
+// Public: confirmed collaborations for a given profile, shown on the
+// Profile page's Collaborations tab — whether it's the member's own profile
+// or someone else's. Only status='confirmed' rows are ever returned here;
+// pending/declined applications remain private to the two parties involved
+// (see Connections page) and are never surfaced on a profile.
+export async function getPublicCollaborations(userId) {
+  const [asApplicantJobs, asPosterJobs, asApplicantProjects, asPosterProjects] = await Promise.all([
+    supabase.from('applications').select('id, created_at, listings!inner(title, posted_by)').eq('applicant_id', userId).eq('status', 'confirmed'),
+    supabase.from('applications').select('id, created_at, applicant_id, listings!inner(title, posted_by)').eq('listings.posted_by', userId).eq('status', 'confirmed'),
+    supabase.from('project_applications').select('id, created_at, projects!inner(title, posted_by)').eq('applicant_id', userId).eq('status', 'confirmed'),
+    supabase.from('project_applications').select('id, created_at, applicant_id, projects!inner(title, posted_by)').eq('projects.posted_by', userId).eq('status', 'confirmed'),
+  ])
+  for (const r of [asApplicantJobs, asPosterJobs, asApplicantProjects, asPosterProjects]) {
+    if (r.error) throw r.error
+  }
+
+  const rows = [
+    ...(asApplicantJobs.data || []).map(r => ({ id: r.id, created_at: r.created_at, title: r.listings.title, kind: 'Job Listing', role: 'applicant', otherPartyId: r.listings.posted_by })),
+    ...(asPosterJobs.data || []).map(r => ({ id: r.id, created_at: r.created_at, title: r.listings.title, kind: 'Job Listing', role: 'poster', otherPartyId: r.applicant_id })),
+    ...(asApplicantProjects.data || []).map(r => ({ id: r.id, created_at: r.created_at, title: r.projects.title, kind: 'Project', role: 'applicant', otherPartyId: r.projects.posted_by })),
+    ...(asPosterProjects.data || []).map(r => ({ id: r.id, created_at: r.created_at, title: r.projects.title, kind: 'Project', role: 'poster', otherPartyId: r.applicant_id })),
+  ]
+
+  const otherIds = [...new Set(rows.map(r => r.otherPartyId).filter(Boolean))]
+  let namesById = {}
+  if (otherIds.length) {
+    const { data: profiles, error } = await supabase.from('profiles').select('id, full_name').in('id', otherIds)
+    if (error) throw error
+    namesById = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]))
+  }
+
+  return rows
+    .map(r => ({ ...r, otherPartyName: namesById[r.otherPartyId] || 'A member' }))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+}

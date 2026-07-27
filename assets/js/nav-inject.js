@@ -127,7 +127,7 @@
         const originalText = newsletterBtn.textContent;
         newsletterBtn.textContent = 'Subscribing…';
         try {
-          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=8');
+          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=9');
           const result = await subscribeToNewsletter(email);
           newsletterInput.value = '';
           if (window.showToast) {
@@ -145,7 +145,7 @@
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');
     if (partnersMount) {
-      import('/assets/js/supabase.js?v=8').then(async ({ getPartners }) => {
+      import('/assets/js/supabase.js?v=9').then(async ({ getPartners }) => {
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }
