@@ -1160,3 +1160,168 @@ drop policy if exists "Authenticated users can create projects within plan cap" 
 create policy "Authenticated users can create projects within plan cap"
   on public.projects for insert
   with check (auth.uid() = posted_by and public.can_post_project());
+
+-- 25. ADVANCED NETWORKING TOOLS (paid-tier perk: direct messaging, saved
+-- shortlists, profile view insights). Any plan other than 'free' counts as
+-- paid here — mirrors the "Verified Business"+ badge tiers, not just
+-- Corporate/Enterprise (that narrower group already has its own
+-- is_corporate_or_above() for the sponsorship-submission perk).
+
+create or replace function public.is_paid_tier()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce((select plan <> 'free' from public.profiles where id = auth.uid()), false);
+$$;
+
+-- Direct Messaging: a paid-tier member can start a conversation with any
+-- other member. Once a conversation exists, either participant can reply
+-- regardless of their own plan — the paid perk is being able to *initiate*
+-- contact, not a paywall on replying to someone who reached out to you.
+
+create table if not exists public.conversations (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.conversations add column if not exists participant_1 uuid references auth.users(id) on delete cascade;
+alter table public.conversations add column if not exists participant_2 uuid references auth.users(id) on delete cascade;
+alter table public.conversations add column if not exists created_at timestamptz default now();
+
+-- One conversation per unordered pair of members (least/greatest normalises
+-- the pair regardless of who initiated), so re-messaging someone reuses the
+-- existing thread instead of forking a new one.
+create unique index if not exists conversations_unique_pair
+  on public.conversations (least(participant_1, participant_2), greatest(participant_1, participant_2));
+
+alter table public.conversations enable row level security;
+
+drop policy if exists "Participants can view their own conversations" on public.conversations;
+drop policy if exists "Paid members can start conversations" on public.conversations;
+
+create policy "Participants can view their own conversations"
+  on public.conversations for select
+  using (auth.uid() in (participant_1, participant_2));
+
+create policy "Paid members can start conversations"
+  on public.conversations for insert
+  with check (
+    auth.uid() in (participant_1, participant_2)
+    and participant_1 <> participant_2
+    and public.is_paid_tier()
+  );
+
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.messages add column if not exists conversation_id uuid references public.conversations(id) on delete cascade;
+alter table public.messages add column if not exists sender_id uuid references auth.users(id) on delete cascade;
+alter table public.messages add column if not exists body text;
+alter table public.messages add column if not exists created_at timestamptz default now();
+alter table public.messages add column if not exists read_at timestamptz;
+
+alter table public.messages enable row level security;
+
+drop policy if exists "Participants can view messages in their conversations" on public.messages;
+drop policy if exists "Participants can send messages in their conversations" on public.messages;
+drop policy if exists "Recipients can mark messages read" on public.messages;
+
+-- Non-recursive: this subquery hits `conversations`, not `messages` itself.
+create policy "Participants can view messages in their conversations"
+  on public.messages for select
+  using (exists (
+    select 1 from public.conversations c
+    where c.id = conversation_id and auth.uid() in (c.participant_1, c.participant_2)
+  ));
+
+create policy "Participants can send messages in their conversations"
+  on public.messages for insert
+  with check (
+    auth.uid() = sender_id
+    and exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id and auth.uid() in (c.participant_1, c.participant_2)
+    )
+  );
+
+-- The recipient (not the sender) marks a message read when they view the thread.
+create policy "Recipients can mark messages read"
+  on public.messages for update
+  using (
+    auth.uid() <> sender_id
+    and exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id and auth.uid() in (c.participant_1, c.participant_2)
+    )
+  )
+  with check (auth.uid() <> sender_id);
+
+-- Save/Shortlist Members: a private bookmark list with an optional note,
+-- paid-tier perk. Existing bookmarks remain visible/manageable even if the
+-- owner later downgrades — only creating *new* ones requires paid tier.
+
+create table if not exists public.member_bookmarks (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.member_bookmarks add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.member_bookmarks add column if not exists bookmarked_id uuid references auth.users(id) on delete cascade;
+alter table public.member_bookmarks add column if not exists note text;
+alter table public.member_bookmarks add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'member_bookmarks_unique_pair') then
+    alter table public.member_bookmarks add constraint member_bookmarks_unique_pair unique (owner_id, bookmarked_id);
+  end if;
+end $$;
+
+alter table public.member_bookmarks enable row level security;
+
+drop policy if exists "Members can view their own bookmarks" on public.member_bookmarks;
+drop policy if exists "Paid members can create bookmarks" on public.member_bookmarks;
+drop policy if exists "Members can update their own bookmark notes" on public.member_bookmarks;
+drop policy if exists "Members can delete their own bookmarks" on public.member_bookmarks;
+
+create policy "Members can view their own bookmarks"
+  on public.member_bookmarks for select
+  using (auth.uid() = owner_id);
+
+create policy "Paid members can create bookmarks"
+  on public.member_bookmarks for insert
+  with check (auth.uid() = owner_id and owner_id <> bookmarked_id and public.is_paid_tier());
+
+create policy "Members can update their own bookmark notes"
+  on public.member_bookmarks for update
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
+
+create policy "Members can delete their own bookmarks"
+  on public.member_bookmarks for delete
+  using (auth.uid() = owner_id);
+
+-- Profile View Insights: every visit to a profile is logged (so counts stay
+-- accurate regardless of the visitor's own plan), but only the profile
+-- owner — and only if they're on a paid tier — can ever read the log back.
+-- Self-views and duplicate-in-a-session views are filtered client-side
+-- (see getProfileById callers), not here; this table just records what it's told.
+
+create table if not exists public.profile_views (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.profile_views add column if not exists viewer_id uuid references auth.users(id) on delete set null;
+alter table public.profile_views add column if not exists viewed_id uuid references auth.users(id) on delete cascade;
+alter table public.profile_views add column if not exists created_at timestamptz default now();
+
+alter table public.profile_views enable row level security;
+
+drop policy if exists "Anyone can log a profile view" on public.profile_views;
+drop policy if exists "Paid profile owners can view their own view log" on public.profile_views;
+
+create policy "Anyone can log a profile view"
+  on public.profile_views for insert
+  with check (viewer_id is null or viewer_id = auth.uid());
+
+create policy "Paid profile owners can view their own view log"
+  on public.profile_views for select
+  using (auth.uid() = viewed_id and public.is_paid_tier());
