@@ -1343,3 +1343,196 @@ export async function getPublicCollaborations(userId) {
     .map(r => ({ ...r, otherPartyName: namesById[r.otherPartyId] || 'A member' }))
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 }
+
+// ── ADVANCED NETWORKING TOOLS (paid-tier perk) ───────
+// Direct messaging, saved shortlists, profile view insights, saved
+// Directory searches. Mirrors PLAN_LISTING_CAPS above: kept in sync with
+// is_paid_tier() in schema.sql manually — real enforcement is RLS, this is
+// only used for friendly client-side gating (hiding paid-only UI, showing
+// an upgrade prompt) so it being briefly out of sync never opens a gap.
+export function isPaidPlan(plan) {
+  return !!plan && plan !== 'free'
+}
+
+// -- Direct Messaging --
+
+// Member: every conversation they're part of, with the other participant's
+// basic profile info and the most recent message, for an inbox list.
+export async function getMyConversations() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*, messages(body, created_at, sender_id, read_at)')
+    .or(`participant_1.eq.${session.user.id},participant_2.eq.${session.user.id}`)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+
+  const otherIds = [...new Set(data.map(c => c.participant_1 === session.user.id ? c.participant_2 : c.participant_1))]
+  let profilesById = {}
+  if (otherIds.length) {
+    const { data: profiles, error: pErr } = await supabase
+      .from('profiles').select('id, full_name, avatar_url, role').in('id', otherIds)
+    if (pErr) throw pErr
+    profilesById = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+  }
+
+  return data.map(c => {
+    const otherId = c.participant_1 === session.user.id ? c.participant_2 : c.participant_1
+    const msgs = (c.messages || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    const unread = msgs.filter(m => m.sender_id !== session.user.id && !m.read_at).length
+    return {
+      id: c.id,
+      otherParty: profilesById[otherId] || null,
+      lastMessage: msgs[0] || null,
+      unreadCount: unread,
+    }
+  }).sort((a, b) => new Date(b.lastMessage?.created_at || 0) - new Date(a.lastMessage?.created_at || 0))
+}
+
+// Poster (paid tier): start a new conversation with another member, or
+// return the existing one if they've already messaged before (unique pair
+// index in schema.sql means a second insert attempt would just conflict).
+export async function startConversation(otherMemberId) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data: existing } = await supabase
+    .from('conversations')
+    .select('id')
+    .or(`and(participant_1.eq.${session.user.id},participant_2.eq.${otherMemberId}),and(participant_1.eq.${otherMemberId},participant_2.eq.${session.user.id})`)
+    .maybeSingle()
+  if (existing) return existing.id
+
+  const { data, error } = await supabase
+    .from('conversations')
+    .insert({ participant_1: session.user.id, participant_2: otherMemberId })
+    .select('id')
+    .single()
+  if (error) throw error
+  return data.id
+}
+
+export async function getMessages(conversationId) {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function sendMessage(conversationId, body) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({ conversation_id: conversationId, sender_id: session.user.id, body })
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+// Marks every unread message in a conversation (that isn't the caller's own)
+// as read, when they open the thread.
+export async function markConversationRead(conversationId) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { error } = await supabase
+    .from('messages')
+    .update({ read_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId)
+    .neq('sender_id', session.user.id)
+    .is('read_at', null)
+  if (error) throw error
+}
+
+// -- Save/Shortlist Members --
+
+export async function getMyBookmarks() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('member_bookmarks')
+    .select('*, profiles:bookmarked_id(id, full_name, role, city, state, avatar_url, plan)')
+    .eq('owner_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function addBookmark(bookmarkedId, note = '') {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('member_bookmarks')
+    .insert({ owner_id: session.user.id, bookmarked_id: bookmarkedId, note })
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+export async function removeBookmark(id) {
+  const { error } = await supabase.from('member_bookmarks').delete().eq('id', id)
+  if (error) throw error
+}
+
+// -- Profile View Insights --
+
+// Logs a view of `viewedId`'s profile. Fire-and-forget: a logging failure
+// (e.g. viewing your own profile isn't blocked server-side, so this is
+// filtered here) should never break the profile page loading.
+export async function logProfileView(viewedId) {
+  const session = await getSession()
+  if (session && session.user.id === viewedId) return // don't log self-views
+  try {
+    await supabase.from('profile_views').insert({ viewer_id: session?.user.id || null, viewed_id: viewedId })
+  } catch (err) {
+    console.warn('logProfileView failed:', err.message)
+  }
+}
+
+// Owner-only (RLS also requires paid tier) — total count plus the most
+// recent viewers, for the profile insights panel.
+export async function getProfileViewInsights() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error, count } = await supabase
+    .from('profile_views')
+    .select('viewer_id, created_at, profiles:viewer_id(full_name, role, avatar_url)', { count: 'exact' })
+    .eq('viewed_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  if (error) throw error
+  return { total: count || 0, recent: data }
+}
+
+// -- Saved Directory Searches --
+
+export async function getSavedSearches() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('saved_directory_searches')
+    .select('*')
+    .eq('owner_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createSavedSearch(name, filters) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('saved_directory_searches')
+    .insert({ owner_id: session.user.id, name, filters })
+    .select()
+  if (error) throw error
+  return data[0]
+}
+
+export async function deleteSavedSearch(id) {
+  const { error } = await supabase.from('saved_directory_searches').delete().eq('id', id)
+  if (error) throw error
+}

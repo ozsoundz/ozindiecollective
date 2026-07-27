@@ -1325,3 +1325,35 @@ create policy "Anyone can log a profile view"
 create policy "Paid profile owners can view their own view log"
   on public.profile_views for select
   using (auth.uid() = viewed_id and public.is_paid_tier());
+
+-- Saved Directory Searches: paid-tier members can save a combination of
+-- Directory filters (skills, experience, etc.) under a name and re-run it
+-- later, instead of re-entering the same criteria every visit. Filters are
+-- stored as jsonb so the client owns the shape — no schema change needed
+-- if new filter fields are added to the Directory later.
+
+create table if not exists public.saved_directory_searches (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.saved_directory_searches add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.saved_directory_searches add column if not exists name text;
+alter table public.saved_directory_searches add column if not exists filters jsonb default '{}'::jsonb;
+alter table public.saved_directory_searches add column if not exists created_at timestamptz default now();
+
+alter table public.saved_directory_searches enable row level security;
+
+drop policy if exists "Members can view their own saved searches" on public.saved_directory_searches;
+drop policy if exists "Paid members can create saved searches" on public.saved_directory_searches;
+drop policy if exists "Members can delete their own saved searches" on public.saved_directory_searches;
+
+create policy "Members can view their own saved searches"
+  on public.saved_directory_searches for select
+  using (auth.uid() = owner_id);
+
+create policy "Paid members can create saved searches"
+  on public.saved_directory_searches for insert
+  with check (auth.uid() = owner_id and public.is_paid_tier());
+
+create policy "Members can delete their own saved searches"
+  on public.saved_directory_searches for delete
+  using (auth.uid() = owner_id);
