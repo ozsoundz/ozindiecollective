@@ -282,6 +282,30 @@ export async function getMyListings() {
   return data
 }
 
+// ── HOMEPAGE STATS ────────────────────────────────────
+// Public counts for the homepage "Numbers that matter" strip. Each is a
+// head-only count against the same publicly-readable rows the relevant
+// page already shows (approved profiles, live projects/listings, published
+// events) — no new RLS needed since these mirror existing public policies.
+export async function getHomeStats() {
+  const [members, projects, jobs, events] = await Promise.all([
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+    supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'live'),
+    supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'live'),
+    supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+  ])
+  if (members.error) throw members.error
+  if (projects.error) throw projects.error
+  if (jobs.error) throw jobs.error
+  if (events.error) throw events.error
+  return {
+    members: members.count || 0,
+    projects: projects.count || 0,
+    jobs: jobs.count || 0,
+    events: events.count || 0,
+  }
+}
+
 // ── PROJECTS BOARD ────────────────────────────────────
 // Separate from `listings`/`applications` — projects are collaboration-oriented
 // (paid/unpaid/rev-share) posts targeting a discipline rather than a role.

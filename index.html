@@ -209,16 +209,23 @@
 <section style="background:var(--mid)">
   <div class="inner">
     <div class="section-label">Featured Projects</div>
-    <h2 class="section-title">Real collaborations.<br><em>Real opportunities.</em></h2>
-    <div class="projects-grid">
-      <div class="pcard pm fade-in"><div class="tag tag-gold">Music / Live</div><div class="pcard-title">Indie Band Seeking Lighting Designer — National Tour</div><div class="pcard-meta">📍 Melbourne → Sydney → Brisbane &nbsp;·&nbsp; Paid &nbsp;·&nbsp; Oct 2025</div><div class="pcard-desc">Six-piece indie rock band heading on their biggest tour. Looking for an experienced LD who can bring an atmospheric visual identity to 12+ shows.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
-      <div class="pcard pp fade-in"><div class="tag tag-rust">Podcast / Media</div><div class="pcard-title">Creative Business Podcast Seeks Ongoing Producer</div><div class="pcard-meta">📍 Remote / Australia-wide &nbsp;·&nbsp; Paid &nbsp;·&nbsp; Ongoing</div><div class="pcard-desc">Weekly podcast interviewing founders and artists. Need a producer comfortable with editing, show notes and audience growth strategy.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
-      <div class="pcard pv fade-in"><div class="tag tag-sage">Tour / Visual</div><div class="pcard-title">Touring Artist Seeks Videographer for Album Cycle</div><div class="pcard-meta">📍 Adelaide, Perth, Brisbane &nbsp;·&nbsp; Paid &nbsp;·&nbsp; 4 Months</div><div class="pcard-desc">Singer-songwriter on first headline run needs a creative videographer for live footage and behind-the-scenes social content.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
-      <div class="pcard pm fade-in"><div class="tag tag-gold">Studio / Recording</div><div class="pcard-title">Independent Studio Seeking Resident Engineer</div><div class="pcard-meta">📍 Melbourne, VIC &nbsp;·&nbsp; Full-time &nbsp;·&nbsp; Immediate</div><div class="pcard-desc">Boutique recording studio in Collingwood has immediate availability for a tracking and mixing engineer. Pro Tools essential.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
-      <div class="pcard pe fade-in"><div class="tag tag-purple">Festival / Crew</div><div class="pcard-title">Regional Festival Seeking Full Production Crew</div><div class="pcard-meta">📍 Byron Bay, NSW &nbsp;·&nbsp; Paid &nbsp;·&nbsp; March 2026</div><div class="pcard-desc">3-day boutique festival seeking stage managers, audio techs, riggers and FOH engineers. Accommodation and transport provided.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
-      <div class="pcard pv fade-in"><div class="tag tag-sage">Visual / Brand</div><div class="pcard-title">Record Label Seeks Graphic Designer for Rebrand</div><div class="pcard-meta">📍 Remote &nbsp;·&nbsp; Contract &nbsp;·&nbsp; 6 Weeks</div><div class="pcard-desc">Independent hip-hop label refreshing its visual identity for 2026. Need a designer fluent in music culture and digital-first brand systems.</div><a href="pages/projects.html" class="apply-link">Apply Now →</a></div>
+    <h2 class="section-title">Real collaborations.<br><em>Real creative projects.</em></h2>
+    <div class="projects-grid" id="featuredProjectsGrid">
+      <p class="text-muted text-sm">Loading projects…</p>
     </div>
     <div class="text-center mt-4"><a href="pages/projects.html" class="btn-secondary">View All Projects</a></div>
+  </div>
+</section>
+
+<!-- FEATURED OPPORTUNITIES -->
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="section-label">Featured Opportunities</div>
+    <h2 class="section-title">Real gigs.<br><em>Real opportunities.</em></h2>
+    <div class="projects-grid" id="featuredJobsGrid">
+      <p class="text-muted text-sm">Loading opportunities…</p>
+    </div>
+    <div class="text-center mt-4"><a href="pages/opportunities.html" class="btn-secondary">View All Opportunities</a></div>
   </div>
 </section>
 
@@ -228,11 +235,11 @@
     <div class="section-label">Community Impact</div>
     <h2 class="section-title mb-4">Numbers that <em>matter.</em></h2>
     <div class="impact-grid">
-      <div class="istat fade-in"><div class="istat-num">4,200+</div><div class="istat-lbl">Members</div></div>
-      <div class="istat fade-in"><div class="istat-num" style="color:var(--marigold)">890</div><div class="istat-lbl">Projects Created</div></div>
-      <div class="istat fade-in"><div class="istat-num" style="color:var(--violet)">1,340</div><div class="istat-lbl">Jobs Posted</div></div>
+      <div class="istat fade-in"><div class="istat-num" id="statMembers">—</div><div class="istat-lbl">Members</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--marigold)" id="statProjects">—</div><div class="istat-lbl">Projects Created</div></div>
+      <div class="istat fade-in"><div class="istat-num" style="color:var(--violet)" id="statJobs">—</div><div class="istat-lbl">Jobs Posted</div></div>
       <div class="istat fade-in"><div class="istat-num" style="color:var(--sage)">2,100+</div><div class="istat-lbl">Collaborations Formed</div></div>
-      <div class="istat fade-in"><div class="istat-num">78</div><div class="istat-lbl">Events Hosted</div></div>
+      <div class="istat fade-in"><div class="istat-num" id="statEvents">—</div><div class="istat-lbl">Events Hosted</div></div>
       <div class="istat fade-in"><div class="istat-num" style="color:var(--marigold)">$340K</div><div class="istat-lbl">Sponsorships Funded</div></div>
     </div>
   </div>
@@ -326,5 +333,88 @@ function demoLogin(){
 </script>
 <script src="assets/js/nav-inject.js?v=3"></script>
 <script src="assets/js/main.js?v=4"></script>
+<script type="module">
+import { getProjects, getListings, getHomeStats } from 'assets/js/supabase.js?v=6';
+
+const PCARD_COLORS = ['pm','pp','pv','pe'];
+function colorFor(seed=''){
+  let h = 0;
+  for(let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
+  return PCARD_COLORS[h % PCARD_COLORS.length];
+}
+function timeAgo(iso){
+  if(!iso) return '';
+  const days = Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<1) return 'Today';
+  if(days===1) return '1 day ago';
+  return days+' days ago';
+}
+function fmtCount(n){
+  return n>=1000 ? (n/1000).toFixed(1).replace(/\.0$/,'')+'k+' : String(n);
+}
+
+function projectCard(p){
+  const e = window.escapeHtml;
+  return `
+  <div class="pcard ${colorFor(p.id)} fade-in">
+    <div class="tag tag-gold">${e(p.discipline_needed||p.category||'Project')}</div>
+    <div class="pcard-title">${e(p.title||'(untitled)')}</div>
+    <div class="pcard-meta">📍 ${e([p.city,p.state].filter(Boolean).join(', ')||'—')} &nbsp;·&nbsp; ${e(p.project_type||'—')} &nbsp;·&nbsp; ${e(timeAgo(p.created_at))}</div>
+    <div class="pcard-desc">${e((p.description||'').slice(0,140))}${(p.description||'').length>140?'…':''}</div>
+    <a href="pages/projects.html" class="apply-link">Apply Now →</a>
+  </div>`;
+}
+
+function jobCard(j){
+  const e = window.escapeHtml;
+  return `
+  <div class="pcard ${colorFor(j.id)} fade-in">
+    <div class="tag tag-gold">${e(j.category||'Opportunity')}</div>
+    <div class="pcard-title">${e(j.title||'(untitled)')}</div>
+    <div class="pcard-meta">📍 ${e([j.city,j.state].filter(Boolean).join(', ')||'—')} &nbsp;·&nbsp; ${e(j.employment_type||'—')} &nbsp;·&nbsp; ${e(timeAgo(j.created_at))}</div>
+    <div class="pcard-desc">${e((j.description||'').slice(0,140))}${(j.description||'').length>140?'…':''}</div>
+    <a href="pages/opportunities.html" class="apply-link">Apply Now →</a>
+  </div>`;
+}
+
+async function loadFeatured(){
+  try{
+    const projects = await getProjects();
+    document.getElementById('featuredProjectsGrid').innerHTML = projects.length
+      ? projects.slice(0,6).map(projectCard).join('')
+      : '<p class="text-muted text-sm">No live projects right now — check back soon.</p>';
+  }catch(err){
+    document.getElementById('featuredProjectsGrid').innerHTML = `<p class="text-muted text-sm">Failed to load projects: ${err.message}</p>`;
+  }
+  try{
+    const jobs = await getListings();
+    document.getElementById('featuredJobsGrid').innerHTML = jobs.length
+      ? jobs.slice(0,6).map(jobCard).join('')
+      : '<p class="text-muted text-sm">No live opportunities right now — check back soon.</p>';
+  }catch(err){
+    document.getElementById('featuredJobsGrid').innerHTML = `<p class="text-muted text-sm">Failed to load opportunities: ${err.message}</p>`;
+  }
+}
+
+async function loadStats(){
+  try{
+    const stats = await getHomeStats();
+    document.getElementById('statMembers').textContent = fmtCount(stats.members);
+    document.getElementById('statProjects').textContent = fmtCount(stats.projects);
+    document.getElementById('statJobs').textContent = fmtCount(stats.jobs);
+    document.getElementById('statEvents').textContent = fmtCount(stats.events);
+  }catch(err){
+    ['statMembers','statProjects','statJobs','statEvents'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = '—';
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadFeatured();
+  loadStats();
+});
+</script>
 </body>
 </html>
