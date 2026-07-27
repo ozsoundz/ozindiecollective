@@ -41,6 +41,7 @@
       <div class="flex gap-2 mt-3" id="ph_actions">
         <button class="btn-secondary" id="ph_editBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none" onclick="toggleEdit()">Edit Profile</button>
         <button class="btn-secondary" id="ph_bookmarkBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none" onclick="toggleProfileBookmark()">☆ Save Member</button>
+        <button class="btn-primary" id="ph_messageBtn" style="font-size:.65rem;padding:.45rem .9rem;display:none">✉ Message</button>
       </div>
     </div>
     <div style="text-align:right;flex-shrink:0">
@@ -210,7 +211,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights } from '../assets/js/supabase.js?v=15';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=15';
 
 let pendingAvatarUrl = null;
 let bookmarkRecordId = null;
@@ -440,6 +441,30 @@ window.onReady(async () => {
       const rec = mine.find(b => b.bookmarked_id === viewedId);
       if(rec){ bookmarkRecordId = rec.id; bookmarkBtn.textContent = '★ Saved'; }
     }catch(err){ /* leave as unsaved if this fails */ }
+  }
+
+  if (!isOwnProfile && currentUser) {
+    const messageBtn = document.getElementById('ph_messageBtn');
+    let existingConvoId = null;
+    try{
+      const convos = await getMyConversations();
+      const existing = convos.find(c => c.otherParty && c.otherParty.id === viewedId);
+      if(existing) existingConvoId = existing.id;
+    }catch(err){ /* if this fails, fall back to plan-based gating only */ }
+
+    if (existingConvoId || isPaidPlan(currentUser.plan)) {
+      messageBtn.style.display = '';
+      messageBtn.addEventListener('click', async () => {
+        messageBtn.disabled = true; messageBtn.textContent = 'Opening…';
+        try{
+          const convoId = existingConvoId || await startConversation(viewedId);
+          window.location.href = `messages.html?c=${convoId}`;
+        }catch(err){
+          showToast(err.message || 'Failed to start conversation.','danger');
+          messageBtn.disabled = false; messageBtn.textContent = '✉ Message';
+        }
+      });
+    }
   }
 
   loadCollaborations(viewedId);

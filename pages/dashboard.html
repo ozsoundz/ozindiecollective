@@ -28,7 +28,7 @@
     <a href="dashboard.html#opportunities" class="dash-nav-item"><span class="dash-nav-icon">◈</span> My Applications</a>
     <a href="post-job.html" class="dash-nav-item"><span class="dash-nav-icon">✦</span> Post Opportunity</a>
     <a href="connections.html" class="dash-nav-item"><span class="dash-nav-icon">◇</span> Applicants &amp; Connections</a>
-    <a href="dashboard.html#messages" class="dash-nav-item"><span class="dash-nav-icon">✉</span> Messages</a>
+    <a href="messages.html" class="dash-nav-item"><span class="dash-nav-icon">✉</span> Messages<span id="sidebarMsgBadge" class="hidden" style="margin-left:.4rem;background:var(--rust);color:#fff;border-radius:10px;padding:.05rem .5rem;font-size:.6rem"></span></a>
     <a href="saved-members.html" class="dash-nav-item"><span class="dash-nav-icon">♡</span> Saved Members</a>
     <a href="#" onclick="openModal('changePasswordModal');return false;" class="dash-nav-item"><span class="dash-nav-icon">⚙</span> Change Password</a>
     <div style="margin-top:auto;padding:1.5rem;border-top:1px solid var(--border);margin-top:2rem">
@@ -112,6 +112,7 @@
           <div style="display:flex;flex-direction:column;gap:.6rem">
             <a href="../admin/index.html" id="adminDashboardLink" class="btn-primary w-full text-center hidden" style="font-size:.65rem;padding:.6rem">⚙ Go to Admin Dashboard</a>
             <a href="connections.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem;position:relative">Review Applicants<span id="applicantCountBadge" class="hidden" style="margin-left:.4rem;background:var(--rust);color:#fff;border-radius:10px;padding:.05rem .5rem;font-size:.6rem"></span></a>
+            <a href="messages.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem;position:relative">Messages<span id="quickMsgBadge" class="hidden" style="margin-left:.4rem;background:var(--rust);color:#fff;border-radius:10px;padding:.05rem .5rem;font-size:.6rem"></span></a>
             <a href="directory.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">Browse Directory</a>
             <a href="opportunities.html" class="btn-secondary w-full text-center" style="font-size:.65rem;padding:.6rem">View Opportunities</a>
             <a href="post-job.html" class="btn-ghost w-full text-center" style="font-size:.65rem;padding:.6rem">Post an Opportunity</a>
@@ -136,7 +137,21 @@
 <script src="../assets/js/nav-inject.js?v=4"></script>
 <script src="../assets/js/main.js?v=8"></script>
 <script type="module">
-import { getCurrentProfile, getMyApplications, getMyListings, getListings, getEvents, updatePassword, getMyListingApplicants, getMyProjectApplicants } from '../assets/js/supabase.js?v=15';
+import { getCurrentProfile, getMyApplications, getMyListings, getListings, getEvents, updatePassword, getMyListingApplicants, getMyProjectApplicants, getMyConversations } from '../assets/js/supabase.js?v=15';
+
+async function loadMessageBadge(){
+  try{
+    const convos = await getMyConversations();
+    const unread = convos.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+    if(unread > 0){
+      [document.getElementById('sidebarMsgBadge'), document.getElementById('quickMsgBadge')].forEach(badge => {
+        if(!badge) return;
+        badge.textContent = unread;
+        badge.classList.remove('hidden');
+      });
+    }
+  }catch(err){ /* leave badges hidden if this fails */ }
+}
 
 async function loadApplicantCount(){
   try{
@@ -287,6 +302,7 @@ window.onReady(async () => {
   loadListingsCount();
   loadDashEvents();
   loadApplicantCount();
+  loadMessageBadge();
 });
 </script>
 </body>
