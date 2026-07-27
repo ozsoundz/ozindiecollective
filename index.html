@@ -262,12 +262,8 @@
   <div class="inner">
     <div class="section-label">Upcoming Events</div>
     <h2 class="section-title">Where the industry<br><em>gathers.</em></h2>
-    <div class="events-list">
-      <div class="erow fade-in"><div class="edate"><div class="emon">Jul</div><div class="eday">18</div></div><div class="einfo"><h3>Sydney Creative Networking Night</h3><div class="emeta"><span>📍 The Chippo Hotel, Chippendale</span><span>6:30 PM – 10 PM</span></div></div><span class="tag tag-gold">Networking</span></div>
-      <div class="erow fade-in"><div class="edate"><div class="emon">Jul</div><div class="eday">25</div></div><div class="einfo"><h3>Music Business Fundamentals — Workshop</h3><div class="emeta"><span>📍 Online / Zoom</span><span>7 PM AEST</span></div></div><span class="tag tag-sage">Workshop</span></div>
-      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">02</div></div><div class="einfo"><h3>Melbourne Industry Panel: The Future of Live Music</h3><div class="emeta"><span>📍 The Toff, Melbourne CBD</span><span>7 PM – 9:30 PM</span></div></div><span class="tag tag-rust">Panel</span></div>
-      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">15</div></div><div class="einfo"><h3>Brisbane Showcase Night — Members Open Mic</h3><div class="emeta"><span>📍 The Triffid, Newstead</span><span>7 PM Doors</span></div></div><span class="tag tag-purple">Showcase</span></div>
-      <div class="erow fade-in"><div class="edate"><div class="emon">Aug</div><div class="eday">22</div></div><div class="einfo"><h3>Grant Writing for Creatives — Virtual Workshop</h3><div class="emeta"><span>📍 Online / Zoom</span><span>12 PM AEST</span></div></div><span class="tag tag-blue">Virtual</span></div>
+    <div class="events-list" id="upcomingEventsList">
+      <p class="text-muted text-sm">Loading events…</p>
     </div>
     <div class="mt-4"><a href="pages/events.html" class="btn-secondary">See All Events</a></div>
   </div>
@@ -327,7 +323,7 @@
 <script src="assets/js/nav-inject.js?v=3"></script>
 <script src="assets/js/main.js?v=5"></script>
 <script type="module">
-import { getProjects, getListings, getHomeStats, getSuccessStories } from 'assets/js/supabase.js?v=13';
+import { getProjects, getListings, getHomeStats, getSuccessStories, getEvents } from 'assets/js/supabase.js?v=13';
 
 const PCARD_COLORS = ['pm','pp','pv','pe'];
 function colorFor(seed=''){
@@ -394,6 +390,31 @@ async function loadFeatured(){
   }
 }
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const EVENT_TAG_COLORS = { Networking: 'tag-gold', Workshop: 'tag-sage', Panel: 'tag-rust', Showcase: 'tag-purple', Virtual: 'tag-blue' };
+function eventRow(ev){
+  const e = window.escapeHtml;
+  const d = ev.event_date ? new Date(ev.event_date + 'T00:00:00') : null;
+  const month = d ? MONTHS[d.getMonth()] : '—';
+  const day = d ? String(d.getDate()).padStart(2,'0') : '--';
+  const loc = ev.state === 'Online' || ev.city === 'Online' ? 'Online' : [ev.venue, ev.city].filter(Boolean).join(', ');
+  const tagClass = EVENT_TAG_COLORS[ev.event_type] || 'tag-gold';
+  return `<div class="erow fade-in"><div class="edate"><div class="emon">${e(month)}</div><div class="eday">${e(day)}</div></div><div class="einfo"><h3>${e(ev.title||'(untitled)')}</h3><div class="emeta">${loc?`<span>📍 ${e(loc)}</span>`:''}${ev.time_range?`<span>${e(ev.time_range)}</span>`:''}</div></div>${ev.event_type?`<span class="tag ${tagClass}">${e(ev.event_type)}</span>`:''}</div>`;
+}
+
+async function loadEvents(){
+  try{
+    const events = await getEvents();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = events.filter(ev => !ev.event_date || new Date(ev.event_date + 'T00:00:00') >= today);
+    document.getElementById('upcomingEventsList').innerHTML = upcoming.length
+      ? upcoming.slice(0,5).map(eventRow).join('')
+      : '<p class="text-muted text-sm">No upcoming events right now — check back soon.</p>';
+  }catch(err){
+    document.getElementById('upcomingEventsList').innerHTML = `<p class="text-muted text-sm">Failed to load events: ${err.message}</p>`;
+  }
+}
+
 const STORY_ACCENTS = ['s1','s2','s3','s4'];
 function storyCard(s, i){
   const e = window.escapeHtml;
@@ -433,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFeatured();
   loadStats();
   loadStories();
+  loadEvents();
 });
 </script>
 </body>
