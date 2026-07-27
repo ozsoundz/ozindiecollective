@@ -63,6 +63,10 @@
       <span>ℹ️</span>
       <span class="text-sm">Blocks marked <strong>Rich text</strong> use the same editor for every page they appear on. Editing a block that currently has special layout (colored callout boxes, icon cards) will replace it with plain formatted text — the wording stays yours, but custom styling in that block is lost. Blocks show the text currently live on the site until you save a change.</span>
     </div>
+    <div class="form-group" style="max-width:340px">
+      <label>Page</label>
+      <select id="cmsPageSelect"></select>
+    </div>
     <div id="cmsContainer"><p class="text-muted text-sm">Loading content blocks…</p></div>
   </main>
 </div>
@@ -184,13 +188,27 @@ function safeIdFor(key){
   return key.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
-function renderRegistry(){
+function populatePageSelect(){
+  const sel = document.getElementById('cmsPageSelect');
+  const { order } = groupByPage(CONTENT_REGISTRY);
+  sel.innerHTML = order.map(page => `<option value="${page}">${page}</option>`).join('');
+  sel.addEventListener('change', () => renderRegistry(sel.value));
+}
+
+function renderRegistry(selectedPage){
   const container = document.getElementById('cmsContainer');
   const { order, byPage } = groupByPage(CONTENT_REGISTRY);
-  container.innerHTML = order.map(page => `
+  const page = selectedPage || order[0];
+  const items = byPage[page] || [];
+
+  // Quill instances from the previously-rendered page are being thrown away
+  // along with their DOM — drop our references to them so save clicks for
+  // this page's blocks always hit the freshly-created instances below.
+  Object.keys(quillInstances).forEach(k => delete quillInstances[k]);
+
+  container.innerHTML = `
     <div class="cms-page-group">
-      <div class="cms-page-title">${page}</div>
-      ${byPage[page].map(item => `
+      ${items.map(item => `
         <div class="cms-block">
           <div class="cms-block-label">${item.label}</div>
           <div class="cms-block-meta" id="meta-${safeIdFor(item.key)}"></div>
@@ -204,9 +222,9 @@ function renderRegistry(){
         </div>
       `).join('')}
     </div>
-  `).join('');
+  `;
 
-  CONTENT_REGISTRY.forEach(item => {
+  items.forEach(item => {
     const id = safeIdFor(item.key);
     const current = savedContent[item.key];
     const value = (current !== undefined && current !== null && current !== '') ? current : item.default;
@@ -257,7 +275,8 @@ async function load(){
   }catch(err){
     showToast('Could not load existing saved content — showing defaults only.','danger');
   }
-  renderRegistry();
+  populatePageSelect();
+  renderRegistry(document.getElementById('cmsPageSelect').value);
 }
 
 window.onReady(() => {
