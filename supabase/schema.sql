@@ -186,10 +186,21 @@ alter table public.applications add column if not exists created_at timestamptz 
 
 alter table public.applications enable row level security;
 
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'applications_status_check') then
+    alter table public.applications add constraint applications_status_check
+      check (status in ('pending','accepted','denied','confirmed'));
+  end if;
+end $$;
+
 drop policy if exists "Applicants can create applications" on public.applications;
 drop policy if exists "Applicants can view own applications" on public.applications;
 drop policy if exists "Listing owners can view applications to their listings" on public.applications;
 drop policy if exists "Admins can view all applications" on public.applications;
+drop policy if exists "Listing owners can respond to applications" on public.applications;
+drop policy if exists "Applicants can confirm accepted applications" on public.applications;
+drop policy if exists "Public can view confirmed applications" on public.applications;
 
 create policy "Applicants can create applications"
   on public.applications for insert
@@ -206,6 +217,32 @@ create policy "Listing owners can view applications to their listings"
   using (exists (
     select 1 from public.listings l where l.id = listing_id and l.posted_by = auth.uid()
   ));
+
+-- Poster accepts/declines an applicant to their own listing.
+create policy "Listing owners can respond to applications"
+  on public.applications for update
+  using (exists (
+    select 1 from public.listings l where l.id = listing_id and l.posted_by = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.listings l where l.id = listing_id and l.posted_by = auth.uid()
+  ));
+
+-- Applicant confirms the collaboration once the poster has accepted them —
+-- the old-row check (status='accepted') stops an applicant confirming a
+-- still-pending or denied application; the new-row check pins the only
+-- value they're allowed to write to.
+create policy "Applicants can confirm accepted applications"
+  on public.applications for update
+  using (auth.uid() = applicant_id and status = 'accepted')
+  with check (auth.uid() = applicant_id and status = 'confirmed');
+
+-- Confirmed collaborations are countable publicly (head-count only, for the
+-- homepage "Collaborations Formed" stat) — mirrors the public-live pattern
+-- used elsewhere (listings, projects, events).
+create policy "Public can view confirmed applications"
+  on public.applications for select
+  using (status = 'confirmed');
 
 create policy "Admins can view all applications"
   on public.applications for select
@@ -548,10 +585,21 @@ alter table public.project_applications add column if not exists created_at time
 
 alter table public.project_applications enable row level security;
 
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'project_applications_status_check') then
+    alter table public.project_applications add constraint project_applications_status_check
+      check (status in ('pending','accepted','denied','confirmed'));
+  end if;
+end $$;
+
 drop policy if exists "Applicants can create project applications" on public.project_applications;
 drop policy if exists "Applicants can view own project applications" on public.project_applications;
 drop policy if exists "Project owners can view applications to their projects" on public.project_applications;
 drop policy if exists "Admins can view all project applications" on public.project_applications;
+drop policy if exists "Project owners can respond to project applications" on public.project_applications;
+drop policy if exists "Applicants can confirm accepted project applications" on public.project_applications;
+drop policy if exists "Public can view confirmed project applications" on public.project_applications;
 
 create policy "Applicants can create project applications"
   on public.project_applications for insert
@@ -566,6 +614,24 @@ create policy "Project owners can view applications to their projects"
   using (exists (
     select 1 from public.projects p where p.id = project_id and p.posted_by = auth.uid()
   ));
+
+create policy "Project owners can respond to project applications"
+  on public.project_applications for update
+  using (exists (
+    select 1 from public.projects p where p.id = project_id and p.posted_by = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.projects p where p.id = project_id and p.posted_by = auth.uid()
+  ));
+
+create policy "Applicants can confirm accepted project applications"
+  on public.project_applications for update
+  using (auth.uid() = applicant_id and status = 'accepted')
+  with check (auth.uid() = applicant_id and status = 'confirmed');
+
+create policy "Public can view confirmed project applications"
+  on public.project_applications for select
+  using (status = 'confirmed');
 
 create policy "Admins can view all project applications"
   on public.project_applications for select
@@ -813,3 +879,74 @@ drop policy if exists "Public can view resource templates" on storage.objects;
 drop policy if exists "Admins can manage resource templates" on storage.objects;
 create policy "Public can view resource templates" on storage.objects for select using (bucket_id = 'resource-templates');
 create policy "Admins can manage resource templates" on storage.objects for all to authenticated using (bucket_id = 'resource-templates' and public.is_admin()) with check (bucket_id = 'resource-templates' and public.is_admin());
+
+-- 20. SPONSORED PROGRAMS TABLE (Industry Partner-funded programs — submitted by
+-- Partner-plan members, reviewed by admin, same pending/live/denied pattern as
+-- listings/projects. Powers the public Sponsored Programs page and the
+-- homepage "Sponsorships Funded" stat.)
+create or replace function public.is_partner()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce((select plan = 'partner' from public.profiles where id = auth.uid()), false);
+$$;
+
+create table if not exists public.sponsored_programs (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.sponsored_programs add column if not exists sponsor_name text;
+alter table public.sponsored_programs add column if not exists program_name text;
+alter table public.sponsored_programs add column if not exists description text;
+alter table public.sponsored_programs add column if not exists amount numeric;
+alter table public.sponsored_programs add column if not exists category text;
+alter table public.sponsored_programs add column if not exists url text;
+alter table public.sponsored_programs add column if not exists submitted_by uuid references public.profiles(id) on delete set null;
+alter table public.sponsored_programs add column if not exists status text default 'pending';
+alter table public.sponsored_programs add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'sponsored_programs_status_check') then
+    alter table public.sponsored_programs add constraint sponsored_programs_status_check
+      check (status in ('pending','live','denied'));
+  end if;
+end $$;
+
+alter table public.sponsored_programs enable row level security;
+
+drop policy if exists "Public can view live sponsored programs" on public.sponsored_programs;
+drop policy if exists "Submitters can view own sponsored programs" on public.sponsored_programs;
+drop policy if exists "Partners can submit sponsored programs" on public.sponsored_programs;
+drop policy if exists "Admins can view all sponsored programs" on public.sponsored_programs;
+drop policy if exists "Admins can update sponsored programs" on public.sponsored_programs;
+drop policy if exists "Admins can delete sponsored programs" on public.sponsored_programs;
+
+create policy "Public can view live sponsored programs"
+  on public.sponsored_programs for select
+  using (status = 'live');
+
+create policy "Submitters can view own sponsored programs"
+  on public.sponsored_programs for select
+  using (auth.uid() = submitted_by);
+
+-- Only Industry Partner members can submit — enforced server-side via
+-- is_partner(), not just hidden in the UI.
+create policy "Partners can submit sponsored programs"
+  on public.sponsored_programs for insert
+  with check (auth.uid() = submitted_by and public.is_partner());
+
+create policy "Admins can view all sponsored programs"
+  on public.sponsored_programs for select
+  using (public.is_admin());
+
+create policy "Admins can update sponsored programs"
+  on public.sponsored_programs for update
+  using (public.is_admin());
+
+create policy "Admins can delete sponsored programs"
+  on public.sponsored_programs for delete
+  using (public.is_admin());

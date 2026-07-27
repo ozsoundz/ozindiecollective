@@ -282,27 +282,112 @@ export async function getMyListings() {
   return data
 }
 
+// ── COLLABORATIONS (connections between listing/project posters and applicants) ──
+// A "collaboration" only counts once BOTH sides confirm: the poster accepts
+// the applicant, then the applicant confirms. Neither party alone is enough —
+// see the applications/project_applications RLS policies in schema.sql.
+
+async function attachApplicantProfiles(rows) {
+  const ids = [...new Set(rows.map(r => r.applicant_id).filter(Boolean))]
+  if (!ids.length) return rows.map(r => ({ ...r, applicant: null }))
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, role, city, state, avatar_url')
+    .in('id', ids)
+  if (error) throw error
+  const byId = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+  return rows.map(r => ({ ...r, applicant: byId[r.applicant_id] || null }))
+}
+
+// Poster: everyone who applied to any listing I posted.
+export async function getMyListingApplicants() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('applications')
+    .select('*, listings!inner(title, posted_by)')
+    .eq('listings.posted_by', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return attachApplicantProfiles(data)
+}
+
+// Poster: everyone who applied to any project I posted.
+export async function getMyProjectApplicants() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('project_applications')
+    .select('*, projects!inner(title, posted_by)')
+    .eq('projects.posted_by', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return attachApplicantProfiles(data)
+}
+
+// Applicant: projects I've applied to (mirrors getMyApplications for listings).
+export async function getMyProjectApplications() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('project_applications')
+    .select('*, projects(title)')
+    .eq('applicant_id', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function respondToApplication(applicationId, status) {
+  const { error } = await supabase.from('applications').update({ status }).eq('id', applicationId)
+  if (error) throw error
+}
+
+export async function respondToProjectApplication(applicationId, status) {
+  const { error } = await supabase.from('project_applications').update({ status }).eq('id', applicationId)
+  if (error) throw error
+}
+
+// Applicant confirms a collaboration the poster already accepted them for.
+export async function confirmApplication(applicationId) {
+  const { error } = await supabase.from('applications').update({ status: 'confirmed' }).eq('id', applicationId)
+  if (error) throw error
+}
+
+export async function confirmProjectApplication(applicationId) {
+  const { error } = await supabase.from('project_applications').update({ status: 'confirmed' }).eq('id', applicationId)
+  if (error) throw error
+}
+
 // ── HOMEPAGE STATS ────────────────────────────────────
 // Public counts for the homepage "Numbers that matter" strip. Each is a
 // head-only count against the same publicly-readable rows the relevant
 // page already shows (approved profiles, live projects/listings, published
 // events) — no new RLS needed since these mirror existing public policies.
 export async function getHomeStats() {
-  const [members, projects, jobs, events] = await Promise.all([
+  const [members, projects, jobs, events, confirmedJobApps, confirmedProjectApps, sponsorships] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
     supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'live'),
     supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'live'),
     supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+    supabase.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'),
+    supabase.from('project_applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'),
+    supabase.from('sponsored_programs').select('amount').eq('status', 'live'),
   ])
   if (members.error) throw members.error
   if (projects.error) throw projects.error
   if (jobs.error) throw jobs.error
   if (events.error) throw events.error
+  if (confirmedJobApps.error) throw confirmedJobApps.error
+  if (confirmedProjectApps.error) throw confirmedProjectApps.error
+  if (sponsorships.error) throw sponsorships.error
   return {
     members: members.count || 0,
     projects: projects.count || 0,
     jobs: jobs.count || 0,
     events: events.count || 0,
+    collaborations: (confirmedJobApps.count || 0) + (confirmedProjectApps.count || 0),
+    sponsorshipsFunded: (sponsorships.data || []).reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
   }
 }
 
@@ -1053,5 +1138,62 @@ export async function updateResourceTemplate(id, templateData) {
 
 export async function deleteResourceTemplate(id) {
   const { error } = await supabase.from('resource_templates').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── SPONSORED PROGRAMS (Industry Partner-funded programs) ───────────
+
+// Public: live sponsored programs, for the Sponsored Programs page.
+export async function getSponsoredPrograms() {
+  const { data, error } = await supabase
+    .from('sponsored_programs')
+    .select('*, profiles(full_name)')
+    .eq('status', 'live')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Partner: programs they've submitted, any status.
+export async function getMySponsoredPrograms() {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('sponsored_programs')
+    .select('*')
+    .eq('submitted_by', session.user.id)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createSponsoredProgram(programData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('sponsored_programs')
+    .insert({ ...programData, submitted_by: session.user.id, status: 'pending' })
+    .select()
+  if (error) throw error
+  return data
+}
+
+// Admin: every sponsored program regardless of status, for the moderation queue.
+export async function getAllSponsoredPrograms() {
+  const { data, error } = await supabase
+    .from('sponsored_programs')
+    .select('*, profiles(full_name)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function approveSponsoredProgram(id) {
+  const { error } = await supabase.from('sponsored_programs').update({ status: 'live' }).eq('id', id)
+  if (error) throw error
+}
+
+export async function denySponsoredProgram(id) {
+  const { error } = await supabase.from('sponsored_programs').update({ status: 'denied' }).eq('id', id)
   if (error) throw error
 }

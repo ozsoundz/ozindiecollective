@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sponsored Programs — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="projects.html" class="admin-nav-item">Projects</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="knowledge.html" class="admin-nav-item">Knowledge</a>
+    <a href="grants.html" class="admin-nav-item">Grants</a>
+    <a href="templates.html" class="admin-nav-item">Templates</a>
+    <a href="sponsorships.html" class="admin-nav-item active">Sponsorships</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Sponsored Programs</h1>
+      <p class="text-muted text-sm mt-1">Review Industry Partner-submitted sponsorship programs before they go live.</p>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
+      <button onclick="window.__filterSponsorships('pending',this)" class="btn-primary" id="sfBtn-pending" style="font-size:.62rem;padding:.4rem .9rem">Pending Review (…)</button>
+      <button onclick="window.__filterSponsorships('live',this)" class="btn-ghost" id="sfBtn-live" style="font-size:.62rem;padding:.4rem .9rem">Live (…)</button>
+      <button onclick="window.__filterSponsorships('denied',this)" class="btn-ghost" id="sfBtn-denied" style="font-size:.62rem;padding:.4rem .9rem">Denied (…)</button>
+      <button onclick="window.__filterSponsorships('all',this)" class="btn-ghost" id="sfBtn-all" style="font-size:.62rem;padding:.4rem .9rem">All (…)</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem" id="sponsorshipsContainer">
+      <p class="text-muted text-sm">Loading…</p>
+    </div>
+  </main>
+</div>
+<script src="../assets/js/nav-inject.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { getAllSponsoredPrograms, approveSponsoredProgram, denySponsoredProgram } from '../assets/js/supabase.js?v=7';
+
+let programs = [];
+let currentFilter = 'pending';
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.floor(hrs/24)+'d ago';
+}
+
+function fmtAmount(n){
+  if(n===null || n===undefined || n==='') return '—';
+  return '$'+Number(n).toLocaleString('en-AU');
+}
+
+function renderRow(p){
+  const e = escapeHtml;
+  const statusTag = p.status==='live' ? 'tag-approved' : p.status==='denied' ? 'tag-denied' : 'tag-pending';
+  const statusLabel = p.status.charAt(0).toUpperCase()+p.status.slice(1);
+  const disabled = p.status !== 'pending';
+  const submitter = p.profiles?.full_name || '(unknown partner)';
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid rgba(245,166,35,.2);border-radius:4px;padding:1.5rem">
+    <div class="flex justify-between items-start mb-2">
+      <div>
+        <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span><span class="tag tag-gold">${e(fmtAmount(p.amount))}</span>${p.category?`<span class="tag tag-blue">${e(p.category)}</span>`:''}</div>
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(p.program_name||'(untitled)')}</h3>
+        <div class="text-sm text-muted">Sponsored by ${e(p.sponsor_name||'—')} · Submitted by ${e(submitter)} · ${e(timeAgo(p.created_at))}</div>
+      </div>
+      <div class="flex gap-1">
+        <button class="btn-success" ${disabled?'disabled':''} data-sponsorship-action="approve" data-sponsorship-id="${e(p.id)}">✓ Approve</button>
+        <button class="btn-danger" ${disabled?'disabled':''} data-sponsorship-action="deny" data-sponsorship-id="${e(p.id)}">✗ Deny</button>
+      </div>
+    </div>
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:1rem">
+      <p class="text-sm text-muted" style="line-height:1.6">${e(p.description||'')}</p>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  const list = currentFilter==='all' ? programs : programs.filter(p=>p.status===currentFilter);
+  document.getElementById('sponsorshipsContainer').innerHTML = list.length
+    ? list.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No sponsorships in this category.</p>';
+
+  document.getElementById('sfBtn-pending').textContent = `Pending Review (${programs.filter(p=>p.status==='pending').length})`;
+  document.getElementById('sfBtn-live').textContent = `Live (${programs.filter(p=>p.status==='live').length})`;
+  document.getElementById('sfBtn-denied').textContent = `Denied (${programs.filter(p=>p.status==='denied').length})`;
+  document.getElementById('sfBtn-all').textContent = `All (${programs.length})`;
+}
+
+window.__filterSponsorships = function(status, btn){
+  currentFilter = status;
+  document.querySelectorAll('[id^="sfBtn-"]').forEach(b=>b.className='btn-ghost');
+  btn.className = 'btn-primary';
+  renderAll();
+};
+
+document.getElementById('sponsorshipsContainer').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-sponsorship-action]');
+  if (!btn) return;
+  const id = btn.dataset.sponsorshipId;
+  try{
+    if (btn.dataset.sponsorshipAction === 'approve') {
+      await approveSponsoredProgram(id);
+      const p = programs.find(x=>x.id===id); if(p) p.status='live';
+      showToast('Sponsorship approved and now live!','success');
+    } else {
+      await denySponsoredProgram(id);
+      const p = programs.find(x=>x.id===id); if(p) p.status='denied';
+      showToast('Sponsorship denied.','danger');
+    }
+    renderAll();
+  }catch(err){
+    showToast(err.message||'Failed to update sponsorship.','danger');
+  }
+});
+
+async function load(){
+  try{
+    programs = await getAllSponsoredPrograms();
+    renderAll();
+  }catch(err){
+    document.getElementById('sponsorshipsContainer').innerHTML = `<p class="text-muted text-sm">Failed to load: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

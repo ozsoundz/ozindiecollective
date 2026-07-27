@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connections — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.conn-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.85rem}
+.conn-title{font-family:var(--font-display);font-size:1.02rem;color:var(--cream);margin-bottom:.2rem}
+.conn-meta{font-size:.78rem;color:var(--muted)}
+.conn-msg{font-size:.82rem;color:var(--muted);line-height:1.55;margin-top:.5rem;background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:3px;padding:.75rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-connections/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Connections</div>
+    <h1 class="section-title">Manage Your <em>Collaborations</em></h1>
+    <p class="text-muted mt-2" style="max-width:600px;line-height:1.7">Oz Indie Collective creates the introduction — what happens next is between you. A collaboration is confirmed here once both sides agree to work together.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+
+    <div class="mb-4">
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.25rem">Applicants To Review</h2>
+      <p class="text-muted text-sm mb-3">People who've applied to your listings and projects.</p>
+      <div id="applicantsList"><p class="text-muted text-sm">Loading…</p></div>
+    </div>
+
+    <div class="mb-4">
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.25rem">My Applications</h2>
+      <p class="text-muted text-sm mb-3">Opportunities and projects you've applied to.</p>
+      <div id="myApplicationsList"><p class="text-muted text-sm">Loading…</p></div>
+    </div>
+
+    <div class="mb-4">
+      <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.25rem">Collaboration History</h2>
+      <p class="text-muted text-sm mb-3">Confirmed collaborations formed through the Collective — your record of involvement on the platform.</p>
+      <div id="historyList"><p class="text-muted text-sm">Loading…</p></div>
+    </div>
+
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import {
+  getMyListingApplicants, getMyProjectApplicants,
+  getMyApplications, getMyProjectApplications,
+  respondToApplication, respondToProjectApplication,
+  confirmApplication, confirmProjectApplication
+} from '../assets/js/supabase.js?v=7';
+
+let applicants = [];
+let myApps = [];
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const days = Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<1) return 'Today';
+  if(days===1) return '1 day ago';
+  return days+' days ago';
+}
+
+function statusTag(status){
+  const map = {
+    pending: '<span class="tag tag-pending">Pending Review</span>',
+    accepted: '<span class="tag tag-gold">Accepted — Awaiting Confirmation</span>',
+    denied: '<span class="tag tag-denied">Declined</span>',
+    confirmed: '<span class="tag tag-approved">✓ Collaboration Confirmed</span>'
+  };
+  return map[status] || '';
+}
+
+// ── APPLICANTS TO REVIEW (I posted the listing/project) ──────────────
+
+function applicantCard(a){
+  const e = escapeHtml;
+  const name = a.applicant?.full_name || '(member)';
+  const role = a.applicant?.role || '';
+  const postTitle = a.listings?.title || a.projects?.title || '(untitled)';
+  const kind = a.listings ? 'Job Listing' : 'Project';
+  return `
+  <div class="conn-card">
+    <div>
+      <div class="flex gap-2 mb-1">${statusTag(a.status)}<span class="tag tag-blue">${e(kind)}</span></div>
+      <div class="conn-title">${e(name)}${role?` &middot; ${e(role)}`:''}</div>
+      <div class="conn-meta">Applied to "${e(postTitle)}" &middot; ${e(timeAgo(a.created_at))}</div>
+      ${a.cover_message ? `<div class="conn-msg">${e(a.cover_message)}</div>` : ''}
+      ${a.portfolio_link ? `<div class="conn-meta mt-1"><a href="${e(sanitizeUrl(a.portfolio_link))}" target="_blank" rel="noopener" class="text-gold">Portfolio →</a></div>` : ''}
+    </div>
+    <div class="flex gap-1" style="flex-shrink:0">
+      ${a.status === 'pending' ? `
+        <button class="btn-success" style="font-size:.62rem" data-app-action="accept" data-app-id="${e(a.id)}" data-app-kind="${kind}">✓ Accept</button>
+        <button class="btn-danger" style="font-size:.62rem" data-app-action="decline" data-app-id="${e(a.id)}" data-app-kind="${kind}">✗ Decline</button>
+      ` : ''}
+    </div>
+  </div>`;
+}
+
+async function loadApplicants(){
+  try{
+    const [listingApps, projectApps] = await Promise.all([getMyListingApplicants(), getMyProjectApplicants()]);
+    applicants = [...listingApps, ...projectApps].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
+    document.getElementById('applicantsList').innerHTML = applicants.length
+      ? applicants.map(applicantCard).join('')
+      : '<p class="text-muted text-sm">No one has applied to your listings or projects yet.</p>';
+  }catch(err){
+    document.getElementById('applicantsList').innerHTML = `<p class="text-muted text-sm">Failed to load applicants: ${err.message}</p>`;
+  }
+}
+
+document.getElementById('applicantsList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-app-action]');
+  if (!btn) return;
+  const id = btn.dataset.appId;
+  const kind = btn.dataset.appKind;
+  const status = btn.dataset.appAction === 'accept' ? 'accepted' : 'denied';
+  btn.closest('.flex').querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+    if (kind === 'Job Listing') await respondToApplication(id, status);
+    else await respondToProjectApplication(id, status);
+    showToast(status === 'accepted' ? 'Applicant accepted — waiting on their confirmation.' : 'Applicant declined.', status==='accepted'?'success':'info');
+    await loadApplicants();
+  }catch(err){
+    showToast(err.message || 'Failed to update applicant.', 'danger');
+  }
+});
+
+// ── MY APPLICATIONS (I applied to someone else's listing/project) ────
+
+function myAppCard(a){
+  const e = escapeHtml;
+  const postTitle = a.listings?.title || a.projects?.title || '(listing removed)';
+  const kind = a.listings ? 'Job Listing' : 'Project';
+  return `
+  <div class="conn-card">
+    <div>
+      <div class="flex gap-2 mb-1">${statusTag(a.status)}<span class="tag tag-blue">${e(kind)}</span></div>
+      <div class="conn-title">${e(postTitle)}</div>
+      <div class="conn-meta">Applied ${e(timeAgo(a.created_at))}</div>
+    </div>
+    <div class="flex gap-1" style="flex-shrink:0">
+      ${a.status === 'accepted' ? `<button class="btn-success" style="font-size:.62rem" data-confirm-id="${e(a.id)}" data-confirm-kind="${kind}">✓ Confirm Collaboration</button>` : ''}
+    </div>
+  </div>`;
+}
+
+async function loadMyApplications(){
+  try{
+    const [listingApps, projectApps] = await Promise.all([getMyApplications(), getMyProjectApplications()]);
+    myApps = [...listingApps, ...projectApps].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at));
+    document.getElementById('myApplicationsList').innerHTML = myApps.length
+      ? myApps.map(myAppCard).join('')
+      : '<p class="text-muted text-sm">You haven\'t applied to anything yet.</p>';
+  }catch(err){
+    document.getElementById('myApplicationsList').innerHTML = `<p class="text-muted text-sm">Failed to load applications: ${err.message}</p>`;
+  }
+}
+
+document.getElementById('myApplicationsList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-confirm-id]');
+  if (!btn) return;
+  const id = btn.dataset.confirmId;
+  const kind = btn.dataset.confirmKind;
+  btn.disabled = true;
+  try{
+    if (kind === 'Job Listing') await confirmApplication(id);
+    else await confirmProjectApplication(id);
+    showToast('Collaboration confirmed! 🎉', 'success');
+    await Promise.all([loadMyApplications(), loadHistory()]);
+  }catch(err){
+    showToast(err.message || 'Failed to confirm.', 'danger');
+    btn.disabled = false;
+  }
+});
+
+// ── HISTORY (confirmed on either side) ────────────────────────────
+
+function historyCard(a, role){
+  const e = escapeHtml;
+  const postTitle = a.listings?.title || a.projects?.title || '(untitled)';
+  const kind = a.listings ? 'Job Listing' : 'Project';
+  return `
+  <div class="conn-card">
+    <div>
+      <div class="flex gap-2 mb-1"><span class="tag tag-approved">✓ Confirmed</span><span class="tag tag-blue">${e(kind)}</span><span class="tag tag-gold">${role === 'poster' ? 'You Posted' : 'You Applied'}</span></div>
+      <div class="conn-title">${e(postTitle)}</div>
+      <div class="conn-meta">Confirmed collaboration</div>
+    </div>
+  </div>`;
+}
+
+async function loadHistory(){
+  try{
+    const confirmedAsPoster = applicants.filter(a=>a.status==='confirmed').map(a=>historyCard(a,'poster'));
+    const confirmedAsApplicant = myApps.filter(a=>a.status==='confirmed').map(a=>historyCard(a,'applicant'));
+    const all = [...confirmedAsPoster, ...confirmedAsApplicant];
+    document.getElementById('historyList').innerHTML = all.length
+      ? all.join('')
+      : '<p class="text-muted text-sm">No confirmed collaborations yet — accept an applicant or confirm one of your applications to get started.</p>';
+  }catch(err){
+    document.getElementById('historyList').innerHTML = `<p class="text-muted text-sm">Failed to load history.</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if(!Auth.get()) { window.location.href='login.html'; return; }
+  await Promise.all([loadApplicants(), loadMyApplications()]);
+  loadHistory();
+});
+</script>
+</body>
+</html>

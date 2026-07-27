@@ -79,6 +79,7 @@
         <li><a href="${root}pages/highlights.html">Professional Highlights</a></li>
         <li><a href="${root}pages/podcast.html">Podcast</a></li>
         <li><a href="${root}pages/resources.html#grants">Grants Database</a></li>
+        <li><a href="${root}pages/sponsored-programs.html">Sponsored Programs</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -126,7 +127,7 @@
         const originalText = newsletterBtn.textContent;
         newsletterBtn.textContent = 'Subscribing…';
         try {
-          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=4');
+          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=7');
           const result = await subscribeToNewsletter(email);
           newsletterInput.value = '';
           if (window.showToast) {
@@ -144,7 +145,7 @@
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');
     if (partnersMount) {
-      import('/assets/js/supabase.js?v=4').then(async ({ getPartners }) => {
+      import('/assets/js/supabase.js?v=7').then(async ({ getPartners }) => {
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sponsored Programs — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.4rem}
+.sp-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.6rem;position:relative;overflow:hidden;transition:.2s}
+.sp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--marigold)}
+.sp-card:hover{border-color:var(--border-hi);transform:translateY(-3px)}
+.sp-amount{font-family:var(--font-display);font-size:1.6rem;font-weight:900;color:var(--marigold);margin:.5rem 0 .3rem}
+.sp-name{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.3rem}
+.sp-sponsor{font-size:.78rem;color:var(--muted);margin-bottom:.8rem}
+.sp-desc{font-size:.85rem;color:rgba(240,237,230,.68);line-height:1.6;margin-bottom:1rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-sponsor-hero/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Industry Partners</div>
+    <h1 class="section-title">Sponsored <em>Programs</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Grants, mentorships and initiatives funded by our Industry Partners to support the Collective.</p>
+    <div class="mt-4"><a href="post-sponsorship.html" class="btn-primary">Sponsor a Program</a></div>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="sp-grid" id="sponsorGrid">
+      <p class="text-muted text-sm">Loading…</p>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { getSponsoredPrograms } from '../assets/js/supabase.js?v=7';
+
+function fmtAmount(n){
+  if(n===null || n===undefined || n==='') return null;
+  return '$'+Number(n).toLocaleString('en-AU');
+}
+
+function cardFor(p){
+  const e = escapeHtml;
+  const amount = fmtAmount(p.amount);
+  return `
+  <div class="sp-card fade-in">
+    ${p.category?`<span class="tag tag-gold">${e(p.category)}</span>`:''}
+    ${amount ? `<div class="sp-amount">${amount}</div>` : ''}
+    <div class="sp-name">${e(p.program_name||'(untitled)')}</div>
+    <div class="sp-sponsor">Sponsored by ${e(p.sponsor_name||'—')}</div>
+    <div class="sp-desc">${e(p.description||'')}</div>
+    ${p.url ? `<a href="${e(sanitizeUrl(p.url))}" target="_blank" rel="noopener" class="apply-link">Learn More →</a>` : ''}
+  </div>`;
+}
+
+async function load(){
+  try{
+    const programs = await getSponsoredPrograms();
+    document.getElementById('sponsorGrid').innerHTML = programs.length
+      ? programs.map(cardFor).join('')
+      : '<p class="text-muted text-sm">No sponsored programs live yet — check back soon.</p>';
+  }catch(err){
+    document.getElementById('sponsorGrid').innerHTML = `<p class="text-muted text-sm">Failed to load: ${err.message}</p>`;
+  }
+}
+document.addEventListener('DOMContentLoaded', load);
+</script>
+</body>
+</html>

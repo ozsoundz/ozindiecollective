@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit a Sponsored Program — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.post-card{max-width:640px;margin:0 auto;background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2.5rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-sponsor/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Industry Partners</div>
+    <h1 class="section-title">Submit a <em>Sponsored Program</em></h1>
+    <p class="text-muted mt-2" style="max-width:540px;line-height:1.7">Fund a grant, workshop, mentorship or initiative for the Collective. Submissions are reviewed by our team before appearing publicly.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div id="notPartnerNotice" class="hidden" style="max-width:640px;margin:0 auto">
+      <div class="alert alert-danger"><span>🔒</span><span class="text-sm">Submitting a Sponsored Program is available to Industry Partner members. <a href="join.html?plan=partner" class="text-gold">Upgrade to Industry Partner</a> to sponsor a program.</span></div>
+    </div>
+    <div class="post-card" id="sponsorFormWrap">
+      <form id="postSponsorForm" novalidate>
+        <h2 style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem">Program Details</h2>
+
+        <div class="form-group"><label>Sponsor / Organisation Name <span class="required-star">*</span></label><input type="text" name="sponsorName" placeholder="e.g. Your Studio Pty Ltd"></div>
+        <div class="form-group"><label>Program Name <span class="required-star">*</span></label><input type="text" name="programName" placeholder="e.g. Emerging Producer Mentorship"></div>
+        <div class="form-group"><label>Category</label>
+          <select name="category">
+            <option value="">Select category…</option>
+            <option>Grant / Funding</option><option>Mentorship</option><option>Workshop / Education</option>
+            <option>Equipment / Studio Access</option><option>Touring Support</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Description <span class="required-star">*</span></label><textarea name="description" rows="5" placeholder="Describe the program, who it's for, and how to apply or get involved"></textarea></div>
+        <div class="form-group"><label>Amount Funded (AUD)</label><input type="number" name="amount" placeholder="e.g. 5000" min="0" step="1"></div>
+        <div class="form-group"><label>More Information URL</label><input type="url" name="url" placeholder="https://"></div>
+
+        <div class="alert alert-info mt-2"><span>🔍</span><span class="text-sm">Submissions are reviewed by our team before going live. Expect a response within a few business days.</span></div>
+
+        <button type="submit" class="btn-primary btn-lg w-full mt-3">Submit for Review</button>
+      </form>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { createSponsoredProgram } from '../assets/js/supabase.js?v=7';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const user = Auth.get();
+  if(!user) { window.location.href = 'login.html'; return; }
+  if(user.plan !== 'partner') {
+    document.getElementById('notPartnerNotice').classList.remove('hidden');
+    document.getElementById('sponsorFormWrap').classList.add('hidden');
+  }
+});
+
+document.getElementById('postSponsorForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const f = this;
+  const val = name => f.querySelector(`[name=${name}]`)?.value || '';
+  const sponsorName = val('sponsorName'), programName = val('programName'), description = val('description');
+  if(!sponsorName || !programName || !description){ showToast('Please fill in all required fields.','danger'); return; }
+
+  const submitBtn = f.querySelector('button[type=submit]');
+  submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
+  try {
+    await createSponsoredProgram({
+      sponsor_name: sponsorName,
+      program_name: programName,
+      category: val('category'),
+      description,
+      amount: val('amount') ? Number(val('amount')) : null,
+      url: val('url')
+    });
+    showToast('Sponsored program submitted for review!','success');
+    setTimeout(() => { window.location.href = 'sponsored-programs.html'; }, 1800);
+  } catch(err) {
+    showToast(err.message || 'Failed to submit.','danger');
+    submitBtn.disabled = false; submitBtn.textContent = 'Submit for Review';
+  }
+});
+</script>
+</body>
+</html>
