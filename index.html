@@ -89,7 +89,8 @@
 .eday{font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--cream);line-height:1}
 .einfo h3{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.25rem}
 .emeta{font-size:.78rem;color:var(--muted);display:flex;gap:.9rem;flex-wrap:wrap}
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:3rem}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:3rem}
+.plan-soon{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);background:rgba(79,216,240,.1);border-radius:2px;padding:.25rem .6rem;margin-bottom:.75rem}
 .plan{border:1px solid var(--border);border-radius:4px;padding:1.9rem;position:relative;transition:.2s}
 .plan:hover{border-color:var(--border-hi)}
 .plan.featured{border-color:var(--marigold)}
@@ -281,27 +282,44 @@
       <div class="plan fade-in">
         <div class="plan-name">Free Member</div>
         <div class="plan-price">$0 <span>/ forever</span></div>
-        <div class="plan-tag">Get started and explore the community.</div>
-        <ul class="plan-feats"><li>Create your member profile</li><li>Access the community feed</li><li>View all project listings</li><li>Browse the member directory</li><li>Attend free events</li></ul>
+        <div class="plan-tag">For individuals and indie artists — always free.</div>
+        <ul class="plan-feats"><li>Create your member profile</li><li>Access the community feed</li><li>Apply to unlimited jobs &amp; projects</li><li>Browse the member directory</li><li>Full resource &amp; grant library</li><li>Post 1 active job/project listing</li></ul>
         <a href="pages/join.html" class="plan-cta-outline">Apply Free</a>
       </div>
-      <div class="plan featured fade-in">
-        <div class="plan-badge">Most Popular</div>
-        <div class="plan-name">Professional Member</div>
-        <div class="plan-price">$12 <span>/ month</span></div>
-        <div class="plan-tag">For active creatives building their career and network.</div>
-        <ul class="plan-feats"><li>Featured profile placement</li><li>Advanced networking tools</li><li>Priority on all opportunities</li><li>Full resource &amp; grant library</li><li>Member-only events &amp; panels</li><li>Portfolio showcase</li></ul>
-        <a href="pages/join.html?plan=pro" class="plan-cta-filled">Get Professional</a>
+      <div class="plan fade-in">
+        <div class="plan-soon">🚧 Billing launching soon</div>
+        <div class="plan-name">SME Small</div>
+        <div class="plan-price">$29 <span>/ month</span></div>
+        <div class="plan-tag">For small studios, labels and agencies under 5 staff.</div>
+        <ul class="plan-feats"><li>Everything in Free</li><li>Verified Business badge</li><li>Post up to 5 active listings</li><li>Applicant management tools</li></ul>
+        <a href="pages/join.html" class="plan-cta-outline">Join Free — Upgrade Soon</a>
       </div>
       <div class="plan fade-in">
-        <div class="plan-name">Industry Partner</div>
-        <div class="plan-price">$89 <span>/ month</span></div>
-        <div class="plan-tag">For studios, agencies, venues and labels hiring talent.</div>
-        <ul class="plan-feats"><li>Business / studio profile</li><li>Unlimited job &amp; project posts</li><li>Direct recruitment tools</li><li>Event promotion &amp; sponsorship</li><li>Featured in the directory</li><li>Industry Partner badge</li></ul>
-        <a href="pages/join.html?plan=partner" class="plan-cta-outline">Become a Partner</a>
+        <div class="plan-soon">🚧 Billing launching soon</div>
+        <div class="plan-name">SME Medium</div>
+        <div class="plan-price">$49 <span>/ month</span></div>
+        <div class="plan-tag">For growing businesses up to 50 staff.</div>
+        <ul class="plan-feats"><li>Everything in SME Small</li><li>Post up to 15 active listings</li></ul>
+        <a href="pages/join.html" class="plan-cta-outline">Join Free — Upgrade Soon</a>
+      </div>
+      <div class="plan featured fade-in">
+        <div class="plan-badge">Corporate</div>
+        <div class="plan-soon" style="margin-top:1.5rem">🚧 Billing launching soon</div>
+        <div class="plan-name">Corporate</div>
+        <div class="plan-price">$199 <span>/ month</span></div>
+        <div class="plan-tag">For large labels, festivals and multi-venue operators.</div>
+        <ul class="plan-feats"><li>Everything in SME Medium</li><li>Unlimited job &amp; project listings</li><li>Submit Sponsored Programs</li><li>Featured/boosted placement</li><li>Priority support, named contact</li></ul>
+        <a href="pages/join.html" class="plan-cta-filled">Join Free — Upgrade Soon</a>
+      </div>
+      <div class="plan fade-in">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:1.6rem">By Agreement</div>
+        <div class="plan-tag">For national brands and institutional partners.</div>
+        <ul class="plan-feats"><li>Everything in Corporate</li><li>Custom contract &amp; reporting</li><li>Priority sponsorship placement</li><li>Dedicated account manager</li></ul>
+        <a href="pages/contact.html" class="plan-cta-outline">Contact Us</a>
       </div>
     </div>
-    <div class="alert alert-info mt-4"><span class="alert-icon">🛡️</span><span>All membership applications are personally reviewed. We keep the Collective high-quality and spam-free. Expect a response within 48 hours of applying.</span></div>
+    <div class="alert alert-info mt-4"><span class="alert-icon">🛡️</span><span>All membership applications are personally reviewed. We keep the Collective high-quality and spam-free. Expect a response within 48 hours of applying. Paid business tiers (SME/Corporate) will be available to upgrade to from your dashboard once billing goes live — sign up free in the meantime.</span></div>
   </div>
 </section>
 
@@ -322,7 +340,7 @@
 
 <script>
 function demoLogin(){
-  Auth.set({name:'Demo Member',role:'Audio Engineer',location:'Sydney, NSW',status:'approved',email:'demo@oic.com.au',plan:'pro'});
+  Auth.set({name:'Demo Member',role:'Audio Engineer',location:'Sydney, NSW',status:'approved',email:'demo@oic.com.au',plan:'free'});
   showToast('Welcome back, Demo Member!','success');
   closeModal('loginModal');
   setTimeout(()=>{window.location.href='pages/dashboard.html';},1000);

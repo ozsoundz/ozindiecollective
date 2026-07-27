@@ -46,8 +46,8 @@
       <div class="form-group"><label>Plan</label>
         <select id="fPlan" onchange="filterDir()">
           <option value="">All Members</option>
-          <option value="pro">Professional+</option>
-          <option value="partner">Industry Partners</option>
+          <option value="sme_small">SME Small+</option>
+          <option value="corporate">Corporate+</option>
         </select>
       </div>
     </div>
@@ -98,6 +98,7 @@ function populateRoleFilter(){
   sel.innerHTML = '<option value="">All Disciplines</option>' + roles.map(r=>`<option>${escapeHtml(r)}</option>`).join('');
 }
 
+const PLAN_RANK = {free:0,sme_small:1,sme_medium:2,corporate:3,enterprise:4};
 window.filterDir = function() {
   const role = document.getElementById('fRole').value;
   const state = document.getElementById('fState').value;
@@ -107,10 +108,11 @@ window.filterDir = function() {
   let count = 0;
   document.querySelectorAll('#dirGrid .member-card').forEach(card => {
     const text = card.textContent.toLowerCase();
+    const cardRank = PLAN_RANK[card.dataset.plan] ?? 0;
     const ok = (!role || card.dataset.role === role)
       && (!state || card.dataset.state === state)
       && (!avail || card.dataset.avail === avail)
-      && (!plan || card.dataset.plan === plan || (plan==='pro' && card.dataset.plan==='partner'))
+      && (!plan || cardRank >= (PLAN_RANK[plan] ?? 0))
       && (!q || text.includes(q));
     card.style.display = ok ? '' : 'none';
     if(ok) count++;

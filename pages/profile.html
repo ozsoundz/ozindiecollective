@@ -265,9 +265,10 @@ function renderHeader(p){
   if(p.status === 'approved'){ statusTag.textContent = '✓ Approved Member'; statusTag.className = 'tag tag-approved'; }
   else if(p.status === 'pending'){ statusTag.textContent = 'Pending Review'; statusTag.className = 'tag tag-pending'; }
   else { statusTag.textContent = p.status || ''; statusTag.className = 'tag tag-denied'; }
-  if(p.plan){
+  if(p.plan && p.plan !== 'free'){
+    const PLAN_LABELS = {sme_small:'SME Small',sme_medium:'SME Medium',corporate:'Corporate',enterprise:'Enterprise'};
     const planTag = document.getElementById('ph_planTag');
-    planTag.textContent = p.plan.charAt(0).toUpperCase()+p.plan.slice(1);
+    planTag.textContent = PLAN_LABELS[p.plan] || p.plan;
     planTag.style.display = '';
   }
   document.getElementById('ph_memberSince').textContent = fmtMonthYear(p.created_at);
