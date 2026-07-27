@@ -403,30 +403,36 @@ export async function confirmProjectApplication(applicationId) {
 // head-only count against the same publicly-readable rows the relevant
 // page already shows (approved profiles, live projects/listings, published
 // events) — no new RLS needed since these mirror existing public policies.
+//
+// Each query is isolated with .catch() rather than awaited together and
+// thrown on the first error: previously a single failing query (e.g. an RLS
+// bug on one table) rejected the whole Promise.all, which made the homepage
+// blank out every stat — including ones that loaded fine — down to '—'.
+// Now a failing query just logs a warning and reports 0 for that one stat.
+async function safeCount(query, label) {
+  const { count, error } = await query
+  if (error) { console.warn(`getHomeStats: failed to load ${label}:`, error.message); return 0 }
+  return count || 0
+}
+
 export async function getHomeStats() {
   const [members, projects, jobs, events, confirmedJobApps, confirmedProjectApps, sponsorships] = await Promise.all([
-    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
-    supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'live'),
-    supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'live'),
-    supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-    supabase.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'),
-    supabase.from('project_applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'),
-    supabase.from('sponsored_programs').select('amount').eq('status', 'live'),
+    safeCount(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'approved'), 'members'),
+    safeCount(supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'live'), 'projects'),
+    safeCount(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'live'), 'jobs'),
+    safeCount(supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'), 'events'),
+    safeCount(supabase.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'), 'confirmed job applications'),
+    safeCount(supabase.from('project_applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'), 'confirmed project applications'),
+    supabase.from('sponsored_programs').select('amount').eq('status', 'live')
+      .then(({ data, error }) => { if (error) { console.warn('getHomeStats: failed to load sponsorships:', error.message); return []; } return data || []; }),
   ])
-  if (members.error) throw members.error
-  if (projects.error) throw projects.error
-  if (jobs.error) throw jobs.error
-  if (events.error) throw events.error
-  if (confirmedJobApps.error) throw confirmedJobApps.error
-  if (confirmedProjectApps.error) throw confirmedProjectApps.error
-  if (sponsorships.error) throw sponsorships.error
   return {
-    members: members.count || 0,
-    projects: projects.count || 0,
-    jobs: jobs.count || 0,
-    events: events.count || 0,
-    collaborations: (confirmedJobApps.count || 0) + (confirmedProjectApps.count || 0),
-    sponsorshipsFunded: (sponsorships.data || []).reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
+    members,
+    projects,
+    jobs,
+    events,
+    collaborations: confirmedJobApps + confirmedProjectApps,
+    sponsorshipsFunded: sponsorships.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
   }
 }
 
