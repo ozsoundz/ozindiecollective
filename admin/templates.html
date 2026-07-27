@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Templates — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="projects.html" class="admin-nav-item">Projects</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="knowledge.html" class="admin-nav-item">Knowledge</a>
+    <a href="grants.html" class="admin-nav-item">Grants</a>
+    <a href="templates.html" class="admin-nav-item active">Templates</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border)">
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Templates</h1>
+        <p class="text-muted text-sm mt-1">Upload real downloadable files (EPKs, contracts, riders) shown on the Resources page.</p>
+      </div>
+      <button class="btn-primary" onclick="window.__openEditor()">+ New Template</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem" id="templatesContainer">
+      <p class="text-muted text-sm">Loading templates…</p>
+    </div>
+  </main>
+</div>
+
+<div id="templateModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,12,.75);z-index:100;align-items:center;justify-content:center;padding:2rem">
+  <div style="background:var(--deep);border:1px solid var(--border-hi);border-radius:6px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem">
+    <h2 style="font-family:var(--font-display);color:var(--cream);font-size:1.3rem;margin-bottom:1.25rem" id="templateModalTitle">New Template</h2>
+    <form id="templateForm" style="display:flex;flex-direction:column;gap:1rem">
+      <input type="hidden" id="tf_id">
+      <div>
+        <label class="text-xs text-muted mono">Title</label>
+        <input type="text" id="tf_title" class="input" placeholder="e.g. Electronic Press Kit Template" required>
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Category</label>
+        <input type="text" id="tf_category" class="input" placeholder="e.g. EPK, Contracts, Finance">
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Description</label>
+        <textarea id="tf_description" class="input" rows="3" placeholder="What it is and who it's for"></textarea>
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">File</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="file" id="tf_file_input" style="flex:1">
+          <button type="button" class="btn-ghost" style="font-size:.62rem;white-space:nowrap" onclick="window.__uploadFile()">Upload</button>
+        </div>
+        <div class="text-xs text-muted mt-1" id="tf_file_status"></div>
+        <input type="hidden" id="tf_file_url">
+        <input type="hidden" id="tf_file_name">
+      </div>
+      <div>
+        <label class="text-xs text-muted mono">Status</label>
+        <select id="tf_status" class="input">
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:.5rem">
+        <button type="submit" class="btn-primary">Save Template</button>
+        <button type="button" class="btn-ghost" onclick="window.__closeEditor()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js?v=3"></script>
+<script src="../assets/js/main.js?v=4"></script>
+<script type="module">
+import { getAllResourceTemplates, createResourceTemplate, updateResourceTemplate, deleteResourceTemplate, uploadAdminMedia } from '../assets/js/supabase.js?v=4';
+
+let templates = [];
+
+window.__uploadFile = async function(){
+  const input = document.getElementById('tf_file_input');
+  const file = input.files[0];
+  if (!file) { showToast('Choose a file first.','danger'); return; }
+  const statusEl = document.getElementById('tf_file_status');
+  statusEl.textContent = 'Uploading…';
+  try {
+    const url = await uploadAdminMedia('resource-templates', file);
+    document.getElementById('tf_file_url').value = url;
+    document.getElementById('tf_file_name').value = file.name;
+    statusEl.textContent = `Uploaded ✓ (${file.name})`;
+  } catch(err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+};
+
+function renderRow(t){
+  const e = escapeHtml;
+  const statusTag = t.status==='published' ? 'tag-approved' : 'tag-pending';
+  const statusLabel = t.status.charAt(0).toUpperCase()+t.status.slice(1);
+  return `
+  <div style="background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px;padding:1.5rem;display:flex;justify-content:space-between;gap:1rem;align-items:flex-start">
+    <div>
+      <div class="flex gap-2 mb-1"><span class="tag ${statusTag}">${statusLabel}</span>${t.category?`<span class="tag tag-blue">${e(t.category)}</span>`:''}</div>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.2rem">${e(t.title||'(untitled)')}</h3>
+      <div class="text-sm text-muted">${t.file_name ? '📎 '+e(t.file_name) : '<span style="color:var(--rust,#a33)">No file uploaded</span>'}</div>
+    </div>
+    <div class="flex gap-1" style="flex-shrink:0">
+      <button class="btn-ghost" style="font-size:.62rem" data-template-action="edit" data-template-id="${e(t.id)}">Edit</button>
+      <button class="btn-danger" style="font-size:.62rem" data-template-action="delete" data-template-id="${e(t.id)}">Delete</button>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  document.getElementById('templatesContainer').innerHTML = templates.length
+    ? templates.map(renderRow).join('')
+    : '<p class="text-muted text-sm">No templates yet. Click "+ New Template" to add one.</p>';
+}
+
+window.__openEditor = function(){
+  document.getElementById('templateModalTitle').textContent = 'New Template';
+  document.getElementById('templateForm').reset();
+  document.getElementById('tf_id').value = '';
+  document.getElementById('tf_file_url').value = '';
+  document.getElementById('tf_file_name').value = '';
+  document.getElementById('tf_file_status').textContent = '';
+  document.getElementById('templateModal').style.display = 'flex';
+};
+
+window.__editTemplate = function(id){
+  const t = templates.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('templateModalTitle').textContent = 'Edit Template';
+  document.getElementById('tf_id').value = t.id;
+  document.getElementById('tf_title').value = t.title||'';
+  document.getElementById('tf_category').value = t.category||'';
+  document.getElementById('tf_description').value = t.description||'';
+  document.getElementById('tf_file_url').value = t.file_url||'';
+  document.getElementById('tf_file_name').value = t.file_name||'';
+  document.getElementById('tf_file_status').textContent = t.file_name ? `Current file: ${t.file_name}` : '';
+  document.getElementById('tf_status').value = t.status||'draft';
+  document.getElementById('templateModal').style.display = 'flex';
+};
+
+window.__closeEditor = function(){
+  document.getElementById('templateModal').style.display = 'none';
+};
+
+document.getElementById('templatesContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-template-action]');
+  if (!btn) return;
+  if (btn.dataset.templateAction === 'edit') window.__editTemplate(btn.dataset.templateId);
+  else window.__deleteTemplate(btn.dataset.templateId);
+});
+
+window.__deleteTemplate = async function(id){
+  if(!confirm('Delete this template permanently?')) return;
+  try{
+    await deleteResourceTemplate(id);
+    templates = templates.filter(t=>t.id!==id);
+    renderAll();
+    showToast('Template deleted.','info');
+  }catch(err){ showToast(err.message||'Failed to delete template.','danger'); }
+};
+
+document.getElementById('templateForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const id = document.getElementById('tf_id').value;
+  const fileUrl = document.getElementById('tf_file_url').value;
+  if(!fileUrl){ showToast('Please upload a file before saving.','danger'); return; }
+  const payload = {
+    title: document.getElementById('tf_title').value,
+    category: document.getElementById('tf_category').value,
+    description: document.getElementById('tf_description').value,
+    file_url: fileUrl,
+    file_name: document.getElementById('tf_file_name').value,
+    status: document.getElementById('tf_status').value
+  };
+  try{
+    if(id){
+      const [updated] = await updateResourceTemplate(id, payload);
+      const idx = templates.findIndex(t=>t.id===id);
+      if(idx>-1) templates[idx] = updated;
+      showToast('Template updated.','success');
+    }else{
+      const [created] = await createResourceTemplate(payload);
+      templates.unshift(created);
+      showToast('Template created.','success');
+    }
+    renderAll();
+    window.__closeEditor();
+  }catch(err){ showToast(err.message||'Failed to save template.','danger'); }
+});
+
+async function load(){
+  try{
+    templates = await getAllResourceTemplates();
+    renderAll();
+  }catch(err){
+    document.getElementById('templatesContainer').innerHTML = `<p class="text-muted text-sm">Failed to load templates: ${err.message}</p>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

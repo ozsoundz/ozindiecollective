@@ -692,3 +692,124 @@ create policy "Anyone can subscribe"
 create policy "Admins can view subscribers"
   on public.newsletter_subscribers for select
   using (public.is_admin());
+
+-- 17. INDUSTRY LINKS TABLE (Knowledge section — curated links to external industry
+-- articles/news, not our own blog. Admin-managed, distinct from public.articles.)
+create table if not exists public.industry_links (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.industry_links add column if not exists title text;
+alter table public.industry_links add column if not exists url text;
+alter table public.industry_links add column if not exists source text;
+alter table public.industry_links add column if not exists category text;
+alter table public.industry_links add column if not exists description text;
+alter table public.industry_links add column if not exists status text default 'draft';
+alter table public.industry_links add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.industry_links add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'industry_links_status_check') then
+    alter table public.industry_links add constraint industry_links_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.industry_links enable row level security;
+drop policy if exists "Public can view published industry links" on public.industry_links;
+drop policy if exists "Admins can view all industry links" on public.industry_links;
+drop policy if exists "Admins can insert industry links" on public.industry_links;
+drop policy if exists "Admins can update industry links" on public.industry_links;
+drop policy if exists "Admins can delete industry links" on public.industry_links;
+
+create policy "Public can view published industry links" on public.industry_links for select using (status = 'published');
+create policy "Admins can view all industry links" on public.industry_links for select using (public.is_admin());
+create policy "Admins can insert industry links" on public.industry_links for insert with check (public.is_admin());
+create policy "Admins can update industry links" on public.industry_links for update using (public.is_admin());
+create policy "Admins can delete industry links" on public.industry_links for delete using (public.is_admin());
+
+-- 18. GRANTS TABLE (Grants Database, admin-managed)
+create table if not exists public.grants (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.grants add column if not exists org text;
+alter table public.grants add column if not exists name text;
+alter table public.grants add column if not exists description text;
+alter table public.grants add column if not exists amount text;
+alter table public.grants add column if not exists deadline_label text;
+alter table public.grants add column if not exists deadline_type text default 'rolling';
+alter table public.grants add column if not exists url text;
+alter table public.grants add column if not exists status text default 'draft';
+alter table public.grants add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.grants add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'grants_status_check') then
+    alter table public.grants add constraint grants_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'grants_deadline_type_check') then
+    alter table public.grants add constraint grants_deadline_type_check check (deadline_type in ('rolling','closing'));
+  end if;
+end $$;
+
+alter table public.grants enable row level security;
+drop policy if exists "Public can view published grants" on public.grants;
+drop policy if exists "Admins can view all grants" on public.grants;
+drop policy if exists "Admins can insert grants" on public.grants;
+drop policy if exists "Admins can update grants" on public.grants;
+drop policy if exists "Admins can delete grants" on public.grants;
+
+create policy "Public can view published grants" on public.grants for select using (status = 'published');
+create policy "Admins can view all grants" on public.grants for select using (public.is_admin());
+create policy "Admins can insert grants" on public.grants for insert with check (public.is_admin());
+create policy "Admins can update grants" on public.grants for update using (public.is_admin());
+create policy "Admins can delete grants" on public.grants for delete using (public.is_admin());
+
+-- 19. RESOURCE TEMPLATES TABLE (downloadable EPK/business templates — real files
+-- in the resource-templates storage bucket, admin-uploaded)
+create table if not exists public.resource_templates (
+  id uuid primary key default gen_random_uuid()
+);
+
+alter table public.resource_templates add column if not exists title text;
+alter table public.resource_templates add column if not exists description text;
+alter table public.resource_templates add column if not exists category text;
+alter table public.resource_templates add column if not exists file_url text;
+alter table public.resource_templates add column if not exists file_name text;
+alter table public.resource_templates add column if not exists status text default 'draft';
+alter table public.resource_templates add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.resource_templates add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'resource_templates_status_check') then
+    alter table public.resource_templates add constraint resource_templates_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.resource_templates enable row level security;
+drop policy if exists "Public can view published templates" on public.resource_templates;
+drop policy if exists "Admins can view all templates" on public.resource_templates;
+drop policy if exists "Admins can insert templates" on public.resource_templates;
+drop policy if exists "Admins can update templates" on public.resource_templates;
+drop policy if exists "Admins can delete templates" on public.resource_templates;
+
+create policy "Public can view published templates" on public.resource_templates for select using (status = 'published');
+create policy "Admins can view all templates" on public.resource_templates for select using (public.is_admin());
+create policy "Admins can insert templates" on public.resource_templates for insert with check (public.is_admin());
+create policy "Admins can update templates" on public.resource_templates for update using (public.is_admin());
+create policy "Admins can delete templates" on public.resource_templates for delete using (public.is_admin());
+
+-- resource-templates bucket: admin-only uploads (real downloadable files), publicly readable.
+insert into storage.buckets (id, name, public) values ('resource-templates', 'resource-templates', true) on conflict (id) do nothing;
+
+drop policy if exists "Public can view resource templates" on storage.objects;
+drop policy if exists "Admins can manage resource templates" on storage.objects;
+create policy "Public can view resource templates" on storage.objects for select using (bucket_id = 'resource-templates');
+create policy "Admins can manage resource templates" on storage.objects for all to authenticated using (bucket_id = 'resource-templates' and public.is_admin()) with check (bucket_id = 'resource-templates' and public.is_admin());

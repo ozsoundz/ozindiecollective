@@ -882,3 +882,152 @@ export async function updateOwnEpk(epkData) {
   if (error) throw error
   return data
 }
+
+// ── INDUSTRY LINKS (Knowledge section — curated external articles/news) ──
+
+// Public: published links only, for the Resources/Industry Hub page.
+export async function getIndustryLinks({ category } = {}) {
+  let query = supabase
+    .from('industry_links')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+  if (category) query = query.eq('category', category)
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+// Admin: every link regardless of status.
+export async function getAllIndustryLinks() {
+  const { data, error } = await supabase
+    .from('industry_links')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createIndustryLink(linkData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('industry_links')
+    .insert({ ...linkData, created_by: session.user.id })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateIndustryLink(id, linkData) {
+  const { data, error } = await supabase
+    .from('industry_links')
+    .update(linkData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteIndustryLink(id) {
+  const { error } = await supabase.from('industry_links').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── GRANTS (Grants Database) ─────────────────────────
+
+// Public: published grants only, for the Resources/Industry Hub page.
+export async function getGrants() {
+  const { data, error } = await supabase
+    .from('grants')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Admin: every grant regardless of status.
+export async function getAllGrants() {
+  const { data, error } = await supabase
+    .from('grants')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createGrant(grantData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('grants')
+    .insert({ ...grantData, created_by: session.user.id })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateGrant(id, grantData) {
+  const { data, error } = await supabase
+    .from('grants')
+    .update(grantData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteGrant(id) {
+  const { error } = await supabase.from('grants').delete().eq('id', id)
+  if (error) throw error
+}
+
+// ── RESOURCE TEMPLATES (downloadable EPK/business templates) ────────
+
+// Public: published templates only, for the Resources/Industry Hub page.
+export async function getResourceTemplates() {
+  const { data, error } = await supabase
+    .from('resource_templates')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+// Admin: every template regardless of status.
+export async function getAllResourceTemplates() {
+  const { data, error } = await supabase
+    .from('resource_templates')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createResourceTemplate(templateData) {
+  const session = await getSession()
+  if (!session) throw new Error('Not authenticated')
+  const { data, error } = await supabase
+    .from('resource_templates')
+    .insert({ ...templateData, created_by: session.user.id })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateResourceTemplate(id, templateData) {
+  const { data, error } = await supabase
+    .from('resource_templates')
+    .update(templateData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deleteResourceTemplate(id) {
+  const { error } = await supabase.from('resource_templates').delete().eq('id', id)
+  if (error) throw error
+}
