@@ -880,18 +880,25 @@ drop policy if exists "Admins can manage resource templates" on storage.objects;
 create policy "Public can view resource templates" on storage.objects for select using (bucket_id = 'resource-templates');
 create policy "Admins can manage resource templates" on storage.objects for all to authenticated using (bucket_id = 'resource-templates' and public.is_admin()) with check (bucket_id = 'resource-templates' and public.is_admin());
 
--- 20. SPONSORED PROGRAMS TABLE (Industry Partner-funded programs — submitted by
--- Partner-plan members, reviewed by admin, same pending/live/denied pattern as
--- listings/projects. Powers the public Sponsored Programs page and the
--- homepage "Sponsorships Funded" stat.)
-create or replace function public.is_partner()
+-- 20. SPONSORED PROGRAMS TABLE (Corporate/Enterprise-funded programs —
+-- submitted by Corporate-tier-or-above members, reviewed by admin, same
+-- pending/live/denied pattern as listings/projects. Powers the public
+-- Sponsored Programs page and the homepage "Sponsorships Funded" stat.
+-- is_corporate_or_above() replaces the old is_partner() now that the
+-- 'partner' plan value has been retired in favour of the 5-tier model —
+-- see section 23 below.)
+-- cascade: the old sponsored_programs insert policy below depends on this
+-- function. It gets recreated further down against the new function name.
+drop function if exists public.is_partner() cascade;
+
+create or replace function public.is_corporate_or_above()
 returns boolean
 language sql
 security definer
 set search_path = public
 stable
 as $$
-  select coalesce((select plan = 'partner' from public.profiles where id = auth.uid()), false);
+  select coalesce((select plan in ('corporate','enterprise') from public.profiles where id = auth.uid()), false);
 $$;
 
 create table if not exists public.sponsored_programs (
@@ -922,6 +929,7 @@ drop policy if exists "Public can view live sponsored programs" on public.sponso
 drop policy if exists "Submitters can view own sponsored programs" on public.sponsored_programs;
 drop policy if exists "Partners can submit sponsored programs" on public.sponsored_programs;
 drop policy if exists "Partners and admins can submit sponsored programs" on public.sponsored_programs;
+drop policy if exists "Corporate/Enterprise and admins can submit sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can view all sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can update sponsored programs" on public.sponsored_programs;
 drop policy if exists "Admins can delete sponsored programs" on public.sponsored_programs;
@@ -934,11 +942,11 @@ create policy "Submitters can view own sponsored programs"
   on public.sponsored_programs for select
   using (auth.uid() = submitted_by);
 
--- Industry Partner members OR admins can submit — enforced server-side via
--- is_partner()/is_admin(), not just hidden in the UI.
-create policy "Partners and admins can submit sponsored programs"
+-- Corporate/Enterprise members OR admins can submit — enforced server-side
+-- via is_corporate_or_above()/is_admin(), not just hidden in the UI.
+create policy "Corporate/Enterprise and admins can submit sponsored programs"
   on public.sponsored_programs for insert
-  with check (auth.uid() = submitted_by and (public.is_partner() or public.is_admin()));
+  with check (auth.uid() = submitted_by and (public.is_corporate_or_above() or public.is_admin()));
 
 create policy "Admins can view all sponsored programs"
   on public.sponsored_programs for select
@@ -1010,3 +1018,43 @@ create policy "Admins can view all success stories" on public.success_stories fo
 create policy "Admins can insert success stories" on public.success_stories for insert with check (public.is_admin());
 create policy "Admins can update success stories" on public.success_stories for update using (public.is_admin());
 create policy "Admins can delete success stories" on public.success_stories for delete using (public.is_admin());
+
+-- 23. MEMBERSHIP PLAN MODEL (5 tiers, Stripe-backed for the 3 paid self-serve
+-- tiers, Enterprise is manually provisioned and never touches Stripe)
+--
+-- free        — Individuals & indie artists. Always free, no Stripe product.
+-- sme_small   — $29/mo, <5 staff, self-serve via Stripe Checkout.
+-- sme_medium  — $49/mo, up to 50 staff, self-serve via Stripe Checkout.
+-- corporate   — $199/mo, self-serve via Stripe Checkout.
+-- enterprise  — By agreement. Admin-set only (plan_source = 'admin');
+--               deliberately excluded from Stripe entirely.
+--
+-- Data migration first (must run before the check constraint below, or the
+-- constraint would reject any existing 'pro'/'partner' rows):
+--   pro     -> free       (the old individual paid tier is retired; the new
+--                          model is "individuals are always free")
+--   partner -> corporate  (closest capability match to the old $89/mo tier;
+--                          these members will need to actually subscribe via
+--                          Stripe once Checkout ships to keep paid features)
+update public.profiles set plan = 'free' where plan = 'pro';
+update public.profiles set plan = 'corporate' where plan = 'partner';
+
+alter table public.profiles add column if not exists plan_source text default 'signup';
+alter table public.profiles add column if not exists plan_updated_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'profiles_plan_source_check') then
+    alter table public.profiles add constraint profiles_plan_source_check
+      check (plan_source in ('signup','stripe','admin'));
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'profiles_plan_check') then
+    alter table public.profiles drop constraint profiles_plan_check;
+  end if;
+  alter table public.profiles add constraint profiles_plan_check
+    check (plan in ('free','sme_small','sme_medium','corporate','enterprise'));
+end $$;

@@ -92,10 +92,12 @@
       <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.5rem">
         <h3 style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--marigold);margin-bottom:.85rem">Estimated Revenue <span class="text-xs text-muted" style="text-transform:none;letter-spacing:0;font-family:var(--font-body)">(plan pricing × members — no billing integration yet)</span></h3>
         <div style="display:flex;flex-direction:column;gap:.65rem">
-          <div class="flex justify-between"><span class="text-sm text-muted">Pro Members (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revPro">…</span></div>
-          <div class="flex justify-between"><span class="text-sm text-muted">Partners (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revPartner">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">SME Small (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revSmeSmall">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">SME Medium (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revSmeMedium">…</span></div>
+          <div class="flex justify-between"><span class="text-sm text-muted">Corporate (est. MRR)</span><span class="text-sm" style="color:var(--cream)" id="revCorporate">…</span></div>
           <div class="flex justify-between"><span class="text-sm text-muted">Total Estimated MRR</span><span class="text-sm" style="color:var(--marigold);font-weight:700" id="revTotal">…</span></div>
           <div class="flex justify-between"><span class="text-sm text-muted">Estimated ARR</span><span class="text-sm" style="color:var(--marigold);font-weight:700" id="revArr">…</span></div>
+          <div class="text-xs text-muted mt-1">Enterprise is by agreement and excluded from this estimate.</div>
         </div>
       </div>
     </div>
@@ -183,14 +185,17 @@ async function load(){
     document.getElementById('lpApps').textContent = listingApps.length;
     document.getElementById('lpAvg').textContent = live.length ? (listingApps.length/live.length).toFixed(1) : '0';
 
-    // Estimated revenue (from stated join.html plan pricing — no real billing yet)
-    const proCount = approved.filter(m=>m.plan==='pro').length;
-    const partnerCount = approved.filter(m=>m.plan==='partner').length;
-    const proMrr = proCount * 12, partnerMrr = partnerCount * 89;
-    document.getElementById('revPro').textContent = `$${proMrr.toLocaleString()}/mo (${proCount} members)`;
-    document.getElementById('revPartner').textContent = `$${partnerMrr.toLocaleString()}/mo (${partnerCount} members)`;
-    document.getElementById('revTotal').textContent = `$${(proMrr+partnerMrr).toLocaleString()}/mo`;
-    document.getElementById('revArr').textContent = `$${((proMrr+partnerMrr)*12).toLocaleString()}`;
+    // Estimated revenue (from stated membership pricing — no real billing yet)
+    const smeSmallCount = approved.filter(m=>m.plan==='sme_small').length;
+    const smeMediumCount = approved.filter(m=>m.plan==='sme_medium').length;
+    const corporateCount = approved.filter(m=>m.plan==='corporate').length;
+    const smeSmallMrr = smeSmallCount * 29, smeMediumMrr = smeMediumCount * 49, corporateMrr = corporateCount * 199;
+    const totalMrr = smeSmallMrr + smeMediumMrr + corporateMrr;
+    document.getElementById('revSmeSmall').textContent = `$${smeSmallMrr.toLocaleString()}/mo (${smeSmallCount} members)`;
+    document.getElementById('revSmeMedium').textContent = `$${smeMediumMrr.toLocaleString()}/mo (${smeMediumCount} members)`;
+    document.getElementById('revCorporate').textContent = `$${corporateMrr.toLocaleString()}/mo (${corporateCount} members)`;
+    document.getElementById('revTotal').textContent = `$${totalMrr.toLocaleString()}/mo`;
+    document.getElementById('revArr').textContent = `$${(totalMrr*12).toLocaleString()}`;
   }catch(err){
     showToast(err.message||'Failed to load reports.','danger');
   }

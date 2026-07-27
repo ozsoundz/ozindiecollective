@@ -54,7 +54,7 @@
     </div>
 
     <div class="filter-bar">
-      <div class="form-group"><label>Plan</label><select id="fPlan" onchange="searchMembers()"><option value="">All Plans</option><option value="free">Free</option><option value="pro">Professional</option><option value="partner">Industry Partner</option></select></div>
+      <div class="form-group"><label>Plan</label><select id="fPlan" onchange="searchMembers()"><option value="">All Plans</option><option value="free">Free</option><option value="sme_small">SME Small</option><option value="sme_medium">SME Medium</option><option value="corporate">Corporate</option><option value="enterprise">Enterprise</option></select></div>
       <div class="form-group"><label>State</label><select id="fState" onchange="searchMembers()"><option value="">All States</option></select></div>
       <div class="form-group"><label>Status</label><select id="fStatus" onchange="searchMembers()"><option value="approved">Active</option><option value="denied">Suspended</option><option value="">All</option></select></div>
     </div>
@@ -89,16 +89,20 @@ function fmtDate(iso){
   return new Date(iso).toLocaleDateString('en-AU',{month:'short',year:'numeric'});
 }
 
+const PLAN_LABELS = {free:'Free',sme_small:'SME Small',sme_medium:'SME Medium',corporate:'Corporate',enterprise:'Enterprise'};
+const PLAN_TAGS = {free:'tag-gold',sme_small:'tag-sage',sme_medium:'tag-blue',corporate:'tag-rust',enterprise:'tag-purple'};
+
 function renderRow(m){
   const e = escapeHtml;
-  const planTag = {free:'tag-gold',pro:'tag-sage',partner:'tag-rust'}[m.plan] || 'tag-gold';
+  const planTag = PLAN_TAGS[m.plan] || 'tag-gold';
+  const planLabel = PLAN_LABELS[m.plan] || m.plan || 'Free';
   const suspended = m.status === 'denied';
   const statusTag = suspended ? 'tag-denied' : 'tag-approved';
   return `<tr data-id="${e(m.id)}">
     <td><div class="flex items-center gap-2"><div class="avatar avatar-sm ${avatarClass(m.full_name)}">${e(initials(m.full_name))}</div><div><div style="color:var(--cream);font-weight:600">${e(m.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(m.email||'')}</div></div></div></td>
     <td>${e(m.role||'—')}</td>
     <td>${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</td>
-    <td><span class="tag ${planTag}" style="font-size:.55rem">${e(m.plan||'free')}</span></td>
+    <td><span class="tag ${planTag}" style="font-size:.55rem">${e(planLabel)}</span></td>
     <td>${fmtDate(m.created_at)}</td>
     <td><span class="tag ${statusTag}" style="font-size:.55rem">${suspended?'Suspended':'Active'}</span></td>
     <td><div class="flex gap-1">
@@ -189,8 +193,9 @@ async function load(){
     members = await getAllApplications();
     populateStateFilter();
     const approved = members.filter(m=>m.status==='approved');
+    const paidCount = approved.filter(m=>m.plan && m.plan!=='free').length;
     document.getElementById('memberSummary').textContent =
-      `${approved.length} approved members · ${approved.filter(m=>m.plan==='pro').length} Professional · ${approved.filter(m=>m.plan==='partner').length} Industry Partners`;
+      `${approved.length} approved members · ${paidCount} on a paid business tier`;
     const navBadge = document.getElementById('navPendingBadge');
     if(navBadge) navBadge.textContent = members.filter(m=>m.status==='pending').length;
     searchMembers();

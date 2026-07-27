@@ -15,7 +15,7 @@
 <div id="nav-placeholder"></div>
 <div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-sponsor/1600/500');background-size:cover;background-position:center">
   <div class="inner">
-    <div class="section-label">Industry Partners</div>
+    <div class="section-label">Corporate &amp; Enterprise</div>
     <h1 class="section-title">Submit a <em>Sponsored Program</em></h1>
     <p class="text-muted mt-2" style="max-width:540px;line-height:1.7">Fund a grant, workshop, mentorship or initiative for the Collective. Submissions are reviewed by our team before appearing publicly.</p>
   </div>
@@ -23,7 +23,7 @@
 <section style="background:var(--ink)">
   <div class="inner">
     <div id="notPartnerNotice" class="hidden" style="max-width:640px;margin:0 auto">
-      <div class="alert alert-danger"><span>🔒</span><span class="text-sm">Submitting a Sponsored Program is available to Industry Partner members. <a href="join.html?plan=partner" class="text-gold">Upgrade to Industry Partner</a> to sponsor a program.</span></div>
+      <div class="alert alert-danger"><span>🔒</span><span class="text-sm">Submitting a Sponsored Program is available to Corporate and Enterprise members. <a href="../index.html#membership" class="text-gold">See membership plans</a> — Corporate plan billing is coming soon.</span></div>
     </div>
     <div class="post-card" id="sponsorFormWrap">
       <form id="postSponsorForm" novalidate>
@@ -58,7 +58,7 @@ import { createSponsoredProgram } from '../assets/js/supabase.js?v=10';
 document.addEventListener('DOMContentLoaded', () => {
   const user = Auth.get();
   if(!user) { window.location.href = 'login.html'; return; }
-  if(user.plan !== 'partner' && !user.isAdmin) {
+  if(!['corporate','enterprise'].includes(user.plan) && !user.isAdmin) {
     document.getElementById('notPartnerNotice').classList.remove('hidden');
     document.getElementById('sponsorFormWrap').classList.add('hidden');
   }
