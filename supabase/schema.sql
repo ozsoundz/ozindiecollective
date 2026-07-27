@@ -968,22 +968,50 @@ create policy "Admins can delete sponsored programs"
 -- parties involved, via the applications/project_applications RLS policies
 -- above, and are never exposed on a profile.
 
+-- These two policies check `applications`/`project_applications`, which each
+-- have their own policy that checks back into `listings`/`projects`
+-- ("Listing/Project owners can view applications to their listings/projects").
+-- Referencing them directly here creates a listings->applications->listings
+-- RLS evaluation loop ("infinite recursion detected in policy for relation
+-- listings"). Routed through a security-definer function instead: it runs as
+-- the function owner (the table owner), which bypasses RLS entirely, so the
+-- cycle never re-enters the listings/projects policies.
+create or replace function public.listing_has_confirmed_collab(p_listing_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.applications a
+    where a.listing_id = p_listing_id and a.status = 'confirmed'
+  );
+$$;
+
+create or replace function public.project_has_confirmed_collab(p_project_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.project_applications a
+    where a.project_id = p_project_id and a.status = 'confirmed'
+  );
+$$;
+
 drop policy if exists "Public can view listings behind confirmed collaborations" on public.listings;
 drop policy if exists "Public can view projects behind confirmed collaborations" on public.projects;
 
 create policy "Public can view listings behind confirmed collaborations"
   on public.listings for select
-  using (exists (
-    select 1 from public.applications a
-    where a.listing_id = listings.id and a.status = 'confirmed'
-  ));
+  using (public.listing_has_confirmed_collab(listings.id));
 
 create policy "Public can view projects behind confirmed collaborations"
   on public.projects for select
-  using (exists (
-    select 1 from public.project_applications a
-    where a.project_id = projects.id and a.status = 'confirmed'
-  ));
+  using (public.project_has_confirmed_collab(projects.id));
 
 -- 22. SUCCESS STORIES TABLE (homepage "Real Stories" showcase, admin-curated)
 create table if not exists public.success_stories (
