@@ -184,6 +184,21 @@ export async function getMembers({ role, state, availability, search } = {}) {
 
 // ── LISTINGS ─────────────────────────────────────────
 
+// Corporate/Enterprise posts sort above everyone else's on the public
+// boards (a stated Corporate+ perk) — done client-side after fetch rather
+// than via .order() since Supabase-JS can't express "order by a joined
+// row's column with a custom rank" without a raw SQL view. Ties (i.e. within
+// the same featured/not-featured group) keep newest-first.
+const FEATURED_PLANS = ['corporate', 'enterprise']
+function sortFeaturedFirst(rows) {
+  return [...(rows || [])].sort((a, b) => {
+    const aFeatured = FEATURED_PLANS.includes(a.profiles?.plan) ? 1 : 0
+    const bFeatured = FEATURED_PLANS.includes(b.profiles?.plan) ? 1 : 0
+    if (aFeatured !== bFeatured) return bFeatured - aFeatured
+    return new Date(b.created_at) - new Date(a.created_at)
+  })
+}
+
 export async function getListings({ category, type, state } = {}) {
   let query = supabase
     .from('listings')
@@ -197,7 +212,7 @@ export async function getListings({ category, type, state } = {}) {
 
   const { data, error } = await query
   if (error) throw error
-  return data
+  return sortFeaturedFirst(data)
 }
 
 export async function createListing(listingData) {
@@ -432,7 +447,7 @@ export async function getProjects({ projectType, discipline, state } = {}) {
 
   const { data, error } = await query
   if (error) throw error
-  return data
+  return sortFeaturedFirst(data)
 }
 
 export async function createProject(projectData) {
