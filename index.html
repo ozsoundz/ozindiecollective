@@ -324,28 +324,6 @@
 </section>
 
 <div id="footer-placeholder"></div>
-
-<!-- Login Modal -->
-<div class="modal-overlay" id="loginModal">
-  <div class="modal" style="position:relative">
-    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-    <div class="modal-title">Welcome back</div>
-    <div class="modal-sub">Sign in to your Oz Indie Collective account.</div>
-    <div class="form-group"><label>Email Address</label><input type="email" name="email" placeholder="you@example.com"></div>
-    <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="••••••••"></div>
-    <button class="btn-primary w-full" style="margin-bottom:1rem" onclick="demoLogin()">Sign In</button>
-    <p class="text-sm text-muted text-center">Don't have an account? <a href="pages/join.html" class="text-gold">Apply to join</a></p>
-  </div>
-</div>
-
-<script>
-function demoLogin(){
-  Auth.set({name:'Demo Member',role:'Audio Engineer',location:'Sydney, NSW',status:'approved',email:'demo@oic.com.au',plan:'free'});
-  showToast('Welcome back, Demo Member!','success');
-  closeModal('loginModal');
-  setTimeout(()=>{window.location.href='pages/dashboard.html';},1000);
-}
-</script>
 <script src="assets/js/nav-inject.js?v=3"></script>
 <script src="assets/js/main.js?v=5"></script>
 <script type="module">
