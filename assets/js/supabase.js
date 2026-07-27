@@ -497,19 +497,6 @@ export async function denyProject(projectId) {
   if (error) throw error
 }
 
-// Member: their own project applications, for the dashboard.
-export async function getMyProjectApplications() {
-  const session = await getSession()
-  if (!session) throw new Error('Not authenticated')
-  const { data, error } = await supabase
-    .from('project_applications')
-    .select('*, projects(title)')
-    .eq('applicant_id', session.user.id)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
-}
-
 // Member: projects they've posted, for the dashboard.
 export async function getMyProjects() {
   const session = await getSession()
