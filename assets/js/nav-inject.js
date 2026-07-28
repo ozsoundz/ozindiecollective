@@ -11,7 +11,7 @@
   </a>
   <ul class="nav-links">
     <li class="nav-dropdown">
-      <button type="button" class="nav-dropdown-toggle">Platform <span class="nav-dropdown-caret">▾</span></button>
+      <span class="nav-dropdown-toggle">Platform</span>
       <div class="nav-dropdown-menu">
         <a href="${root}pages/community.html">Community</a>
         <a href="${root}pages/projects.html">Projects</a>
@@ -21,7 +21,7 @@
       </div>
     </li>
     <li class="nav-dropdown">
-      <button type="button" class="nav-dropdown-toggle">Resources <span class="nav-dropdown-caret">▾</span></button>
+      <span class="nav-dropdown-toggle">Resources</span>
       <div class="nav-dropdown-menu">
         <a href="${root}pages/resources.html">Resources</a>
         <a href="${root}pages/articles.html">Articles</a>
@@ -30,7 +30,7 @@
       </div>
     </li>
     <li class="nav-dropdown">
-      <button type="button" class="nav-dropdown-toggle">Company <span class="nav-dropdown-caret">▾</span></button>
+      <span class="nav-dropdown-toggle">Company</span>
       <div class="nav-dropdown-menu">
         <a href="${root}pages/about.html">About Us</a>
         <a href="${root}pages/guidelines.html">Community Guidelines</a>

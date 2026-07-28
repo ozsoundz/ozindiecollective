@@ -95,7 +95,6 @@ window.tierBadgeHtml=tierBadgeHtml;
 
 document.addEventListener('DOMContentLoaded',()=>{
   initNav();
-  initNavDropdowns();
   initMobileMenu();
   initModals();
   initActiveLinks();
@@ -137,32 +136,6 @@ function initNav(){
   window.addEventListener('scroll',()=>{
     nav.style.background=window.scrollY>40?'rgba(13,17,23,.98)':'rgba(13,17,23,.92)';
   },{passive:true});
-}
-
-/* NAV DROPDOWNS: the top nav groups its links into Platform/Resources/Company
-   dropdowns. CSS alone handles the common case (:hover reveals the panel),
-   but hover doesn't work for touch or keyboard users, so this adds a click
-   toggle on top: clicking a toggle opens its panel (and closes any other
-   open one), clicking anywhere outside or pressing Escape closes it again. */
-function initNavDropdowns(){
-  const dropdowns=[...document.querySelectorAll('.nav-dropdown')];
-  if(!dropdowns.length)return;
-  dropdowns.forEach(dd=>{
-    const toggle=dd.querySelector('.nav-dropdown-toggle');
-    if(!toggle)return;
-    toggle.addEventListener('click',e=>{
-      e.stopPropagation();
-      const wasOpen=dd.classList.contains('open');
-      dropdowns.forEach(other=>other.classList.remove('open'));
-      dd.classList.toggle('open',!wasOpen);
-    });
-  });
-  document.addEventListener('click',()=>{
-    dropdowns.forEach(dd=>dd.classList.remove('open'));
-  });
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape')dropdowns.forEach(dd=>dd.classList.remove('open'));
-  });
 }
 
 function initMobileMenu(){
