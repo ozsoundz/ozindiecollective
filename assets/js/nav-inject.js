@@ -39,10 +39,12 @@
             <p>Industry knowledge, grants, stories and conversations to help you go further.</p>
           </div>
           <div class="megamenu-links">
-            <a href="${root}pages/resources.html">Resources</a>
+            <a href="${root}pages/resources.html">Industry Hub</a>
             <a href="${root}pages/articles.html">Articles</a>
-            <a href="${root}pages/highlights.html">Highlights</a>
+            <a href="${root}pages/highlights.html">Professional Highlights</a>
             <a href="${root}pages/podcast.html">Podcast</a>
+            <a href="${root}pages/resources.html#grants">Grants Database</a>
+            <a href="${root}pages/sponsored-programs.html">Sponsored Programs</a>
           </div>
         </div>
       </div>
@@ -89,10 +91,12 @@
   <a href="${root}pages/directory.html">Directory</a>
   <a href="${root}pages/events.html">Events</a>
   <div class="mobile-menu-heading">Resources</div>
-  <a href="${root}pages/resources.html">Resources</a>
+  <a href="${root}pages/resources.html">Industry Hub</a>
   <a href="${root}pages/articles.html">Articles</a>
-  <a href="${root}pages/highlights.html">Highlights</a>
+  <a href="${root}pages/highlights.html">Professional Highlights</a>
   <a href="${root}pages/podcast.html">Podcast</a>
+  <a href="${root}pages/resources.html#grants">Grants Database</a>
+  <a href="${root}pages/sponsored-programs.html">Sponsored Programs</a>
   <div class="mobile-menu-heading">Company</div>
   <a href="${root}pages/about.html">About Us</a>
   <a href="${root}pages/guidelines.html">Community Guidelines</a>
