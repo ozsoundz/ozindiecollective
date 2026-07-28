@@ -43,6 +43,19 @@ section{padding:6rem 4rem}
 .nav-links a:hover,.nav-links a.active{color:var(--cyan)}
 .nav-actions{display:flex;align-items:center;gap:.65rem}
 
+/* NAV DROPDOWNS (Platform / Resources / Company) */
+.nav-dropdown{position:relative}
+.nav-dropdown-toggle{background:none;border:none;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;gap:.35rem;font-family:var(--font-body);font-size:.75rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);transition:color .2s}
+.nav-dropdown-toggle:hover{color:var(--cyan)}
+.nav-dropdown.has-active .nav-dropdown-toggle{color:var(--cyan)}
+.nav-dropdown-caret{font-size:.55rem;transition:transform .2s;display:inline-block}
+.nav-dropdown.open .nav-dropdown-caret{transform:rotate(180deg)}
+.nav-dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:.65rem;background:var(--deep);border:1px solid var(--border-hi);border-radius:6px;padding:.5rem;min-width:210px;display:none;flex-direction:column;box-shadow:0 16px 36px rgba(0,0,0,.5);z-index:60}
+.nav-dropdown-menu a{display:block;padding:.6rem .8rem;font-size:.72rem;letter-spacing:.04em;text-transform:none;color:var(--muted);border-radius:4px;text-decoration:none;white-space:nowrap;transition:.15s}
+.nav-dropdown-menu a:hover,.nav-dropdown-menu a.active{background:rgba(79,216,240,.08);color:var(--cyan)}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown.open .nav-dropdown-menu{display:flex}
+.mobile-menu-heading{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);opacity:.75;margin:1.25rem 0 .25rem}
+
 /* BUTTONS */
 .btn-ghost{font-family:var(--font-mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border-hi);color:var(--cream);text-decoration:none;background:transparent;transition:.2s;cursor:pointer;white-space:nowrap;display:inline-block}
 .btn-ghost:hover{border-color:var(--cream);background:rgba(240,237,230,.06)}
