@@ -83,6 +83,8 @@ section{padding:6rem 4rem}
 .mobile-menu.open{transform:translateX(0)}
 .mobile-menu a{font-family:var(--font-mono);font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:.85rem 0;border-bottom:1px solid var(--border);display:block;transition:color .2s}
 .mobile-menu a:hover{color:var(--cyan)}
+.mobile-menu-heading{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--marigold);padding:1.1rem 0 .35rem;margin-top:.15rem;border-top:1px solid var(--border)}
+.mobile-menu-heading:first-of-type{border-top:none;margin-top:0}
 .mobile-menu .btn-primary{margin-top:1rem;text-align:center;padding:.75rem}
 
 /* FORMS */

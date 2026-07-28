@@ -82,15 +82,21 @@
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="${root}index.html">Home</a>
+  <div class="mobile-menu-heading">Platform</div>
   <a href="${root}pages/community.html">Community</a>
   <a href="${root}pages/projects.html">Projects</a>
   <a href="${root}pages/opportunities.html">Opportunities</a>
   <a href="${root}pages/directory.html">Directory</a>
   <a href="${root}pages/events.html">Events</a>
+  <div class="mobile-menu-heading">Resources</div>
   <a href="${root}pages/resources.html">Resources</a>
   <a href="${root}pages/articles.html">Articles</a>
   <a href="${root}pages/highlights.html">Highlights</a>
   <a href="${root}pages/podcast.html">Podcast</a>
+  <div class="mobile-menu-heading">Company</div>
+  <a href="${root}pages/about.html">About Us</a>
+  <a href="${root}pages/guidelines.html">Community Guidelines</a>
+  <a href="${root}pages/join.html">Apply to Join</a>
   <a href="${root}pages/login.html" data-auth="logged-out">Sign In</a>
   <a href="${root}admin/index.html" data-auth="admin" style="display:none">Admin Portal</a>
   <a href="${root}pages/dashboard.html" data-auth="logged-in" style="display:none">Dashboard</a>
