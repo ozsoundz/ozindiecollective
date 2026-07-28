@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Navigation Menu — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css?v=3">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings</a>
+    <a href="projects.html" class="admin-nav-item">Projects</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="knowledge.html" class="admin-nav-item">Knowledge</a>
+    <a href="grants.html" class="admin-nav-item">Grants</a>
+    <a href="templates.html" class="admin-nav-item">Templates</a>
+    <a href="sponsorships.html" class="admin-nav-item">Sponsorships</a>
+    <a href="stories.html" class="admin-nav-item">Success Stories</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="content.html" class="admin-nav-item">Page Content</a>
+    <a href="navigation.html" class="admin-nav-item active">Navigation</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
+      <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
+      <a href="#" onclick="openModal('changePasswordModal');return false;" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">⚙ Change Password</a>
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Navigation Menu</h1>
+      <p class="text-muted text-sm mt-1">Edit the top-nav mega-menu — each group's image, heading and blurb, plus its list of links. Changes go live on every page (no code changes needed).</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2rem" id="groupsContainer">
+      <p class="text-muted text-sm">Loading navigation menu…</p>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('changePasswordModal')">✕</button>
+    <div class="modal-title">Change Password</div>
+    <div class="modal-sub">Choose a new password for your account.</div>
+    <div class="form-group"><label>New Password</label><input type="password" id="cpNewPassword" placeholder="At least 8 characters" autocomplete="new-password"></div>
+    <div class="form-group"><label>Confirm New Password</label><input type="password" id="cpConfirmPassword" placeholder="Re-enter new password" autocomplete="new-password"></div>
+    <button class="btn-primary w-full btn-lg" id="cpSubmitBtn" onclick="submitChangePassword()">Update Password</button>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js?v=11"></script>
+<script src="../assets/js/main.js?v=12"></script>
+<script type="module">
+import { getNavMenu, updateNavGroup, createNavLink, updateNavLink, deleteNavLink, uploadAdminMedia, updatePassword } from '../assets/js/supabase.js?v=17';
+
+window.submitChangePassword = async function(){
+  const pw = document.getElementById('cpNewPassword').value;
+  const confirmPw = document.getElementById('cpConfirmPassword').value;
+  if(!pw || pw.length < 8){ showToast('Password must be at least 8 characters.','danger'); return; }
+  if(pw !== confirmPw){ showToast('Passwords do not match.','danger'); return; }
+  const btn = document.getElementById('cpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  try{
+    await updatePassword(pw);
+    showToast('Password updated!','success');
+    document.getElementById('cpNewPassword').value = '';
+    document.getElementById('cpConfirmPassword').value = '';
+    closeModal('changePasswordModal');
+  }catch(err){
+    showToast(err.message || 'Failed to update password.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+};
+
+let groups = [];
+
+function sortedLinks(g){
+  return (g.nav_menu_links || []).slice().sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+}
+
+function renderLinkRow(groupId, link, isFirst, isLast){
+  const e = escapeHtml;
+  return `
+  <div style="display:flex;gap:.5rem;align-items:center;padding:.6rem;background:rgba(245,166,35,.04);border:1px solid var(--border);border-radius:4px" data-link-row="${e(link.id)}">
+    <input type="text" class="input" style="flex:1" value="${e(link.label||'')}" data-link-field="label" placeholder="Link label">
+    <input type="text" class="input" style="flex:1.4" value="${e(link.url||'')}" data-link-field="url" placeholder="pages/example.html">
+    <div class="flex gap-1" style="flex-shrink:0">
+      <button class="btn-ghost" style="font-size:.6rem;padding:.4rem .5rem" data-link-action="up" data-link-id="${e(link.id)}" data-group-id="${e(groupId)}" ${isFirst?'disabled':''}>↑</button>
+      <button class="btn-ghost" style="font-size:.6rem;padding:.4rem .5rem" data-link-action="down" data-link-id="${e(link.id)}" data-group-id="${e(groupId)}" ${isLast?'disabled':''}>↓</button>
+      <button class="btn-ghost" style="font-size:.62rem" data-link-action="save" data-link-id="${e(link.id)}">Save</button>
+      <button class="btn-danger" style="font-size:.62rem" data-link-action="delete" data-link-id="${e(link.id)}" data-group-id="${e(groupId)}">Delete</button>
+    </div>
+  </div>`;
+}
+
+function renderGroup(g){
+  const e = escapeHtml;
+  const links = sortedLinks(g);
+  const linksHtml = links.length
+    ? links.map((l,i) => renderLinkRow(g.id, l, i===0, i===links.length-1)).join('')
+    : '<p class="text-muted text-sm">No links yet — add one below.</p>';
+  return `
+  <div style="background:rgba(245,166,35,.03);border:1px solid var(--border);border-radius:6px;padding:1.75rem" data-group-card="${e(g.id)}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+      <div>
+        <div class="text-xs mono text-gold mb-1">Menu Group</div>
+        <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream)">${e(g.label||g.group_key)}</h3>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:180px 1fr;gap:1.5rem;margin-bottom:1.5rem">
+      <div>
+        <label class="text-xs text-muted mono">Panel Image</label>
+        <img src="${e(g.image_url||'')}" alt="" style="width:100%;height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--border-hi);margin:.4rem 0" data-group-field="image_preview">
+        <input type="text" class="input" style="font-size:.72rem" value="${e(g.image_url||'')}" data-group-field="image_url" placeholder="Image URL">
+        <input type="file" accept="image/*" style="display:none" data-group-image-file="${e(g.id)}">
+        <button type="button" class="btn-ghost mt-1" style="font-size:.6rem;width:100%" data-group-action="upload-image" data-group-id="${e(g.id)}">Upload Image</button>
+        <div class="text-xs text-muted mt-1" data-group-field="image_status"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.9rem">
+        <div>
+          <label class="text-xs text-muted mono">Nav Label (what shows in the top bar)</label>
+          <input type="text" class="input" value="${e(g.label||'')}" data-group-field="label">
+        </div>
+        <div>
+          <label class="text-xs text-muted mono">Panel Heading</label>
+          <input type="text" class="input" value="${e(g.heading||'')}" data-group-field="heading">
+        </div>
+        <div>
+          <label class="text-xs text-muted mono">Panel Blurb</label>
+          <textarea class="input" rows="3" data-group-field="blurb">${e(g.blurb||'')}</textarea>
+        </div>
+        <button class="btn-primary" style="align-self:flex-start" data-group-action="save-details" data-group-id="${e(g.id)}">Save Group Details</button>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:1.25rem">
+      <div class="text-xs mono text-muted mb-2" style="text-transform:uppercase;letter-spacing:.08em">Links in this menu</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem" data-links-list="${e(g.id)}">${linksHtml}</div>
+      <div style="display:flex;gap:.5rem;align-items:center;margin-top:.75rem">
+        <input type="text" class="input" style="flex:1" placeholder="New link label" data-new-link-label="${e(g.id)}">
+        <input type="text" class="input" style="flex:1.4" placeholder="pages/example.html" data-new-link-url="${e(g.id)}">
+        <button class="btn-ghost" style="font-size:.65rem;white-space:nowrap" data-group-action="add-link" data-group-id="${e(g.id)}">+ Add Link</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderAll(){
+  document.getElementById('groupsContainer').innerHTML = groups.length
+    ? groups.map(renderGroup).join('')
+    : '<p class="text-muted text-sm">No menu groups found.</p>';
+}
+
+function readGroupFields(groupId){
+  const card = document.querySelector(`[data-group-card="${groupId}"]`);
+  return {
+    label: card.querySelector('[data-group-field="label"]').value.trim(),
+    heading: card.querySelector('[data-group-field="heading"]').value.trim(),
+    blurb: card.querySelector('[data-group-field="blurb"]').value.trim(),
+    image_url: card.querySelector('[data-group-field="image_url"]').value.trim()
+  };
+}
+
+document.getElementById('groupsContainer').addEventListener('click', async (evt) => {
+  const saveBtn = evt.target.closest('[data-group-action="save-details"]');
+  if (saveBtn) {
+    const groupId = saveBtn.dataset.groupId;
+    const payload = readGroupFields(groupId);
+    saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+    try {
+      await updateNavGroup(groupId, payload);
+      const g = groups.find(x => x.id === groupId);
+      if (g) Object.assign(g, payload);
+      const card = document.querySelector(`[data-group-card="${groupId}"]`);
+      card.querySelector('[data-group-field="image_preview"]').src = payload.image_url;
+      showToast('Group details saved. Live everywhere on next page load.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to save group.', 'danger');
+    } finally {
+      saveBtn.disabled = false; saveBtn.textContent = 'Save Group Details';
+    }
+    return;
+  }
+
+  const uploadBtn = evt.target.closest('[data-group-action="upload-image"]');
+  if (uploadBtn) {
+    document.querySelector(`[data-group-image-file="${uploadBtn.dataset.groupId}"]`).click();
+    return;
+  }
+
+  const addLinkBtn = evt.target.closest('[data-group-action="add-link"]');
+  if (addLinkBtn) {
+    const groupId = addLinkBtn.dataset.groupId;
+    const labelEl = document.querySelector(`[data-new-link-label="${groupId}"]`);
+    const urlEl = document.querySelector(`[data-new-link-url="${groupId}"]`);
+    const label = labelEl.value.trim();
+    const url = urlEl.value.trim();
+    if (!label || !url) { showToast('Enter both a label and a URL.', 'danger'); return; }
+    const g = groups.find(x => x.id === groupId);
+    const maxOrder = sortedLinks(g).reduce((m, l) => Math.max(m, l.sort_order || 0), 0);
+    addLinkBtn.disabled = true;
+    try {
+      const [created] = await createNavLink(groupId, { label, url, sort_order: maxOrder + 1 });
+      g.nav_menu_links = g.nav_menu_links || [];
+      g.nav_menu_links.push(created);
+      renderAll();
+      showToast('Link added.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to add link.', 'danger');
+    } finally {
+      addLinkBtn.disabled = false;
+    }
+    return;
+  }
+
+  const linkAction = evt.target.closest('[data-link-action]');
+  if (linkAction) {
+    const action = linkAction.dataset.linkAction;
+    const linkId = linkAction.dataset.linkId;
+
+    if (action === 'save') {
+      const row = linkAction.closest('[data-link-row]');
+      const label = row.querySelector('[data-link-field="label"]').value.trim();
+      const url = row.querySelector('[data-link-field="url"]').value.trim();
+      linkAction.disabled = true; linkAction.textContent = 'Saving…';
+      try {
+        await updateNavLink(linkId, { label, url });
+        groups.forEach(g => (g.nav_menu_links || []).forEach(l => { if (l.id === linkId) { l.label = label; l.url = url; } }));
+        showToast('Link saved.', 'success');
+      } catch (err) {
+        showToast(err.message || 'Failed to save link.', 'danger');
+      } finally {
+        linkAction.disabled = false; linkAction.textContent = 'Save';
+      }
+    }
+
+    if (action === 'delete') {
+      if (!confirm('Delete this link permanently?')) return;
+      const groupId = linkAction.dataset.groupId;
+      try {
+        await deleteNavLink(linkId);
+        const g = groups.find(x => x.id === groupId);
+        if (g) g.nav_menu_links = (g.nav_menu_links || []).filter(l => l.id !== linkId);
+        renderAll();
+        showToast('Link deleted.', 'info');
+      } catch (err) {
+        showToast(err.message || 'Failed to delete link.', 'danger');
+      }
+    }
+
+    if (action === 'up' || action === 'down') {
+      const groupId = linkAction.dataset.groupId;
+      const g = groups.find(x => x.id === groupId);
+      const links = sortedLinks(g);
+      const idx = links.findIndex(l => l.id === linkId);
+      const swapIdx = action === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= links.length) return;
+      const a = links[idx], b = links[swapIdx];
+      const aOrder = a.sort_order || 0, bOrder = b.sort_order || 0;
+      try {
+        await Promise.all([
+          updateNavLink(a.id, { sort_order: bOrder }),
+          updateNavLink(b.id, { sort_order: aOrder })
+        ]);
+        a.sort_order = bOrder; b.sort_order = aOrder;
+        renderAll();
+      } catch (err) {
+        showToast(err.message || 'Failed to reorder links.', 'danger');
+      }
+    }
+  }
+});
+
+// Image upload — delegated change listener since file inputs are re-rendered per group.
+document.getElementById('groupsContainer').addEventListener('change', async (evt) => {
+  const fileInput = evt.target.closest('[data-group-image-file]');
+  if (!fileInput) return;
+  const file = fileInput.files[0];
+  if (!file) return;
+  const groupId = fileInput.dataset.groupImageFile;
+  const card = document.querySelector(`[data-group-card="${groupId}"]`);
+  const statusEl = card.querySelector('[data-group-field="image_status"]');
+  statusEl.textContent = 'Uploading…';
+  try {
+    const url = await uploadAdminMedia('nav-images', file);
+    card.querySelector('[data-group-field="image_url"]').value = url;
+    card.querySelector('[data-group-field="image_preview"]').src = url;
+    statusEl.textContent = 'Uploaded ✓ — click "Save Group Details" to publish.';
+  } catch (err) {
+    statusEl.textContent = 'Upload failed: ' + (err.message || 'unknown error');
+  }
+});
+
+async function load(){
+  try {
+    groups = await getNavMenu();
+    renderAll();
+  } catch (err) {
+    document.getElementById('groupsContainer').innerHTML = `<p class="text-muted text-sm">Failed to load navigation menu: ${err.message}</p>`;
+  }
+}
+
+window.onReady(() => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

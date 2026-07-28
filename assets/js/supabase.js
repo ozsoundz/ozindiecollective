@@ -1574,3 +1574,43 @@ export async function savePageContent(key, contentHtml) {
     .upsert({ key, content_html: contentHtml, updated_at: new Date().toISOString(), updated_by: session.user.id })
   if (error) throw error
 }
+
+// -- Navigation Menu (admin-manageable top-nav mega-menu) --
+
+// Public: all three groups with their nested links, ordered — used by
+// nav-inject.js to override the hardcoded fallback nav on every page, and
+// by the admin navigation editor to populate the management UI.
+export async function getNavMenu() {
+  const { data, error } = await supabase
+    .from('nav_menu_groups')
+    .select('*, nav_menu_links(*)')
+    .order('sort_order', { ascending: true })
+    .order('sort_order', { ascending: true, foreignTable: 'nav_menu_links' })
+  if (error) throw error
+  return data
+}
+
+// Admin-only (RLS enforces this) — update a group's label/heading/blurb/image.
+export async function updateNavGroup(id, groupData) {
+  const { error } = await supabase.from('nav_menu_groups').update(groupData).eq('id', id)
+  if (error) throw error
+}
+
+export async function createNavLink(groupId, linkData) {
+  const { data, error } = await supabase
+    .from('nav_menu_links')
+    .insert({ group_id: groupId, ...linkData })
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updateNavLink(id, linkData) {
+  const { error } = await supabase.from('nav_menu_links').update(linkData).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteNavLink(id) {
+  const { error } = await supabase.from('nav_menu_links').delete().eq('id', id)
+  if (error) throw error
+}

@@ -10,7 +10,7 @@
     Oz Indie Collective
   </a>
   <ul class="nav-links">
-    <li class="nav-dropdown">
+    <li class="nav-dropdown" data-nav-group="platform">
       <span class="nav-dropdown-toggle">Platform</span>
       <div class="nav-dropdown-menu">
         <div class="megamenu-inner">
@@ -29,7 +29,7 @@
         </div>
       </div>
     </li>
-    <li class="nav-dropdown">
+    <li class="nav-dropdown" data-nav-group="resources">
       <span class="nav-dropdown-toggle">Resources</span>
       <div class="nav-dropdown-menu">
         <div class="megamenu-inner">
@@ -49,7 +49,7 @@
         </div>
       </div>
     </li>
-    <li class="nav-dropdown">
+    <li class="nav-dropdown" data-nav-group="company">
       <span class="nav-dropdown-toggle">Company</span>
       <div class="nav-dropdown-menu">
         <div class="megamenu-inner">
@@ -84,23 +84,29 @@
 </nav>
 <div class="mobile-menu" id="mobileMenu">
   <a href="${root}index.html">Home</a>
-  <div class="mobile-menu-heading">Platform</div>
-  <a href="${root}pages/community.html">Community</a>
-  <a href="${root}pages/projects.html">Projects</a>
-  <a href="${root}pages/opportunities.html">Opportunities</a>
-  <a href="${root}pages/directory.html">Directory</a>
-  <a href="${root}pages/events.html">Events</a>
-  <div class="mobile-menu-heading">Resources</div>
-  <a href="${root}pages/resources.html">Industry Hub</a>
-  <a href="${root}pages/articles.html">Articles</a>
-  <a href="${root}pages/highlights.html">Professional Highlights</a>
-  <a href="${root}pages/podcast.html">Podcast</a>
-  <a href="${root}pages/resources.html#grants">Grants Database</a>
-  <a href="${root}pages/sponsored-programs.html">Sponsored Programs</a>
-  <div class="mobile-menu-heading">Company</div>
-  <a href="${root}pages/about.html">About Us</a>
-  <a href="${root}pages/guidelines.html">Community Guidelines</a>
-  <a href="${root}pages/join.html">Apply to Join</a>
+  <div class="mobile-menu-group" data-nav-group="platform">
+    <div class="mobile-menu-heading">Platform</div>
+    <a href="${root}pages/community.html">Community</a>
+    <a href="${root}pages/projects.html">Projects</a>
+    <a href="${root}pages/opportunities.html">Opportunities</a>
+    <a href="${root}pages/directory.html">Directory</a>
+    <a href="${root}pages/events.html">Events</a>
+  </div>
+  <div class="mobile-menu-group" data-nav-group="resources">
+    <div class="mobile-menu-heading">Resources</div>
+    <a href="${root}pages/resources.html">Industry Hub</a>
+    <a href="${root}pages/articles.html">Articles</a>
+    <a href="${root}pages/highlights.html">Professional Highlights</a>
+    <a href="${root}pages/podcast.html">Podcast</a>
+    <a href="${root}pages/resources.html#grants">Grants Database</a>
+    <a href="${root}pages/sponsored-programs.html">Sponsored Programs</a>
+  </div>
+  <div class="mobile-menu-group" data-nav-group="company">
+    <div class="mobile-menu-heading">Company</div>
+    <a href="${root}pages/about.html">About Us</a>
+    <a href="${root}pages/guidelines.html">Community Guidelines</a>
+    <a href="${root}pages/join.html">Apply to Join</a>
+  </div>
   <a href="${root}pages/login.html" data-auth="logged-out">Sign In</a>
   <a href="${root}admin/index.html" data-auth="admin" style="display:none">Admin Portal</a>
   <a href="${root}pages/dashboard.html" data-auth="logged-in" style="display:none">Dashboard</a>
@@ -170,6 +176,42 @@
     const footEl = document.getElementById('footer-placeholder');
     if (footEl) footEl.outerHTML = footerHTML;
 
+    // Overwrite the hardcoded mega-menu groups above with live data from the
+    // admin-managed nav_menu_groups/nav_menu_links tables, if reachable. The
+    // hardcoded HTML above is the fallback — it stays exactly as-is if this
+    // fetch fails, so a Supabase outage never breaks the nav.
+    import('/assets/js/supabase.js?v=17').then(async ({ getNavMenu }) => {
+      try {
+        const groups = await getNavMenu();
+        const e = window.escapeHtml || (s => s);
+        const su = window.sanitizeUrl || (s => s || '#');
+        groups.forEach(g => {
+          const links = (g.nav_menu_links || []).slice().sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+          if (!links.length) return; // never blank out a menu — keep fallback links if none saved yet
+
+          const desktopLi = document.querySelector(`.nav-dropdown[data-nav-group="${g.group_key}"]`);
+          if (desktopLi) {
+            const toggle = desktopLi.querySelector('.nav-dropdown-toggle');
+            const img = desktopLi.querySelector('.megamenu-visual img');
+            const h4 = desktopLi.querySelector('.megamenu-visual h4');
+            const p = desktopLi.querySelector('.megamenu-visual p');
+            const linksEl = desktopLi.querySelector('.megamenu-links');
+            if (toggle && g.label) toggle.textContent = g.label;
+            if (img && g.image_url) img.src = g.image_url;
+            if (h4 && g.heading) h4.textContent = g.heading;
+            if (p && g.blurb) p.textContent = g.blurb;
+            if (linksEl) linksEl.innerHTML = links.map(l => `<a href="${e(su(root + l.url))}">${e(l.label)}</a>`).join('');
+          }
+
+          const mobileGroup = document.querySelector(`.mobile-menu-group[data-nav-group="${g.group_key}"]`);
+          if (mobileGroup) {
+            const headingText = g.label || (mobileGroup.querySelector('.mobile-menu-heading')?.textContent ?? '');
+            mobileGroup.innerHTML = `<div class="mobile-menu-heading">${e(headingText)}</div>` + links.map(l => `<a href="${e(su(root + l.url))}">${e(l.label)}</a>`).join('');
+          }
+        });
+      } catch (err) { /* leave hardcoded fallback nav in place */ }
+    }).catch(() => { /* supabase.js unreachable — leave hardcoded fallback nav in place */ });
+
     // Wire up the newsletter signup form in the footer, site-wide.
     const newsletterBtn = document.getElementById('newsletterSubscribeBtn');
     const newsletterInput = document.getElementById('newsletterEmail');
@@ -184,7 +226,7 @@
         const originalText = newsletterBtn.textContent;
         newsletterBtn.textContent = 'Subscribing…';
         try {
-          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=16');
+          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=17');
           const result = await subscribeToNewsletter(email);
           newsletterInput.value = '';
           if (window.showToast) {
@@ -202,7 +244,7 @@
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');
     if (partnersMount) {
-      import('/assets/js/supabase.js?v=16').then(async ({ getPartners }) => {
+      import('/assets/js/supabase.js?v=17').then(async ({ getPartners }) => {
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }

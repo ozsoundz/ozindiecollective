@@ -1396,3 +1396,90 @@ create policy "Admins can update page content"
 create policy "Admins can delete page content"
   on public.page_content for delete
   using (public.is_admin());
+
+-- ============================================================
+-- 27. NAVIGATION MENU (admin-manageable top-nav mega-menu)
+-- Three groups (Platform / Resources / Company) each with an editable
+-- image + heading + blurb, and an editable, reorderable list of links.
+-- nav-inject.js renders a hardcoded fallback immediately (so nav never
+-- breaks if Supabase is unreachable), then overwrites it with this data
+-- once fetched. Admins manage everything from admin/navigation.html.
+-- ============================================================
+create table if not exists public.nav_menu_groups (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.nav_menu_groups add column if not exists group_key text unique not null;
+alter table public.nav_menu_groups add column if not exists label text not null default '';
+alter table public.nav_menu_groups add column if not exists heading text not null default '';
+alter table public.nav_menu_groups add column if not exists blurb text not null default '';
+alter table public.nav_menu_groups add column if not exists image_url text not null default '';
+alter table public.nav_menu_groups add column if not exists sort_order int default 0;
+alter table public.nav_menu_groups add column if not exists updated_at timestamptz not null default now();
+
+alter table public.nav_menu_groups enable row level security;
+drop policy if exists "Public can view nav groups" on public.nav_menu_groups;
+drop policy if exists "Admins can insert nav groups" on public.nav_menu_groups;
+drop policy if exists "Admins can update nav groups" on public.nav_menu_groups;
+drop policy if exists "Admins can delete nav groups" on public.nav_menu_groups;
+create policy "Public can view nav groups" on public.nav_menu_groups for select using (true);
+create policy "Admins can insert nav groups" on public.nav_menu_groups for insert with check (public.is_admin());
+create policy "Admins can update nav groups" on public.nav_menu_groups for update using (public.is_admin());
+create policy "Admins can delete nav groups" on public.nav_menu_groups for delete using (public.is_admin());
+
+create table if not exists public.nav_menu_links (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.nav_menu_links add column if not exists group_id uuid references public.nav_menu_groups(id) on delete cascade;
+alter table public.nav_menu_links add column if not exists label text not null default '';
+alter table public.nav_menu_links add column if not exists url text not null default '';
+alter table public.nav_menu_links add column if not exists sort_order int default 0;
+alter table public.nav_menu_links add column if not exists created_at timestamptz default now();
+
+alter table public.nav_menu_links enable row level security;
+drop policy if exists "Public can view nav links" on public.nav_menu_links;
+drop policy if exists "Admins can insert nav links" on public.nav_menu_links;
+drop policy if exists "Admins can update nav links" on public.nav_menu_links;
+drop policy if exists "Admins can delete nav links" on public.nav_menu_links;
+create policy "Public can view nav links" on public.nav_menu_links for select using (true);
+create policy "Admins can insert nav links" on public.nav_menu_links for insert with check (public.is_admin());
+create policy "Admins can update nav links" on public.nav_menu_links for update using (public.is_admin());
+create policy "Admins can delete nav links" on public.nav_menu_links for delete using (public.is_admin());
+
+-- Admin-only image uploads for group visuals, publicly readable — same
+-- pattern as article-covers / partner-logos.
+insert into storage.buckets (id, name, public) values ('nav-images', 'nav-images', true) on conflict (id) do nothing;
+drop policy if exists "Public can view nav images" on storage.objects;
+drop policy if exists "Admins can manage nav images" on storage.objects;
+create policy "Public can view nav images" on storage.objects for select using (bucket_id = 'nav-images');
+create policy "Admins can manage nav images" on storage.objects for all to authenticated using (bucket_id = 'nav-images' and public.is_admin()) with check (bucket_id = 'nav-images' and public.is_admin());
+
+-- Seed the three groups + their current live links, so the admin panel
+-- starts populated with what's already on the site instead of empty.
+insert into public.nav_menu_groups (group_key, label, heading, blurb, image_url, sort_order) values
+  ('platform', 'Platform', 'Platform', 'Where the Collective actually happens — browse members, projects, gigs and events across Australia.', 'https://picsum.photos/seed/oic-menu-platform/400/300', 1),
+  ('resources', 'Resources', 'Resources', 'Industry knowledge, grants, stories and conversations to help you go further.', 'https://picsum.photos/seed/oic-menu-resources/400/300', 2),
+  ('company', 'Company', 'Company', 'Who we are, how we operate, and how to join the Collective.', 'https://picsum.photos/seed/oic-menu-company/400/300', 3)
+on conflict (group_key) do nothing;
+
+insert into public.nav_menu_links (group_id, label, url, sort_order)
+select g.id, v.label, v.url, v.sort_order
+from (values
+  ('platform', 'Community', 'pages/community.html', 1),
+  ('platform', 'Projects', 'pages/projects.html', 2),
+  ('platform', 'Opportunities', 'pages/opportunities.html', 3),
+  ('platform', 'Directory', 'pages/directory.html', 4),
+  ('platform', 'Events', 'pages/events.html', 5),
+  ('resources', 'Industry Hub', 'pages/resources.html', 1),
+  ('resources', 'Articles', 'pages/articles.html', 2),
+  ('resources', 'Professional Highlights', 'pages/highlights.html', 3),
+  ('resources', 'Podcast', 'pages/podcast.html', 4),
+  ('resources', 'Grants Database', 'pages/resources.html#grants', 5),
+  ('resources', 'Sponsored Programs', 'pages/sponsored-programs.html', 6),
+  ('company', 'About Us', 'pages/about.html', 1),
+  ('company', 'Community Guidelines', 'pages/guidelines.html', 2),
+  ('company', 'Apply to Join', 'pages/join.html', 3)
+) as v(group_key, label, url, sort_order)
+join public.nav_menu_groups g on g.group_key = v.group_key
+where not exists (
+  select 1 from public.nav_menu_links l where l.group_id = g.id and l.label = v.label
+);
