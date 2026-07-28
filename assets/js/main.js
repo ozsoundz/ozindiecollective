@@ -182,11 +182,7 @@ function initActiveLinks(){
   const path=window.location.pathname.split('/').pop()||'index.html';
   document.querySelectorAll('.nav-links a,.mobile-menu a').forEach(a=>{
     const href=(a.getAttribute('href')||'').split('/').pop();
-    if(href===path){
-      a.classList.add('active');
-      const dd=a.closest('.nav-dropdown');
-      if(dd)dd.classList.add('has-active');
-    }
+    if(href===path)a.classList.add('active');
   });
 }
 

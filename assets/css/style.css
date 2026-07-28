@@ -39,22 +39,9 @@ section{padding:6rem 4rem}
 .nav-logo{font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
 .logo-mark{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border-hi)}
 .nav-links{display:flex;align-items:center;gap:1.5rem;list-style:none}
-.nav-links a,.nav-dropdown-toggle{font-size:.75rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
+.nav-links a{font-size:.75rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
 .nav-links a:hover,.nav-links a.active{color:var(--cyan)}
 .nav-actions{display:flex;align-items:center;gap:.65rem}
-
-/* NAV DROPDOWNS (Platform / Resources / Company) — the group label uses the
-   exact same look as a plain nav link (no button box, no caret). The panel
-   opens purely on CSS :hover, same as a standard hover menu — no JS toggle. */
-.nav-dropdown{position:relative}
-.nav-dropdown-toggle{cursor:default}
-.nav-dropdown-toggle:hover{color:var(--cyan)}
-.nav-dropdown.has-active .nav-dropdown-toggle{color:var(--cyan)}
-.nav-dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:.65rem;background:var(--deep);border:1px solid var(--border-hi);border-radius:6px;padding:.5rem;min-width:210px;display:none;flex-direction:column;box-shadow:0 16px 36px rgba(0,0,0,.5);z-index:60}
-.nav-dropdown-menu a{display:block;padding:.6rem .8rem;font-size:.72rem;letter-spacing:.04em;text-transform:none;color:var(--muted);border-radius:4px;text-decoration:none;white-space:nowrap;transition:.15s}
-.nav-dropdown-menu a:hover,.nav-dropdown-menu a.active{background:rgba(79,216,240,.08);color:var(--cyan)}
-.nav-dropdown:hover .nav-dropdown-menu{display:flex}
-.mobile-menu-heading{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);opacity:.75;margin:1.25rem 0 .25rem}
 
 /* BUTTONS */
 .btn-ghost{font-family:var(--font-mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;border-radius:2px;border:1px solid var(--border-hi);color:var(--cream);text-decoration:none;background:transparent;transition:.2s;cursor:pointer;white-space:nowrap;display:inline-block}
