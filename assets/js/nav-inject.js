@@ -10,15 +10,60 @@
     Oz Indie Collective
   </a>
   <ul class="nav-links">
-    <li><a href="${root}pages/community.html">Community</a></li>
-    <li><a href="${root}pages/projects.html">Projects</a></li>
-    <li><a href="${root}pages/opportunities.html">Opportunities</a></li>
-    <li><a href="${root}pages/directory.html">Directory</a></li>
-    <li><a href="${root}pages/events.html">Events</a></li>
-    <li><a href="${root}pages/resources.html">Resources</a></li>
-    <li><a href="${root}pages/articles.html">Articles</a></li>
-    <li><a href="${root}pages/highlights.html">Highlights</a></li>
-    <li><a href="${root}pages/podcast.html">Podcast</a></li>
+    <li class="nav-dropdown">
+      <span class="nav-dropdown-toggle">Platform</span>
+      <div class="nav-dropdown-menu">
+        <div class="megamenu-inner">
+          <div class="megamenu-visual">
+            <img src="https://picsum.photos/seed/oic-menu-platform/400/300" alt="">
+            <h4>Platform</h4>
+            <p>Where the Collective actually happens — browse members, projects, gigs and events across Australia.</p>
+          </div>
+          <div class="megamenu-links">
+            <a href="${root}pages/community.html">Community</a>
+            <a href="${root}pages/projects.html">Projects</a>
+            <a href="${root}pages/opportunities.html">Opportunities</a>
+            <a href="${root}pages/directory.html">Directory</a>
+            <a href="${root}pages/events.html">Events</a>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="nav-dropdown">
+      <span class="nav-dropdown-toggle">Resources</span>
+      <div class="nav-dropdown-menu">
+        <div class="megamenu-inner">
+          <div class="megamenu-visual">
+            <img src="https://picsum.photos/seed/oic-menu-resources/400/300" alt="">
+            <h4>Resources</h4>
+            <p>Industry knowledge, grants, stories and conversations to help you go further.</p>
+          </div>
+          <div class="megamenu-links">
+            <a href="${root}pages/resources.html">Resources</a>
+            <a href="${root}pages/articles.html">Articles</a>
+            <a href="${root}pages/highlights.html">Highlights</a>
+            <a href="${root}pages/podcast.html">Podcast</a>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="nav-dropdown">
+      <span class="nav-dropdown-toggle">Company</span>
+      <div class="nav-dropdown-menu">
+        <div class="megamenu-inner">
+          <div class="megamenu-visual">
+            <img src="https://picsum.photos/seed/oic-menu-company/400/300" alt="">
+            <h4>Company</h4>
+            <p>Who we are, how we operate, and how to join the Collective.</p>
+          </div>
+          <div class="megamenu-links">
+            <a href="${root}pages/about.html">About Us</a>
+            <a href="${root}pages/guidelines.html">Community Guidelines</a>
+            <a href="${root}pages/join.html">Apply to Join</a>
+          </div>
+        </div>
+      </div>
+    </li>
   </ul>
   <div class="nav-actions">
     <div data-auth="logged-out">
