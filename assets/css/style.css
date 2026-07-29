@@ -215,6 +215,7 @@ textarea{resize:vertical;min-height:110px}
 .footer-socials{display:flex;gap:.55rem}
 .social-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.55rem;font-weight:700;color:var(--muted);text-decoration:none;transition:.2s}
 .social-btn:hover{border-color:var(--violet);color:var(--violet)}
+.social-btn.is-disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 .footer-nation{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,237,230,.3);display:flex;align-items:center;gap:.45rem}
 .au-dot{width:7px;height:7px;border-radius:50%;background:var(--marigold)}
 

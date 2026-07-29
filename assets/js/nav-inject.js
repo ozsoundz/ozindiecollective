@@ -161,10 +161,11 @@
     <div class="footer-copy">© 2025 Oz Indie Collective. All rights reserved.</div>
     <div class="footer-nation"><div class="au-dot"></div>Australia-wide Creative Community</div>
     <div class="footer-socials">
-      <a href="#" class="social-btn" aria-label="Instagram">IG</a>
-      <a href="#" class="social-btn" aria-label="TikTok">TK</a>
-      <a href="#" class="social-btn" aria-label="Facebook">FB</a>
-      <a href="#" class="social-btn" aria-label="LinkedIn">LI</a>
+      <a href="https://instagram.com/theozindiecollective" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">IG</a>
+      <a href="https://facebook.com/theozindiecollective" target="_blank" rel="noopener" class="social-btn" aria-label="Facebook">FB</a>
+      <a href="https://tiktok.com/@theozindiecollective" target="_blank" rel="noopener" class="social-btn" aria-label="TikTok">TK</a>
+      <a href="https://linkedin.com/company/theozindiecollective" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">LI</a>
+      <a href="https://youtube.com/@theozindiecollective" target="_blank" rel="noopener" class="social-btn" aria-label="YouTube">YT</a>
       <a href="#" class="social-btn" aria-label="Spotify">SP</a>
     </div>
   </div>
