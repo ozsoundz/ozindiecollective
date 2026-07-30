@@ -5,7 +5,7 @@
 <title>Member Profile — Oz Indie Collective</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/style.css?v=3">
+<link rel="stylesheet" href="../assets/css/style.css?v=6e921d52">
 <style>
 .profile-header{background:var(--mid);border-bottom:1px solid var(--border);padding:calc(var(--nav-h) + 3rem) 4rem 3rem}
 .profile-hero{max-width:1200px;margin:0 auto;display:flex;gap:2.5rem;align-items:flex-start}
@@ -185,8 +185,8 @@
 </div>
 
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=12"></script>
-<script src="../assets/js/main.js?v=12"></script>
+<script src="../assets/js/nav-inject.js?v=50fa4e50"></script>
+<script src="../assets/js/main.js?v=3bcbcebf"></script>
 <script>
 const PROFILE_TABS = ['about','portfolio','collaborations','credits','reviews','epk','insights'];
 function showTab(name) {
@@ -211,7 +211,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=18';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=e76cc733';
 
 let pendingAvatarUrl = null;
 let bookmarkRecordId = null;
