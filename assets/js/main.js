@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   initCharCount();
   initTabs();
   applyPageContent();
+  initIdleTimeout();
+  announceIdleLogoutIfRedirected();
 });
 
 /* SITE-WIDE CMS LOADER: any element on any page can opt into being
@@ -218,6 +220,112 @@ function rootPath(){
   return'';
 }
 window.rootPath=rootPath;
+
+/* INACTIVITY AUTO-LOGOUT
+   Supabase sessions persist via their own refresh-token mechanism, which
+   by default lasts for days regardless of whether anyone's actually still
+   using the site — logging in once effectively means "logged in forever"
+   until the token is manually revoked. This adds a client-side inactivity
+   timer on top of that: after a period with no mouse/keyboard/touch/scroll
+   activity, the member gets a "still there?" warning, then is signed out
+   automatically if they don't respond. Runs on every page (main.js loads
+   site-wide) whenever Auth.get() shows someone logged in.
+
+   Admin pages get a shorter timeout than member pages — an unattended admin
+   session sitting open is a bigger risk than a member browsing the directory.
+   Activity and the sign-out itself are coordinated across tabs via
+   localStorage, so idling in one tab while working in another doesn't cause
+   a surprise logout, and a timeout firing in one tab logs every open tab out. */
+const IDLE_TIMEOUT_MS = window.location.pathname.includes('/admin/') ? 15*60*1000 : 30*60*1000;
+const IDLE_WARNING_LEAD_MS = 60*1000; // show the "still there?" warning this long before signing out
+const IDLE_CHECK_INTERVAL_MS = 5000;
+const IDLE_LAST_ACTIVITY_KEY = 'oic_last_activity';
+
+function markActivity(){
+  try{ localStorage.setItem(IDLE_LAST_ACTIVITY_KEY, Date.now().toString()); }catch(e){/* private browsing / storage full — idle timer just won't persist across tabs */}
+}
+
+function buildIdleWarningModal(){
+  if(document.getElementById('idleWarningModal')) return;
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='idleWarningModal';
+  overlay.innerHTML=`
+    <div class="modal" style="position:relative">
+      <div class="modal-title">Still there?</div>
+      <div class="modal-sub">You've been inactive for a while. For your account's security, you'll be signed out in <span id="idleCountdown">60</span> seconds.</div>
+      <button class="btn-primary w-full btn-lg" id="idleStayBtn">Stay Signed In</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('idleStayBtn').addEventListener('click',()=>{
+    markActivity();
+    closeModal('idleWarningModal');
+  });
+}
+
+async function performIdleLogout(){
+  Auth.clear();
+  try{
+    const mod=await import('/assets/js/supabase.js?v=e76cc733');
+    await mod.signOut().catch(()=>{});
+  }catch(err){/* supabase.js unreachable — Auth.clear() above still logs the UI out */}
+  window.location.href=rootPath()+'pages/login.html?timeout=1';
+}
+
+function initIdleTimeout(){
+  if(!Auth.isLoggedIn()) return;
+
+  buildIdleWarningModal();
+  markActivity();
+
+  ['mousemove','mousedown','keydown','scroll','touchstart','click'].forEach(evt=>{
+    window.addEventListener(evt,()=>{
+      // Once the warning modal is showing, only its explicit "Stay Signed In"
+      // button counts as activity — otherwise a stray mouse twitch across an
+      // unattended desk would silently keep extending a session someone
+      // actually walked away from.
+      const modal=document.getElementById('idleWarningModal');
+      if(modal && modal.classList.contains('open')) return;
+      markActivity();
+    },{passive:true});
+  });
+
+  let warningShown=false;
+  setInterval(()=>{
+    if(!Auth.isLoggedIn()) return;
+    const last=parseInt(localStorage.getItem(IDLE_LAST_ACTIVITY_KEY)||'0',10);
+    const elapsed=Date.now()-last;
+
+    if(elapsed>=IDLE_TIMEOUT_MS){
+      performIdleLogout();
+      return;
+    }
+
+    if(elapsed>=IDLE_TIMEOUT_MS-IDLE_WARNING_LEAD_MS){
+      if(!warningShown){ warningShown=true; openModal('idleWarningModal'); }
+      const el=document.getElementById('idleCountdown');
+      if(el) el.textContent=Math.max(0,Math.ceil((IDLE_TIMEOUT_MS-elapsed)/1000));
+    } else if(warningShown){
+      warningShown=false;
+      closeModal('idleWarningModal');
+    }
+  },IDLE_CHECK_INTERVAL_MS);
+
+  // Multi-tab sync: if another tab signs out (idle timeout or manual logout),
+  // this tab's Auth key disappears too — follow it to login instead of
+  // silently staying "logged in" in a tab that no longer has a real session.
+  window.addEventListener('storage',e=>{
+    if(e.key===Auth.key && !e.newValue){
+      window.location.href=rootPath()+'pages/login.html?timeout=1';
+    }
+  });
+}
+
+function announceIdleLogoutIfRedirected(){
+  if(!window.location.pathname.endsWith('login.html')) return;
+  if(new URLSearchParams(window.location.search).get('timeout')!=='1') return;
+  showToast("You were signed out due to inactivity. Sign back in to continue.",'info');
+}
 
 /* BUG FIX: the original version of this function only ever observed the
    .fade-in elements present at the moment it ran (on DOMContentLoaded).
