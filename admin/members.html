@@ -85,10 +85,35 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=50fa4e50"></script>
-<script src="../assets/js/main.js?v=dd55d7fc"></script>
+<div class="modal-overlay" id="planModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('planModal')">✕</button>
+    <div class="modal-title" id="planModalTitle">Change Plan</div>
+    <div class="modal-sub" id="planModalSub"></div>
+    <input type="hidden" id="pm_id">
+    <div class="form-group">
+      <label>Plan</label>
+      <select id="pm_plan">
+        <option value="free">Free</option>
+        <option value="sme_small">SME Small</option>
+        <option value="sme_medium">SME Medium</option>
+        <option value="corporate">Corporate</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+    </div>
+    <div class="form-group" id="pm_trial_wrap">
+      <label class="checkbox-pill" style="border:none;padding:0;font-size:.85rem;color:var(--muted)">
+        <input type="checkbox" id="pm_is_trial"> Start as a 30-day trial, then auto-revert to their current plan
+      </label>
+    </div>
+    <button class="btn-primary w-full btn-lg" id="pmSubmitBtn" onclick="window.__submitPlanChange()">Save</button>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js?v=f8a2b9ae"></script>
+<script src="../assets/js/main.js?v=a390b751"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, updatePassword } from '../assets/js/supabase.js?v=e76cc733';
+import { getAllApplications, approveApplication, denyApplication, updateMemberPlan, startMemberTrial, endMemberTrial, updatePassword } from '../assets/js/supabase.js?v=3f3de89c';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -129,20 +154,30 @@ function fmtDate(iso){
 const PLAN_LABELS = {free:'Free',sme_small:'SME Small',sme_medium:'SME Medium',corporate:'Corporate',enterprise:'Enterprise'};
 const PLAN_TAGS = {free:'tag-gold',sme_small:'tag-sage',sme_medium:'tag-blue',corporate:'tag-rust',enterprise:'tag-purple'};
 
+function fmtDateTime(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+}
+
 function renderRow(m){
   const e = escapeHtml;
   const planTag = PLAN_TAGS[m.plan] || 'tag-gold';
   const planLabel = PLAN_LABELS[m.plan] || m.plan || 'Free';
   const suspended = m.status === 'denied';
   const statusTag = suspended ? 'tag-denied' : 'tag-approved';
+  const onTrial = !!m.plan_is_trial && !!m.trial_ends_at;
   return `<tr data-id="${e(m.id)}">
     <td><div class="flex items-center gap-2"><div class="avatar avatar-sm ${avatarClass(m.full_name)}">${e(initials(m.full_name))}</div><div><div style="color:var(--cream);font-weight:600">${e(m.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(m.email||'')}</div></div></div></td>
     <td>${e(m.role||'—')}</td>
     <td>${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</td>
-    <td><span class="tag ${planTag}" style="font-size:.55rem">${e(planLabel)}</span></td>
+    <td>
+      <span class="tag ${planTag}" style="font-size:.55rem">${e(planLabel)}</span>
+      ${onTrial ? `<div class="text-xs text-muted mt-1">Trial ends ${fmtDateTime(m.trial_ends_at)}</div>` : ''}
+    </td>
     <td>${fmtDate(m.created_at)}</td>
     <td><span class="tag ${statusTag}" style="font-size:.55rem">${suspended?'Suspended':'Active'}</span></td>
-    <td><div class="flex gap-1">
+    <td><div class="flex gap-1" style="flex-wrap:wrap">
+      <button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" data-member-action="plan" data-member-id="${e(m.id)}">${onTrial?'Manage Trial':'Change Plan'}</button>
       ${suspended
         ? `<button class="btn-success" style="font-size:.58rem;padding:.3rem .6rem" data-member-action="reinstate" data-member-id="${e(m.id)}">Reinstate</button>`
         : `<button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" data-member-action="suspend" data-member-id="${e(m.id)}" data-member-name="${e(m.full_name||'this member')}">Suspend</button>`}
@@ -198,10 +233,87 @@ window.__reinstateMember = async function(id){
   }catch(err){ showToast(err.message||'Failed to reinstate.','danger'); }
 };
 
+window.__openPlanModal = function(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById('pm_id').value = m.id;
+  document.getElementById('pm_plan').value = m.plan_is_trial ? (m.trial_previous_plan || 'free') : (m.plan || 'free');
+  document.getElementById('pm_is_trial').checked = false;
+
+  if(m.plan_is_trial && m.trial_ends_at){
+    document.getElementById('planModalTitle').textContent = 'Manage Trial';
+    document.getElementById('planModalSub').textContent =
+      `${m.full_name||'This member'} is currently on a trial of ${PLAN_LABELS[m.plan]||m.plan}, ending ${fmtDateTime(m.trial_ends_at)}. Their plan before the trial was ${PLAN_LABELS[m.trial_previous_plan]||m.trial_previous_plan||'Free'}.`;
+    document.getElementById('pm_trial_wrap').innerHTML = `
+      <div class="flex gap-2" style="margin-top:.5rem">
+        <button type="button" class="btn-secondary" style="font-size:.7rem" onclick="window.__endTrial('${e2(m.id)}', true)">Keep Current Plan Permanently</button>
+        <button type="button" class="btn-ghost" style="font-size:.7rem" onclick="window.__endTrial('${e2(m.id)}', false)">End Trial Now</button>
+      </div>`;
+  }else{
+    document.getElementById('planModalTitle').textContent = 'Change Plan';
+    document.getElementById('planModalSub').textContent = `Set ${m.full_name||'this member'}'s membership tier, or start a 30-day trial of a higher tier.`;
+    document.getElementById('pm_trial_wrap').innerHTML = `
+      <label class="checkbox-pill" style="border:none;padding:0;font-size:.85rem;color:var(--muted)">
+        <input type="checkbox" id="pm_is_trial"> Start as a 30-day trial, then auto-revert to ${PLAN_LABELS[m.plan]||m.plan||'Free'}
+      </label>`;
+  }
+  openModal('planModal');
+};
+function e2(s){ return String(s).replace(/'/g,"\\'"); }
+
+window.__submitPlanChange = async function(){
+  const id = document.getElementById('pm_id').value;
+  const plan = document.getElementById('pm_plan').value;
+  const isTrialCheckbox = document.getElementById('pm_is_trial');
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  const btn = document.getElementById('pmSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    if(isTrialCheckbox && isTrialCheckbox.checked){
+      const previousPlan = m.plan || 'free';
+      const endsAt = await startMemberTrial(id, plan, previousPlan);
+      m.trial_previous_plan = previousPlan;
+      m.plan = plan; m.plan_is_trial = true; m.trial_ends_at = endsAt;
+      showToast(`Trial started — ${m.full_name||'member'} is now on ${PLAN_LABELS[plan]||plan} until ${fmtDateTime(endsAt)}.`,'success');
+    }else{
+      await updateMemberPlan(id, plan);
+      m.plan = plan; m.plan_is_trial = false; m.trial_ends_at = null; m.trial_previous_plan = null;
+      showToast(`Plan updated to ${PLAN_LABELS[plan]||plan}.`,'success');
+    }
+    closeModal('planModal');
+    searchMembers();
+  }catch(err){
+    showToast(err.message||'Failed to update plan.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+};
+
+window.__endTrial = async function(id, keepPlan){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  if(!confirm(keepPlan
+    ? `Keep ${m.full_name||'this member'} on ${PLAN_LABELS[m.plan]||m.plan} permanently?`
+    : `End the trial now and revert ${m.full_name||'this member'} to ${PLAN_LABELS[m.trial_previous_plan]||m.trial_previous_plan||'Free'}?`)) return;
+  try{
+    await endMemberTrial(id, { keepPlan, trialPlan: m.plan, previousPlan: m.trial_previous_plan });
+    if(keepPlan){
+      m.plan_is_trial = false; m.trial_ends_at = null; m.trial_previous_plan = null;
+    }else{
+      m.plan = m.trial_previous_plan || 'free'; m.plan_is_trial = false; m.trial_ends_at = null; m.trial_previous_plan = null;
+    }
+    showToast('Trial ended.','info');
+    closeModal('planModal');
+    searchMembers();
+  }catch(err){ showToast(err.message||'Failed to end trial.','danger'); }
+};
+
 document.getElementById('membersTableBody').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-member-action]');
   if (!btn) return;
   if (btn.dataset.memberAction === 'reinstate') window.__reinstateMember(btn.dataset.memberId);
+  else if (btn.dataset.memberAction === 'plan') window.__openPlanModal(btn.dataset.memberId);
   else window.__suspendMember(btn.dataset.memberId, btn.dataset.memberName);
 });
 

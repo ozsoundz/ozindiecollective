@@ -583,6 +583,61 @@ export async function denyApplication(userId, emailType = 'denied') {
   }
 }
 
+// Admin: permanently change a member's tier (not a trial — clears any trial
+// in progress, since setting a plan directly supersedes it).
+export async function updateMemberPlan(userId, plan) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      plan,
+      plan_source: 'admin',
+      plan_updated_at: new Date().toISOString(),
+      plan_is_trial: false,
+      trial_ends_at: null,
+      trial_previous_plan: null
+    })
+    .eq('id', userId)
+  if (error) throw error
+}
+
+// Admin: put a member on a 30-day trial of `trialPlan`, remembering their
+// current plan so it can be restored automatically when the trial ends (see
+// revert_expired_plan_trials() in schema.sql, run daily via pg_cron).
+export async function startMemberTrial(userId, trialPlan, currentPlan) {
+  const trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      plan: trialPlan,
+      plan_source: 'admin',
+      plan_updated_at: new Date().toISOString(),
+      plan_is_trial: true,
+      trial_ends_at: trialEndsAt,
+      trial_previous_plan: currentPlan
+    })
+    .eq('id', userId)
+  if (error) throw error
+  return trialEndsAt
+}
+
+// Admin: end a trial early. `keepPlan` true converts it to a permanent plan
+// (trial markers cleared, current plan kept); false reverts immediately to
+// whatever plan they were on before the trial started.
+export async function endMemberTrial(userId, { keepPlan, trialPlan, previousPlan }) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      plan: keepPlan ? trialPlan : (previousPlan || 'free'),
+      plan_source: 'admin',
+      plan_updated_at: new Date().toISOString(),
+      plan_is_trial: false,
+      trial_ends_at: null,
+      trial_previous_plan: null
+    })
+    .eq('id', userId)
+  if (error) throw error
+}
+
 // Permanently deletes a member's auth account (profile + everything that cascades
 // from it — applications, listings, community posts, etc.) via a service-role
 // Edge Function, since this can't be done with the anon key. Irreversible.

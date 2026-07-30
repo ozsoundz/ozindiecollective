@@ -1129,6 +1129,57 @@ begin
     check (plan in ('free','sme_small','sme_medium','corporate','enterprise'));
 end $$;
 
+-- 23b. TIME-BOXED PLAN TRIALS (admin-started, e.g. "30 days of SME Small")
+-- plan_is_trial marks the member's *current* plan as a trial rather than a
+-- permanent choice. trial_ends_at is when it should be reverted.
+-- trial_previous_plan captures whatever plan they were on right before the
+-- trial started, so expiry can put them back where they were (see the
+-- revert_expired_plan_trials() function below) instead of always dropping
+-- everyone to Free regardless of their prior tier.
+alter table public.profiles add column if not exists plan_is_trial boolean default false;
+alter table public.profiles add column if not exists trial_ends_at timestamptz;
+alter table public.profiles add column if not exists trial_previous_plan text;
+
+-- Runs daily via pg_cron (scheduled below). Reverts any trial whose
+-- trial_ends_at has passed back to trial_previous_plan, and clears the
+-- trial markers. Safe to run manually / more often than daily — it only
+-- ever touches rows that are actually past their end date.
+create or replace function public.revert_expired_plan_trials()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.profiles
+  set
+    plan = coalesce(trial_previous_plan, 'free'),
+    plan_source = 'admin',
+    plan_updated_at = now(),
+    plan_is_trial = false,
+    trial_ends_at = null,
+    trial_previous_plan = null
+  where plan_is_trial = true
+    and trial_ends_at is not null
+    and trial_ends_at < now();
+end;
+$$;
+
+-- Schedules the daily revert job. Requires the pg_cron extension, which on
+-- Supabase must be enabled once via Database → Extensions → pg_cron in the
+-- dashboard (this SQL script cannot enable it for you — CREATE EXTENSION
+-- requires a privilege the anon/service migration role doesn't have on
+-- Supabase's managed Postgres). Once pg_cron is enabled, re-running this
+-- schema.sql (or just this block) will (re)schedule the job — unschedule
+-- first so re-running this script doesn't create duplicate schedules.
+do $$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.unschedule(jobid) from cron.job where jobname = 'revert-expired-plan-trials';
+    perform cron.schedule('revert-expired-plan-trials', '0 3 * * *', 'select public.revert_expired_plan_trials();');
+  end if;
+end $$;
+
 -- 24. PLAN-BASED POSTING CAPS
 -- Active job/project listing limits per tier: free=1, sme_small=5,
 -- sme_medium=15, corporate/enterprise=unlimited (null = no cap). "Active"

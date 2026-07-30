@@ -121,7 +121,7 @@ function applyPageContent(){
   const els = [...document.querySelectorAll('[data-cms-key]')];
   if(!els.length) return;
   const keys = els.map(el => el.dataset.cmsKey);
-  import('/assets/js/supabase.js?v=e76cc733').then(async ({ getPageContent }) => {
+  import('/assets/js/supabase.js?v=3f3de89c').then(async ({ getPageContent }) => {
     try{
       const content = await getPageContent(keys);
       els.forEach(el => {
@@ -205,7 +205,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import('/assets/js/supabase.js?v=e76cc733');
+        const mod=await import('/assets/js/supabase.js?v=3f3de89c');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');
@@ -266,7 +266,7 @@ function buildIdleWarningModal(){
 async function performIdleLogout(){
   Auth.clear();
   try{
-    const mod=await import('/assets/js/supabase.js?v=e76cc733');
+    const mod=await import('/assets/js/supabase.js?v=3f3de89c');
     await mod.signOut().catch(()=>{});
   }catch(err){/* supabase.js unreachable — Auth.clear() above still logs the UI out */}
   window.location.href=rootPath()+'pages/login.html?timeout=1';

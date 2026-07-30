@@ -181,7 +181,7 @@
     // admin-managed nav_menu_groups/nav_menu_links tables, if reachable. The
     // hardcoded HTML above is the fallback — it stays exactly as-is if this
     // fetch fails, so a Supabase outage never breaks the nav.
-    import('/assets/js/supabase.js?v=e76cc733').then(async ({ getNavMenu }) => {
+    import('/assets/js/supabase.js?v=3f3de89c').then(async ({ getNavMenu }) => {
       try {
         const groups = await getNavMenu();
         const e = window.escapeHtml || (s => s);
@@ -227,7 +227,7 @@
         const originalText = newsletterBtn.textContent;
         newsletterBtn.textContent = 'Subscribing…';
         try {
-          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=e76cc733');
+          const { subscribeToNewsletter } = await import('/assets/js/supabase.js?v=3f3de89c');
           const result = await subscribeToNewsletter(email);
           newsletterInput.value = '';
           if (window.showToast) {
@@ -245,7 +245,7 @@
     // Populate the Partner Organisations strip in the footer, site-wide.
     const partnersMount = document.getElementById('footer-partners');
     if (partnersMount) {
-      import('/assets/js/supabase.js?v=e76cc733').then(async ({ getPartners }) => {
+      import('/assets/js/supabase.js?v=3f3de89c').then(async ({ getPartners }) => {
         try {
           const partners = await getPartners();
           if (!partners || !partners.length) { partnersMount.remove(); return; }
