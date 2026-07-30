@@ -119,7 +119,7 @@ function applyPageContent(){
   const els = [...document.querySelectorAll('[data-cms-key]')];
   if(!els.length) return;
   const keys = els.map(el => el.dataset.cmsKey);
-  import('/assets/js/supabase.js?v=17').then(async ({ getPageContent }) => {
+  import('/assets/js/supabase.js?v=18').then(async ({ getPageContent }) => {
     try{
       const content = await getPageContent(keys);
       els.forEach(el => {
@@ -203,7 +203,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import('/assets/js/supabase.js?v=17');
+        const mod=await import('/assets/js/supabase.js?v=18');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');
