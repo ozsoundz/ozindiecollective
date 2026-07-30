@@ -317,6 +317,44 @@ create policy "Admins can insert highlights" on public.highlights for insert wit
 create policy "Admins can update highlights" on public.highlights for update using (public.is_admin());
 create policy "Admins can delete highlights" on public.highlights for delete using (public.is_admin());
 
+-- 7b. PODCAST EPISODES TABLE (OIC Podcast — admin-curated, not yet launched)
+create table if not exists public.podcast_episodes (
+  id uuid primary key default gen_random_uuid()
+);
+alter table public.podcast_episodes add column if not exists episode_number integer;
+alter table public.podcast_episodes add column if not exists title text;
+alter table public.podcast_episodes add column if not exists guest_name text;
+alter table public.podcast_episodes add column if not exists guest_title text;
+alter table public.podcast_episodes add column if not exists description text;
+alter table public.podcast_episodes add column if not exists cover_image_url text;
+alter table public.podcast_episodes add column if not exists spotify_url text;
+alter table public.podcast_episodes add column if not exists apple_podcasts_url text;
+alter table public.podcast_episodes add column if not exists video_url text;
+alter table public.podcast_episodes add column if not exists duration_minutes integer;
+alter table public.podcast_episodes add column if not exists publish_date date;
+alter table public.podcast_episodes add column if not exists status text default 'draft';
+alter table public.podcast_episodes add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'podcast_episodes_status_check') then
+    alter table public.podcast_episodes add constraint podcast_episodes_status_check check (status in ('draft','published'));
+  end if;
+end $$;
+
+alter table public.podcast_episodes enable row level security;
+drop policy if exists "Public can view published podcast episodes" on public.podcast_episodes;
+drop policy if exists "Admins can view all podcast episodes" on public.podcast_episodes;
+drop policy if exists "Admins can insert podcast episodes" on public.podcast_episodes;
+drop policy if exists "Admins can update podcast episodes" on public.podcast_episodes;
+drop policy if exists "Admins can delete podcast episodes" on public.podcast_episodes;
+
+create policy "Public can view published podcast episodes" on public.podcast_episodes for select using (status = 'published');
+create policy "Admins can view all podcast episodes" on public.podcast_episodes for select using (public.is_admin());
+create policy "Admins can insert podcast episodes" on public.podcast_episodes for insert with check (public.is_admin());
+create policy "Admins can update podcast episodes" on public.podcast_episodes for update using (public.is_admin());
+create policy "Admins can delete podcast episodes" on public.podcast_episodes for delete using (public.is_admin());
+
 -- 8. PARTNERS TABLE (Partner Organisations, admin-managed)
 create table if not exists public.partners (
   id uuid primary key default gen_random_uuid()
@@ -481,6 +519,7 @@ insert into storage.buckets (id, name, public) values ('epk-media', 'epk-media',
 insert into storage.buckets (id, name, public) values ('article-covers', 'article-covers', true) on conflict (id) do nothing;
 insert into storage.buckets (id, name, public) values ('highlight-thumbs', 'highlight-thumbs', true) on conflict (id) do nothing;
 insert into storage.buckets (id, name, public) values ('partner-logos', 'partner-logos', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('podcast-covers', 'podcast-covers', true) on conflict (id) do nothing;
 
 drop policy if exists "Public can view avatars" on storage.objects;
 drop policy if exists "Users can upload own avatar" on storage.objects;
@@ -514,6 +553,11 @@ drop policy if exists "Public can view partner logos" on storage.objects;
 drop policy if exists "Admins can manage partner logos" on storage.objects;
 create policy "Public can view partner logos" on storage.objects for select using (bucket_id = 'partner-logos');
 create policy "Admins can manage partner logos" on storage.objects for all to authenticated using (bucket_id = 'partner-logos' and public.is_admin()) with check (bucket_id = 'partner-logos' and public.is_admin());
+
+drop policy if exists "Public can view podcast covers" on storage.objects;
+drop policy if exists "Admins can manage podcast covers" on storage.objects;
+create policy "Public can view podcast covers" on storage.objects for select using (bucket_id = 'podcast-covers');
+create policy "Admins can manage podcast covers" on storage.objects for all to authenticated using (bucket_id = 'podcast-covers' and public.is_admin()) with check (bucket_id = 'podcast-covers' and public.is_admin());
 
 -- 12. PROJECTS BOARD (collaboration/creative projects, submitted via projects.html)
 -- Deliberately separate from `listings` (paid job/gig posts) — projects are

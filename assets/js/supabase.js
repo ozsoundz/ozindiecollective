@@ -778,6 +778,51 @@ export async function deleteHighlight(id) {
   if (error) throw error
 }
 
+// ── PODCAST EPISODES (OIC Podcast — not yet launched, admin-curated) ──
+
+export async function getPodcastEpisodes() {
+  const { data, error } = await supabase
+    .from('podcast_episodes')
+    .select('*')
+    .eq('status', 'published')
+    .order('episode_number', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function getAllPodcastEpisodes() {
+  const { data, error } = await supabase
+    .from('podcast_episodes')
+    .select('*')
+    .order('episode_number', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createPodcastEpisode(episodeData) {
+  const { data, error } = await supabase
+    .from('podcast_episodes')
+    .insert(episodeData)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function updatePodcastEpisode(id, episodeData) {
+  const { data, error } = await supabase
+    .from('podcast_episodes')
+    .update(episodeData)
+    .eq('id', id)
+    .select()
+  if (error) throw error
+  return data
+}
+
+export async function deletePodcastEpisode(id) {
+  const { error } = await supabase.from('podcast_episodes').delete().eq('id', id)
+  if (error) throw error
+}
+
 // ── SUCCESS STORIES (homepage "Real Stories" showcase) ──
 
 export async function getSuccessStories() {

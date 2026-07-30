@@ -8,8 +8,15 @@
 <link rel="stylesheet" href="../assets/css/style.css?v=3">
 <style>
 .pod-hero{display:grid;grid-template-columns:260px 1fr;gap:3rem;align-items:center;margin-bottom:4rem}
-.pod-cover{aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#1a0d00,#3d2000,#1a0a05);display:flex;align-items:center;justify-content:center}
+.pod-cover{aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#1a0d00,#3d2000,#1a0a05);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pod-cover img{width:100%;height:100%;object-fit:cover}
 .pod-cover-inner{width:75%;aspect-ratio:1;border-radius:50%;background:linear-gradient(135deg,var(--rust),#8B3A1A);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem;font-weight:900;font-style:italic;color:var(--cream);text-align:center;line-height:1.2}
+.ep-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;display:flex;gap:1.1rem;align-items:center;transition:.2s}
+.ep-card:hover{border-color:rgba(79,216,240,.35);background:rgba(240,237,230,.05)}
+.ep-num{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.ep-title{font-size:.9rem;font-weight:600;color:var(--cream);line-height:1.35;margin-bottom:.2rem}
+.ep-guest{font-size:.75rem;color:var(--muted)}
+.ep-dur{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);margin-left:auto;white-space:nowrap;flex-shrink:0}
 @media(max-width:700px){.pod-hero{grid-template-columns:1fr}}
 </style>
 <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
@@ -20,11 +27,31 @@
   <div class="inner">
     <div class="section-label">Podcast</div>
     <h1 class="section-title">The OIC Podcast — <em>Inside the Industry</em></h1>
-    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Honest conversations with artists, engineers, managers, producers and entrepreneurs. Launching soon.</p>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Honest conversations with artists, engineers, managers, producers and entrepreneurs.</p>
   </div>
 </div>
 <section style="background:var(--ink)">
-  <div class="inner">
+  <div class="inner" id="podcastContent">
+    <p class="text-muted text-sm">Loading…</p>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=11"></script>
+<script src="../assets/js/main.js?v=12"></script>
+<script type="module">
+import { getPodcastEpisodes } from '../assets/js/supabase.js?v=17';
+
+function toEmbedUrl(url){
+  if(!url) return '';
+  const yt = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  if(vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return url;
+}
+
+function renderDemoNotice(){
+  return `
     <div class="alert alert-info mb-4"><span>🚧</span><span><strong>Non-Active Demo Page</strong> — the OIC Podcast hasn't launched yet. This page is a preview of how it will look once episodes go live.</span></div>
     <div class="pod-hero">
       <div class="pod-cover"><div class="pod-cover-inner">OIC<br>Podcast</div></div>
@@ -38,11 +65,71 @@
       </div>
     </div>
     <div class="divider"></div>
-    <div class="alert alert-info"><span>🎙️</span><span>Want to be a guest on the OIC Podcast? <a href="contact.html" class="text-gold">Submit a pitch</a> — we're always looking for genuine industry stories.</span></div>
-  </div>
-</section>
-<div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=11"></script>
-<script src="../assets/js/main.js?v=12"></script>
+    <div class="alert alert-info"><span>🎙️</span><span>Want to be a guest on the OIC Podcast? <a href="contact.html" class="text-gold">Submit a pitch</a> — we're always looking for genuine industry stories.</span></div>`;
+}
+
+function renderLatest(ep){
+  const e = escapeHtml;
+  const cover = ep.cover_image_url
+    ? `<img src="${e(sanitizeUrl(ep.cover_image_url))}" alt="${e(ep.title||'')}">`
+    : `<div class="pod-cover-inner">OIC<br>Podcast</div>`;
+  const links = [];
+  if(ep.spotify_url) links.push(`<a href="${e(sanitizeUrl(ep.spotify_url))}" target="_blank" rel="noopener" class="btn-secondary">Spotify</a>`);
+  if(ep.apple_podcasts_url) links.push(`<a href="${e(sanitizeUrl(ep.apple_podcasts_url))}" target="_blank" rel="noopener" class="btn-ghost">Apple Podcasts</a>`);
+  return `
+    <div class="pod-hero">
+      <div class="pod-cover">${cover}</div>
+      <div>
+        <div class="section-label">Latest Episode</div>
+        <h2 style="font-family:var(--font-display);font-size:1.8rem;color:var(--cream);line-height:1.15;margin-bottom:.75rem">${ep.episode_number?`Ep. ${e(ep.episode_number)} — `:''}${e(ep.title||'')}</h2>
+        <p class="text-muted mb-3" style="line-height:1.7">${e(ep.description||'')}</p>
+        <div class="flex gap-2 flex-wrap">${links.join('')}</div>
+        <div class="flex gap-3 mt-3">
+          ${ep.duration_minutes?`<div class="text-xs mono text-muted">⏱ ${e(ep.duration_minutes)} min</div>`:''}
+          ${ep.publish_date?`<div class="text-xs mono text-muted">📅 ${e(ep.publish_date)}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderEpisodeRow(ep){
+  const e = escapeHtml;
+  const guest = ep.guest_name ? `with ${e(ep.guest_name)}${ep.guest_title?', '+e(ep.guest_title):''}` : '';
+  const videoUrl = ep.video_url ? toEmbedUrl(sanitizeUrl(ep.video_url)) : '';
+  return `
+  <div class="ep-card" ${videoUrl?`data-video-url="${e(videoUrl)}" style="cursor:pointer"`:''}>
+    <div style="flex:1">
+      <div class="ep-num">${ep.episode_number?`Ep. ${e(ep.episode_number)}`:''}</div>
+      <div class="ep-title">${e(ep.title||'(untitled)')}</div>
+      ${guest?`<div class="ep-guest">${guest}</div>`:''}
+    </div>
+    ${ep.duration_minutes?`<div class="ep-dur">${e(ep.duration_minutes)} min</div>`:''}
+  </div>`;
+}
+
+async function load(){
+  const container = document.getElementById('podcastContent');
+  try{
+    const episodes = await getPodcastEpisodes();
+    if(!episodes.length){
+      container.innerHTML = renderDemoNotice();
+      return;
+    }
+    const [latest, ...rest] = episodes;
+    container.innerHTML = `
+      ${renderLatest(latest)}
+      ${rest.length ? `
+      <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1.25rem">All Episodes</h2>
+      <div style="display:flex;flex-direction:column;gap:.75rem">${rest.map(renderEpisodeRow).join('')}</div>
+      ` : ''}
+      <div class="divider"></div>
+      <div class="alert alert-info"><span>🎙️</span><span>Want to be a guest on the OIC Podcast? <a href="contact.html" class="text-gold">Submit a pitch</a> — we're always looking for genuine industry stories.</span></div>`;
+  }catch(err){
+    container.innerHTML = renderDemoNotice();
+  }
+}
+
+window.onReady(load);
+</script>
 </body>
 </html>
