@@ -84,12 +84,19 @@ const TIER_BADGES={
   corporate:{icon:'featured-corporate.svg',label:'Featured'},
   enterprise:{icon:'featured-enterprise.svg',label:'Enterprise Partner'}
 };
-function tierBadgeHtml(plan){
+/* isTrial: pass true (or an object with a truthy .plan_is_trial, e.g. a raw
+   profile row) when the member is on a time-boxed trial of this plan rather
+   than a permanent one (see admin/members.html's trial feature) — the badge
+   gets a "Trial" suffix so it's never visually identical to a permanent
+   paid tier anywhere it's shown (profile page, directory cards, listings). */
+function tierBadgeHtml(plan,isTrial){
   const b=TIER_BADGES[plan];
   if(!b) return '';
+  const trial = typeof isTrial==='object' && isTrial!==null ? !!isTrial.plan_is_trial : !!isTrial;
   const isSubPage=window.location.pathname.includes('/pages/')||window.location.pathname.includes('/admin/');
   const root=isSubPage?'../':'';
-  return `<span class="tier-badge"><img src="${root}assets/img/badges/${b.icon}" alt="" class="tier-badge-icon">${escapeHtml(b.label)}</span>`;
+  const label=trial?`${b.label} · Trial`:b.label;
+  return `<span class="tier-badge"${trial?' style="opacity:.8"':''}><img src="${root}assets/img/badges/${b.icon}" alt="" class="tier-badge-icon">${escapeHtml(label)}</span>`;
 }
 window.tierBadgeHtml=tierBadgeHtml;
 
@@ -121,7 +128,7 @@ function applyPageContent(){
   const els = [...document.querySelectorAll('[data-cms-key]')];
   if(!els.length) return;
   const keys = els.map(el => el.dataset.cmsKey);
-  import('/assets/js/supabase.js?v=3f3de89c').then(async ({ getPageContent }) => {
+  import('/assets/js/supabase.js?v=ba3abb76').then(async ({ getPageContent }) => {
     try{
       const content = await getPageContent(keys);
       els.forEach(el => {
@@ -205,7 +212,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import('/assets/js/supabase.js?v=3f3de89c');
+        const mod=await import('/assets/js/supabase.js?v=ba3abb76');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');
@@ -266,7 +273,7 @@ function buildIdleWarningModal(){
 async function performIdleLogout(){
   Auth.clear();
   try{
-    const mod=await import('/assets/js/supabase.js?v=3f3de89c');
+    const mod=await import('/assets/js/supabase.js?v=ba3abb76');
     await mod.signOut().catch(()=>{});
   }catch(err){/* supabase.js unreachable — Auth.clear() above still logs the UI out */}
   window.location.href=rootPath()+'pages/login.html?timeout=1';

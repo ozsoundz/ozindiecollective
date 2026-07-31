@@ -93,10 +93,10 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=f8a2b9ae"></script>
-<script src="../assets/js/main.js?v=a390b751"></script>
+<script src="../assets/js/nav-inject.js?v=daf19486"></script>
+<script src="../assets/js/main.js?v=dbc956c8"></script>
 <script type="module">
-import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=3f3de89c';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=ba3abb76';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -130,7 +130,7 @@ function bookmarkBtnHtml(memberId){
 function renderCard(m){
   const skills = (m.skills||[]).slice(0,3);
   const e = escapeHtml;
-  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(m.plan) : '';
+  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(m.plan, m.plan_is_trial) : '';
   const expYears = parseExpYears(m.experience);
   return `
   <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" style="position:relative" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}" data-skills="${e((m.skills||[]).join('|').toLowerCase())}" data-exp="${expYears===null?'':expYears}">

@@ -168,7 +168,7 @@ export async function updateOwnProfile(profileData) {
 export async function getMembers({ role, state, availability, search } = {}) {
   let query = supabase
     .from('profiles')
-    .select('id, full_name, role, city, state, availability, skills, plan, experience, created_at, avatar_url')
+    .select('id, full_name, role, city, state, availability, skills, plan, plan_is_trial, experience, created_at, avatar_url')
     .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
@@ -213,6 +213,18 @@ export async function getListings({ category, type, state } = {}) {
   const { data, error } = await query
   if (error) throw error
   return sortFeaturedFirst(data)
+}
+
+// Public: a single live listing for the job-detail view (opportunities.html?id=).
+export async function getListingById(id) {
+  const { data, error } = await supabase
+    .from('listings')
+    .select('*, profiles(full_name, plan)')
+    .eq('id', id)
+    .eq('status', 'live')
+    .single()
+  if (error) throw error
+  return data
 }
 
 export async function createListing(listingData) {

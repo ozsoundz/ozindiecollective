@@ -69,6 +69,13 @@
   </div>
 </section>
 
+<section style="background:var(--ink)" id="jobDetailSection" class="hidden">
+  <div class="inner">
+    <a href="opportunities.html" class="text-sm" style="color:var(--cyan);text-decoration:none;display:inline-block;margin-bottom:1.5rem">← Back to all opportunities</a>
+    <div id="jobDetailBody"></div>
+  </div>
+</section>
+
 <!-- Apply Modal -->
 <div class="modal-overlay" id="applyModal">
   <div class="modal" style="position:relative">
@@ -83,10 +90,10 @@
 </div>
 
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=f8a2b9ae"></script>
-<script src="../assets/js/main.js?v=a390b751"></script>
+<script src="../assets/js/nav-inject.js?v=daf19486"></script>
+<script src="../assets/js/main.js?v=dbc956c8"></script>
 <script type="module">
-import { getListings, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=3f3de89c';
+import { getListings, getListingById, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=ba3abb76';
 
 let listings = [];
 let currentListingId = null;
@@ -105,7 +112,7 @@ function renderCard(job, i){
   <div class="job-card ${ACCENTS[i%ACCENTS.length]}" data-cat="${e(job.category||'')}" data-type="${e(job.employment_type||'')}" data-loc="${e(job.state||'')}">
     <div class="job-card-header">
       <div>
-        <a href="#" class="job-title" onclick="return false">${e(job.title||'(untitled listing)')}</a>
+        <a href="opportunities.html?id=${e(job.id)}" class="job-title">${e(job.title||'(untitled listing)')}</a>
         <div class="job-company">${e(posterName)}${posterBadge(posterPlan)}</div>
       </div>
       <span class="tag tag-gold">${e(job.employment_type||'—')}</span>
@@ -187,7 +194,47 @@ async function load(){
   }
 }
 
-window.onReady(load);
+async function renderDetail(id){
+  document.getElementById('listings').classList.add('hidden');
+  document.getElementById('jobDetailSection').classList.remove('hidden');
+  const body = document.getElementById('jobDetailBody');
+  try{
+    const job = await getListingById(id);
+    const e = escapeHtml;
+    const posterName = job.profiles?.full_name || 'Oz Indie Collective Member';
+    body.innerHTML = `
+      <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:1rem">
+        <div>
+          <span class="tag tag-gold mb-2">${e(job.employment_type||'—')}</span>
+          <h1 style="font-family:var(--font-display);font-size:2rem;color:var(--cream);margin:.5rem 0 .5rem;line-height:1.2">${e(job.title||'(untitled listing)')}</h1>
+          <div class="text-sm text-muted">${e(posterName)}${posterBadge(job.profiles?.plan)}</div>
+        </div>
+        <button class="btn-primary btn-lg" data-apply-id="${e(job.id)}" data-apply-title="${e(job.title||'')}">Apply Now</button>
+      </div>
+      <div class="flex gap-3 mt-3 mb-3 text-sm text-muted" style="flex-wrap:wrap">
+        <span>📍 ${e([job.city,job.state].filter(Boolean).join(', ')||'—')}</span>
+        <span>💰 ${e(job.pay||'—')}</span>
+      </div>
+      <div class="job-tags mb-3">${(job.tags||[]).map(t=>`<span class="tag tag-sage">${e(t)}</span>`).join('')}</div>
+      <div class="divider"></div>
+      <div class="text-muted" style="line-height:1.9;max-width:720px;white-space:pre-wrap">${e(job.description||'')}</div>
+    `;
+  }catch(err){
+    body.innerHTML = `<p class="text-muted text-sm">This listing isn't available — it may have been filled or removed.</p>`;
+  }
+}
+
+document.getElementById('jobDetailBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-apply-id]');
+  if (!btn) return;
+  window.applyModal(btn.dataset.applyId, btn.dataset.applyTitle);
+});
+
+window.onReady(() => {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (id) { renderDetail(id); } else { load(); }
+});
 </script>
 </body>
 </html>

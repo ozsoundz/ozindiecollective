@@ -185,8 +185,8 @@
 </div>
 
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=f8a2b9ae"></script>
-<script src="../assets/js/main.js?v=a390b751"></script>
+<script src="../assets/js/nav-inject.js?v=daf19486"></script>
+<script src="../assets/js/main.js?v=dbc956c8"></script>
 <script>
 const PROFILE_TABS = ['about','portfolio','collaborations','credits','reviews','epk','insights'];
 function showTab(name) {
@@ -211,7 +211,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=3f3de89c';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=ba3abb76';
 
 let pendingAvatarUrl = null;
 let bookmarkRecordId = null;
@@ -281,7 +281,7 @@ function renderHeader(p){
   if(p.status === 'approved'){ statusTag.textContent = '✓ Approved Member'; statusTag.className = 'tag tag-approved'; }
   else if(p.status === 'pending'){ statusTag.textContent = 'Pending Review'; statusTag.className = 'tag tag-pending'; }
   else { statusTag.textContent = p.status || ''; statusTag.className = 'tag tag-denied'; }
-  const planBadge = window.tierBadgeHtml ? window.tierBadgeHtml(p.plan) : '';
+  const planBadge = window.tierBadgeHtml ? window.tierBadgeHtml(p.plan, p.plan_is_trial) : '';
   if(planBadge){
     const planTag = document.getElementById('ph_planTag');
     planTag.innerHTML = planBadge;
@@ -304,7 +304,7 @@ function renderHeader(p){
   document.getElementById('side_location').textContent = [p.city,p.state].filter(Boolean).join(', ')||'—';
   document.getElementById('side_experience').textContent = p.experience || '—';
   document.getElementById('side_memberSince').textContent = fmtMonthYear(p.created_at);
-  document.getElementById('side_plan').innerHTML = p.plan ? `<span class="tag tag-gold">${escapeHtml(p.plan.charAt(0).toUpperCase()+p.plan.slice(1))}</span>` : '—';
+  document.getElementById('side_plan').innerHTML = p.plan ? `<span class="tag tag-gold">${escapeHtml(p.plan.charAt(0).toUpperCase()+p.plan.slice(1))}${p.plan_is_trial?' · Trial':''}</span>` : '—';
   document.getElementById('side_status').innerHTML = p.status === 'approved' ? '<span class="tag tag-approved">✓ Approved</span>' : `<span class="tag tag-pending">${escapeHtml(p.status||'—')}</span>`;
 
   const links = [];
