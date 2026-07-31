@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Organizations — Admin · Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css?v=6e921d52">
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+<style>
+.org-seats{font-family:var(--font-mono);font-size:.68rem;color:var(--muted)}
+.org-seats.full{color:var(--marigold)}
+.org-member-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.org-member-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+      <div class="text-xs mono text-gold mb-1">Admin Panel</div>
+      <div class="text-sm" style="color:var(--cream);font-weight:600">Oz Indie Collective</div>
+    </div>
+    <a href="index.html" class="admin-nav-item">Dashboard</a>
+    <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
+    <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="organizations.html" class="admin-nav-item active">Organizations</a>
+    <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
+    <a href="projects.html" class="admin-nav-item">Projects</a>
+    <a href="articles.html" class="admin-nav-item">Articles</a>
+    <a href="knowledge.html" class="admin-nav-item">Knowledge</a>
+    <a href="grants.html" class="admin-nav-item">Grants</a>
+    <a href="templates.html" class="admin-nav-item">Templates</a>
+    <a href="sponsorships.html" class="admin-nav-item">Sponsorships</a>
+    <a href="stories.html" class="admin-nav-item">Success Stories</a>
+    <a href="highlights.html" class="admin-nav-item">Highlights</a>
+    <a href="podcast.html" class="admin-nav-item">Podcast</a>
+    <a href="partners.html" class="admin-nav-item">Partners</a>
+    <a href="community.html" class="admin-nav-item">Community</a>
+    <a href="events.html" class="admin-nav-item">Events</a>
+    <a href="newsletter.html" class="admin-nav-item">Newsletter</a>
+    <a href="content.html" class="admin-nav-item">Page Content</a>
+    <a href="navigation.html" class="admin-nav-item">Navigation</a>
+    <a href="reports.html" class="admin-nav-item">Reports</a>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem">
+      <a href="../pages/dashboard.html" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">◉ My Profile</a>
+      <a href="#" onclick="openModal('changePasswordModal');return false;" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">⚙ Change Password</a>
+      <a href="#" data-action="logout" class="text-xs text-muted mono" style="text-decoration:none;text-transform:uppercase;letter-spacing:.08em">← Exit Admin</a>
+    </div>
+  </aside>
+  <main class="admin-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream)">Organizations</h1>
+        <p class="text-muted text-sm mt-1" id="orgSummary">Loading…</p>
+      </div>
+      <button class="btn-primary" onclick="window.__openCreateOrgModal()" style="font-size:.7rem">+ New Organization</button>
+    </div>
+
+    <div class="alert alert-info mb-4">
+      <span>ℹ️</span>
+      <span class="text-sm">Business plans (SME, SME Large, Corporate, Partner, Enterprise) are billed to an organization, not an individual member. Each org gets a fixed number of seats for its tier — add existing approved members to fill them. Members automatically inherit their org's plan and lose it if removed.</span>
+    </div>
+
+    <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow-x:auto">
+      <table class="data-table" id="orgsTable">
+        <thead><tr><th>Organization</th><th>Plan</th><th>Seats</th><th>Owner</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody id="orgsTableBody">
+          <tr><td colspan="6" class="text-muted text-sm">Loading organizations…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('changePasswordModal')">✕</button>
+    <div class="modal-title">Change Password</div>
+    <div class="modal-sub">Choose a new password for your account.</div>
+    <div class="form-group"><label>New Password</label><input type="password" id="cpNewPassword" placeholder="At least 8 characters" autocomplete="new-password"></div>
+    <div class="form-group"><label>Confirm New Password</label><input type="password" id="cpConfirmPassword" placeholder="Re-enter new password" autocomplete="new-password"></div>
+    <button class="btn-primary w-full btn-lg" id="cpSubmitBtn" onclick="submitChangePassword()">Update Password</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="createOrgModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('createOrgModal')">✕</button>
+    <div class="modal-title">New Organization</div>
+    <div class="modal-sub">Create a business account and assign it a plan. Add member seats afterwards.</div>
+    <div class="form-group"><label>Organization Name</label><input type="text" id="co_name" placeholder="e.g. Sunset Studios Pty Ltd"></div>
+    <div class="form-group">
+      <label>Plan</label>
+      <select id="co_plan">
+        <option value="sme">SME — $50/yr, 1 seat</option>
+        <option value="sme_large">SME Large — $85/yr, 3 seats</option>
+        <option value="corporate">Corporate — $350/yr, 8 seats</option>
+        <option value="partner">Partner — $1,000/yr, 10 seats</option>
+        <option value="enterprise">Enterprise — by agreement, 20 seats</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Owner (optional)</label>
+      <select id="co_owner"><option value="">— None yet —</option></select>
+      <div class="text-xs text-muted mt-1">Doesn't automatically add them as a seat — do that from the org's "Manage Members" panel after creating it.</div>
+    </div>
+    <button class="btn-primary w-full btn-lg" id="coSubmitBtn" onclick="window.__submitCreateOrg()">Create Organization</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="orgPlanModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('orgPlanModal')">✕</button>
+    <div class="modal-title">Change Plan</div>
+    <div class="modal-sub" id="orgPlanModalSub"></div>
+    <input type="hidden" id="op_id">
+    <div class="form-group">
+      <label>Plan</label>
+      <select id="op_plan">
+        <option value="sme">SME — $50/yr, 1 seat</option>
+        <option value="sme_large">SME Large — $85/yr, 3 seats</option>
+        <option value="corporate">Corporate — $350/yr, 8 seats</option>
+        <option value="partner">Partner — $1,000/yr, 10 seats</option>
+        <option value="enterprise">Enterprise — by agreement, 20 seats</option>
+      </select>
+    </div>
+    <div class="text-xs text-muted mb-3" id="op_seat_warning"></div>
+    <button class="btn-primary w-full btn-lg" id="opSubmitBtn" onclick="window.__submitOrgPlanChange()">Save</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="orgMembersModal">
+  <div class="modal" style="position:relative;max-width:520px">
+    <button class="modal-close" onclick="closeModal('orgMembersModal')">✕</button>
+    <div class="modal-title" id="omTitle">Manage Members</div>
+    <div class="modal-sub" id="omSub"></div>
+    <div id="omMemberList" style="margin-bottom:1.25rem"></div>
+    <div class="form-group">
+      <label>Add Member</label>
+      <div class="flex gap-2">
+        <select id="om_add_member" style="flex:1"></select>
+        <button class="btn-secondary" style="font-size:.7rem;white-space:nowrap" onclick="window.__addOrgMember()">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/nav-inject.js?v=2376f985"></script>
+<script src="../assets/js/main.js?v=1efd9019"></script>
+<script type="module">
+import { getOrganizations, createOrganization, updateOrganizationPlan, deleteOrganization, addOrganizationMember, removeOrganizationMember, getAllOrganizationMembers, getUnaffiliatedApprovedMembers, updatePassword, PLAN_SEAT_LIMITS } from '../assets/js/supabase.js?v=a8cc0499';
+
+window.submitChangePassword = async function(){
+  const pw = document.getElementById('cpNewPassword').value;
+  const confirmPw = document.getElementById('cpConfirmPassword').value;
+  if(!pw || pw.length < 8){ showToast('Password must be at least 8 characters.','danger'); return; }
+  if(pw !== confirmPw){ showToast('Passwords do not match.','danger'); return; }
+  const btn = document.getElementById('cpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  try{
+    await updatePassword(pw);
+    showToast('Password updated!','success');
+    document.getElementById('cpNewPassword').value = '';
+    document.getElementById('cpConfirmPassword').value = '';
+    closeModal('changePasswordModal');
+  }catch(err){
+    showToast(err.message || 'Failed to update password.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+};
+
+const PLAN_LABELS = {sme:'SME',sme_large:'SME Large',corporate:'Corporate',partner:'Partner',enterprise:'Enterprise'};
+const PLAN_TAGS = {sme:'tag-sage',sme_large:'tag-blue',corporate:'tag-rust',partner:'tag-purple',enterprise:'tag-gold'};
+
+let orgs = [];
+let membersByOrg = {}; // orgId -> [profile,...]
+let unaffiliated = [];
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-AU',{month:'short',year:'numeric'});
+}
+
+function renderOrgRow(o){
+  const e = escapeHtml;
+  const used = (membersByOrg[o.id]||[]).length;
+  const limit = PLAN_SEAT_LIMITS[o.plan] || 1;
+  const full = used >= limit;
+  const planTag = PLAN_TAGS[o.plan] || 'tag-gold';
+  const planLabel = PLAN_LABELS[o.plan] || o.plan;
+  const ownerName = o.owner?.full_name || o.owner?.email || '—';
+  return `<tr data-id="${e(o.id)}">
+    <td style="color:var(--cream);font-weight:600">${e(o.name)}</td>
+    <td><span class="tag ${planTag}" style="font-size:.55rem">${e(planLabel)}</span></td>
+    <td><span class="org-seats${full?' full':''}">${used} / ${limit}</span></td>
+    <td>${e(ownerName)}</td>
+    <td>${fmtDate(o.created_at)}</td>
+    <td><div class="flex gap-1" style="flex-wrap:wrap">
+      <button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" data-org-action="members" data-org-id="${e(o.id)}">Manage Members</button>
+      <button class="btn-ghost" style="font-size:.58rem;padding:.3rem .6rem" data-org-action="plan" data-org-id="${e(o.id)}">Change Plan</button>
+      <button class="btn-danger" style="font-size:.58rem;padding:.3rem .6rem" data-org-action="delete" data-org-id="${e(o.id)}" data-org-name="${e(o.name)}">Delete</button>
+    </div></td>
+  </tr>`;
+}
+
+function renderTable(){
+  document.getElementById('orgsTableBody').innerHTML = orgs.length
+    ? orgs.map(renderOrgRow).join('')
+    : '<tr><td colspan="6" class="text-muted text-sm">No organizations yet — create one to assign a business plan.</td></tr>';
+}
+
+async function populateOwnerPicker(){
+  unaffiliated = await getUnaffiliatedApprovedMembers();
+  const sel = document.getElementById('co_owner');
+  sel.innerHTML = '<option value="">— None yet —</option>' +
+    unaffiliated.map(m=>`<option value="${escapeHtml(m.id)}">${escapeHtml(m.full_name||m.email||'(no name)')}</option>`).join('');
+}
+
+window.__openCreateOrgModal = async function(){
+  document.getElementById('co_name').value = '';
+  document.getElementById('co_plan').value = 'sme';
+  await populateOwnerPicker();
+  openModal('createOrgModal');
+};
+
+window.__submitCreateOrg = async function(){
+  const name = document.getElementById('co_name').value.trim();
+  const plan = document.getElementById('co_plan').value;
+  const ownerId = document.getElementById('co_owner').value || null;
+  if(!name){ showToast('Organization name is required.','danger'); return; }
+  const btn = document.getElementById('coSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try{
+    await createOrganization({ name, plan, ownerId });
+    showToast(`${name} created on the ${PLAN_LABELS[plan]} plan.`,'success');
+    closeModal('createOrgModal');
+    await load();
+  }catch(err){
+    showToast(err.message||'Failed to create organization.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Create Organization';
+  }
+};
+
+window.__openOrgPlanModal = function(id){
+  const o = orgs.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById('op_id').value = o.id;
+  document.getElementById('op_plan').value = o.plan;
+  document.getElementById('orgPlanModalSub').textContent = `Set ${o.name}'s membership tier. Every linked member picks this up automatically.`;
+  const used = (membersByOrg[o.id]||[]).length;
+  document.getElementById('op_seat_warning').textContent =
+    `${o.name} currently has ${used} member${used===1?'':'s'} attached. Downgrading to a plan with fewer seats than that won't remove anyone automatically, but the org will be over its seat limit until members are removed.`;
+  openModal('orgPlanModal');
+};
+
+window.__submitOrgPlanChange = async function(){
+  const id = document.getElementById('op_id').value;
+  const plan = document.getElementById('op_plan').value;
+  const o = orgs.find(x=>x.id===id);
+  if(!o) return;
+  const btn = document.getElementById('opSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    await updateOrganizationPlan(id, plan);
+    o.plan = plan;
+    showToast(`Plan updated to ${PLAN_LABELS[plan]}.`,'success');
+    closeModal('orgPlanModal');
+    renderTable();
+  }catch(err){
+    showToast(err.message||'Failed to update plan.','danger');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+};
+
+window.__openMembersModal = async function(id){
+  const o = orgs.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById('omTitle').textContent = `${o.name} — Members`;
+  const limit = PLAN_SEAT_LIMITS[o.plan] || 1;
+  const list = membersByOrg[o.id] || [];
+  document.getElementById('omSub').textContent = `${list.length} / ${limit} seats used on the ${PLAN_LABELS[o.plan]} plan.`;
+  renderMemberList(o.id);
+  unaffiliated = await getUnaffiliatedApprovedMembers();
+  const sel = document.getElementById('om_add_member');
+  sel.innerHTML = unaffiliated.length
+    ? unaffiliated.map(m=>`<option value="${escapeHtml(m.id)}">${escapeHtml(m.full_name||m.email||'(no name)')}</option>`).join('')
+    : '<option value="">No unaffiliated approved members available</option>';
+  document.getElementById('orgMembersModal').dataset.orgId = o.id;
+  openModal('orgMembersModal');
+};
+
+function renderMemberList(orgId){
+  const e = escapeHtml;
+  const list = membersByOrg[orgId] || [];
+  document.getElementById('omMemberList').innerHTML = list.length
+    ? list.map(m => `<div class="org-member-row">
+        <div><div style="color:var(--cream);font-size:.85rem">${e(m.full_name||'(no name)')}</div><div class="text-xs text-muted">${e(m.email||'')}${m.role?' · '+e(m.role):''}</div></div>
+        <button class="btn-ghost" style="font-size:.6rem;padding:.25rem .5rem" onclick="window.__removeOrgMember('${e(orgId)}','${e(m.id)}')">Remove</button>
+      </div>`).join('')
+    : '<p class="text-muted text-sm">No members yet.</p>';
+}
+
+window.__addOrgMember = async function(){
+  const orgId = document.getElementById('orgMembersModal').dataset.orgId;
+  const profileId = document.getElementById('om_add_member').value;
+  if(!profileId){ showToast('Select a member to add.','info'); return; }
+  try{
+    await addOrganizationMember(orgId, profileId);
+    showToast('Member added.','success');
+    await refreshMemberships();
+    renderMemberList(orgId);
+    renderTable();
+    const o = orgs.find(x=>x.id===orgId);
+    document.getElementById('omSub').textContent = `${(membersByOrg[orgId]||[]).length} / ${PLAN_SEAT_LIMITS[o.plan]||1} seats used on the ${PLAN_LABELS[o.plan]} plan.`;
+    unaffiliated = await getUnaffiliatedApprovedMembers();
+    const sel = document.getElementById('om_add_member');
+    sel.innerHTML = unaffiliated.length
+      ? unaffiliated.map(m=>`<option value="${escapeHtml(m.id)}">${escapeHtml(m.full_name||m.email||'(no name)')}</option>`).join('')
+      : '<option value="">No unaffiliated approved members available</option>';
+  }catch(err){
+    // Surfaces the seat-limit trigger's error message from schema.sql directly.
+    showToast(err.message||'Failed to add member.','danger');
+  }
+};
+
+window.__removeOrgMember = async function(orgId, profileId){
+  if(!confirm('Remove this member from the organization? They will keep their current plan until an admin sets a new one.')) return;
+  try{
+    await removeOrganizationMember(profileId);
+    showToast('Member removed.','info');
+    await refreshMemberships();
+    renderMemberList(orgId);
+    renderTable();
+  }catch(err){ showToast(err.message||'Failed to remove member.','danger'); }
+};
+
+document.getElementById('orgsTableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-org-action]');
+  if (!btn) return;
+  const id = btn.dataset.orgId;
+  if (btn.dataset.orgAction === 'members') window.__openMembersModal(id);
+  else if (btn.dataset.orgAction === 'plan') window.__openOrgPlanModal(id);
+  else if (btn.dataset.orgAction === 'delete') window.__deleteOrg(id, btn.dataset.orgName);
+});
+
+window.__deleteOrg = async function(id, name){
+  const count = (membersByOrg[id]||[]).length;
+  if(!confirm(`Delete ${name}?${count?` Its ${count} member(s) will keep their current plan until reassigned.`:''} This can't be undone.`)) return;
+  try{
+    await deleteOrganization(id);
+    showToast(`${name} deleted.`,'info');
+    await load();
+  }catch(err){ showToast(err.message||'Failed to delete organization.','danger'); }
+};
+
+async function refreshMemberships(){
+  const all = await getAllOrganizationMembers();
+  membersByOrg = {};
+  all.forEach(m => {
+    if(!membersByOrg[m.organization_id]) membersByOrg[m.organization_id] = [];
+    membersByOrg[m.organization_id].push(m);
+  });
+}
+
+async function load(){
+  try{
+    orgs = await getOrganizations();
+    await refreshMemberships();
+    const totalSeats = orgs.reduce((sum,o)=>sum+(PLAN_SEAT_LIMITS[o.plan]||1),0);
+    const usedSeats = Object.values(membersByOrg).reduce((sum,arr)=>sum+arr.length,0);
+    document.getElementById('orgSummary').textContent = `${orgs.length} organization${orgs.length===1?'':'s'} · ${usedSeats} / ${totalSeats} seats in use`;
+    renderTable();
+  }catch(err){
+    document.getElementById('orgsTableBody').innerHTML = `<tr><td colspan="6" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+  }
+}
+
+window.onReady(() => {
+  if(!Auth.get()?.isAdmin) { window.location.href='../pages/login.html'; return; }
+  load();
+});
+</script>
+</body>
+</html>

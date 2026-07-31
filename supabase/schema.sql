@@ -923,13 +923,15 @@ drop policy if exists "Admins can manage resource templates" on storage.objects;
 create policy "Public can view resource templates" on storage.objects for select using (bucket_id = 'resource-templates');
 create policy "Admins can manage resource templates" on storage.objects for all to authenticated using (bucket_id = 'resource-templates' and public.is_admin()) with check (bucket_id = 'resource-templates' and public.is_admin());
 
--- 20. SPONSORED PROGRAMS TABLE (Corporate/Enterprise-funded programs —
--- submitted by Corporate-tier-or-above members, reviewed by admin, same
+-- 20. SPONSORED PROGRAMS TABLE (Corporate-tier-or-above-funded programs —
+-- submitted by Corporate/Partner/Enterprise members, reviewed by admin, same
 -- pending/live/denied pattern as listings/projects. Powers the public
 -- Sponsored Programs page and the homepage "Sponsorships Funded" stat.
 -- is_corporate_or_above() replaces the old is_partner() now that the
--- 'partner' plan value has been retired in favour of the 5-tier model —
--- see section 23 below.)
+-- individual 'partner' plan value has been retired in favour of the 5-tier
+-- model — see section 23 below. (The current 'partner' value is a different,
+-- newer, higher business tier — see 23e — and is deliberately included
+-- below since it sits above Corporate.)
 -- cascade: the old sponsored_programs insert policy below depends on this
 -- function. It gets recreated further down against the new function name.
 drop function if exists public.is_partner() cascade;
@@ -941,7 +943,7 @@ security definer
 set search_path = public
 stable
 as $$
-  select coalesce((select plan in ('corporate','enterprise') from public.profiles where id = auth.uid()), false);
+  select coalesce((select plan in ('corporate','partner','enterprise') from public.profiles where id = auth.uid()), false);
 $$;
 
 create table if not exists public.sponsored_programs (
@@ -1090,25 +1092,43 @@ create policy "Admins can insert success stories" on public.success_stories for 
 create policy "Admins can update success stories" on public.success_stories for update using (public.is_admin());
 create policy "Admins can delete success stories" on public.success_stories for delete using (public.is_admin());
 
--- 23. MEMBERSHIP PLAN MODEL (5 tiers, Stripe-backed for the 3 paid self-serve
--- tiers, Enterprise is manually provisioned and never touches Stripe)
+-- 23. MEMBERSHIP PLAN MODEL (6 tiers: Free + 5 paid business tiers, billed
+-- ANNUALLY. Enterprise is manually provisioned and never touches Stripe.)
 --
--- free        — Individuals & indie artists. Always free, no Stripe product.
--- sme_small   — $29/mo, <5 staff, self-serve via Stripe Checkout.
--- sme_medium  — $49/mo, up to 50 staff, self-serve via Stripe Checkout.
--- corporate   — $199/mo, self-serve via Stripe Checkout.
--- enterprise  — By agreement. Admin-set only (plan_source = 'admin');
---               deliberately excluded from Stripe entirely.
+-- free       — Individuals & indie artists. Always free, no Stripe product.
+-- sme        — $50/yr, single account (1 seat).
+-- sme_large  — $85/yr, up to 3 accounts (seats).
+-- corporate  — $350/yr, up to 8 accounts (seats).
+-- partner    — $1,000/yr, up to 10 accounts (seats).
+-- enterprise — By agreement. Admin-set only (plan_source = 'admin');
+--              deliberately excluded from Stripe entirely. Up to 20 seats.
+--
+-- "Accounts/seats" means real, separate member logins sharing one paid
+-- business plan — see the organizations table (23e) below. A business plan
+-- is assigned to an organization, not to an individual profile directly;
+-- every profile linked to that organization mirrors its plan.
 --
 -- Data migration first (must run before the check constraint below, or the
--- constraint would reject any existing 'pro'/'partner' rows):
---   pro     -> free       (the old individual paid tier is retired; the new
---                          model is "individuals are always free")
---   partner -> corporate  (closest capability match to the old $89/mo tier;
---                          these members will need to actually subscribe via
---                          Stripe once Checkout ships to keep paid features)
+-- constraint would reject any existing 'pro'/old-tier rows):
+--   pro        -> free      (the old individual paid tier is retired; the
+--                             new model is "individuals are always free")
+--   sme_small  -> sme       (renamed, same position in the tier ladder)
+--   sme_medium -> sme_large (renamed, same position in the tier ladder)
+--
+-- NOTE: an earlier version of this migration also mapped the historical
+-- 'partner' value (a retired *individual* tier, pre-dating this 5-tier
+-- model) to 'corporate'. That migration already ran in production and is
+-- intentionally removed now — 'partner' has since been reintroduced below
+-- as a new *business* tier, and re-running that old line on every future
+-- paste of this file would silently downgrade every real Partner-tier
+-- organization to Corporate. If this is somehow being run against a
+-- database that still has legacy individual 'partner' rows from before the
+-- 5-tier model shipped, migrate those to 'corporate' by hand first.
 update public.profiles set plan = 'free' where plan = 'pro';
-update public.profiles set plan = 'corporate' where plan = 'partner';
+update public.profiles set plan = 'sme' where plan = 'sme_small';
+update public.profiles set plan = 'sme_large' where plan = 'sme_medium';
+update public.profiles set trial_previous_plan = 'sme' where trial_previous_plan = 'sme_small';
+update public.profiles set trial_previous_plan = 'sme_large' where trial_previous_plan = 'sme_medium';
 
 alter table public.profiles add column if not exists plan_source text default 'signup';
 alter table public.profiles add column if not exists plan_updated_at timestamptz default now();
@@ -1127,7 +1147,7 @@ begin
     alter table public.profiles drop constraint profiles_plan_check;
   end if;
   alter table public.profiles add constraint profiles_plan_check
-    check (plan in ('free','sme_small','sme_medium','corporate','enterprise'));
+    check (plan in ('free','sme','sme_large','corporate','partner','enterprise'));
 end $$;
 
 -- 23b. TIME-BOXED PLAN TRIALS (admin-started, e.g. "30 days of SME Small")
@@ -1222,6 +1242,11 @@ begin
     new.plan_is_trial := old.plan_is_trial;
     new.trial_ends_at := old.trial_ends_at;
     new.trial_previous_plan := old.trial_previous_plan;
+    -- organization_id is admin-managed only (see sync_profile_to_organization
+    -- below, which mirrors an org's plan onto every linked profile) — without
+    -- this, a member could self-assign into any organization_id they can
+    -- guess/enumerate and inherit that org's paid plan for free.
+    new.organization_id := old.organization_id;
   end if;
   return new;
 end;
@@ -1231,6 +1256,175 @@ drop trigger if exists protect_privileged_profile_columns on public.profiles;
 create trigger protect_privileged_profile_columns
 before update on public.profiles
 for each row execute function public.protect_privileged_profile_columns();
+
+-- 23e. ORGANIZATIONS — multi-seat business accounts. A paid business plan
+-- (sme/sme_large/corporate/partner/enterprise) is bought by an organization,
+-- not by an individual profile: the org holds the plan, and up to
+-- plan_seat_limit() member profiles can be linked to it via
+-- profiles.organization_id, each one mirroring the org's plan (see the
+-- sync_profile_to_organization trigger below). Free/individual members are
+-- never attached to an organization.
+create table if not exists public.organizations (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  plan text not null,
+  plan_source text not null default 'admin',
+  plan_updated_at timestamptz not null default now(),
+  plan_is_trial boolean not null default false,
+  trial_ends_at timestamptz,
+  trial_previous_plan text,
+  owner_id uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'organizations_plan_check') then
+    alter table public.organizations drop constraint organizations_plan_check;
+  end if;
+  alter table public.organizations add constraint organizations_plan_check
+    check (plan in ('sme','sme_large','corporate','partner','enterprise'));
+end $$;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'organizations_plan_source_check') then
+    alter table public.organizations add constraint organizations_plan_source_check
+      check (plan_source in ('stripe','admin'));
+  end if;
+end $$;
+
+-- Seats included per business tier — matches the pricing table in section 23
+-- above (sme=1, sme_large=3, corporate=8, partner=10, enterprise=20). Free
+-- isn't a valid organizations.plan value (individuals don't have orgs), so
+-- there's no case for it here.
+create or replace function public.plan_seat_limit(p_plan text)
+returns int
+language sql
+immutable
+as $$
+  select case p_plan
+    when 'sme' then 1
+    when 'sme_large' then 3
+    when 'corporate' then 8
+    when 'partner' then 10
+    when 'enterprise' then 20
+    else 1
+  end
+$$;
+
+-- Added here (before the RLS policies below, which reference it) rather
+-- than down with the rest of the profiles columns at the top of this file,
+-- since it only makes sense once the organizations table above exists.
+alter table public.profiles add column if not exists organization_id uuid references public.organizations(id) on delete set null;
+
+alter table public.organizations enable row level security;
+
+drop policy if exists "Admins can manage organizations" on public.organizations;
+drop policy if exists "Members can view their own organization" on public.organizations;
+
+create policy "Admins can manage organizations"
+  on public.organizations for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- Lets an org's own members see their plan/seat info (e.g. on their
+-- dashboard) without needing admin rights. Queries profiles from an
+-- organizations policy, not profiles from within itself, so this doesn't
+-- hit the same self-referential recursion trap documented above.
+create policy "Members can view their own organization"
+  on public.organizations for select
+  using (id in (select organization_id from public.profiles where id = auth.uid()));
+
+-- Member profiles attached to an organization always mirror its plan/trial
+-- state — see protect_privileged_profile_columns above, which locks
+-- organization_id itself to admin-only writes, and this trigger, which
+-- keeps plan/trial fields in sync whenever organization_id is (admin-)set
+-- or an org's own plan changes.
+create or replace function public.sync_profile_to_organization()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_org record;
+  v_seat_count int;
+begin
+  if new.organization_id is not null then
+    select * into v_org from public.organizations where id = new.organization_id;
+    if v_org is null then
+      raise exception 'Organization not found';
+    end if;
+
+    -- Enforce the seat cap only when a profile is newly attaching to this
+    -- org (a brand-new row, or an existing member switching organizations)
+    -- — not on every subsequent update, so a full org can still edit its
+    -- own existing members' non-plan fields.
+    if (tg_op = 'INSERT') or (tg_op = 'UPDATE' and old.organization_id is distinct from new.organization_id) then
+      select count(*) into v_seat_count from public.profiles
+        where organization_id = new.organization_id
+          and id <> coalesce(new.id, '00000000-0000-0000-0000-000000000000'::uuid);
+      if v_seat_count >= public.plan_seat_limit(v_org.plan) then
+        raise exception 'Organization "%" has reached its seat limit (%) for the % plan', v_org.name, public.plan_seat_limit(v_org.plan), v_org.plan;
+      end if;
+    end if;
+
+    new.plan := v_org.plan;
+    new.plan_source := v_org.plan_source;
+    new.plan_updated_at := v_org.plan_updated_at;
+    new.plan_is_trial := v_org.plan_is_trial;
+    new.trial_ends_at := v_org.trial_ends_at;
+    new.trial_previous_plan := v_org.trial_previous_plan;
+  end if;
+  return new;
+end;
+$$;
+
+-- Runs after protect_privileged_profile_columns (Postgres fires same-event
+-- triggers in name order — "protect_..." sorts before "sync_...") so the
+-- org-plan mirroring below always has the final say on plan/trial columns
+-- for org-linked profiles, and can't be undone by the protect trigger's own
+-- old-value restore for a plan admins are actively trying to change via
+-- organization_id.
+drop trigger if exists sync_profile_to_organization on public.profiles;
+create trigger sync_profile_to_organization
+before insert or update on public.profiles
+for each row execute function public.sync_profile_to_organization();
+
+-- Whenever an organization's own plan/trial fields change (upgrade,
+-- downgrade, trial start/end), push that onto every member profile
+-- immediately rather than waiting for those profiles to next be updated —
+-- otherwise a member's badge/perks would silently lag behind their org's
+-- actual plan until an unrelated edit touched their row.
+create or replace function public.sync_organization_to_profiles()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if (new.plan, new.plan_source, new.plan_updated_at, new.plan_is_trial, new.trial_ends_at, new.trial_previous_plan)
+     is distinct from
+     (old.plan, old.plan_source, old.plan_updated_at, old.plan_is_trial, old.trial_ends_at, old.trial_previous_plan) then
+    update public.profiles
+    set
+      plan = new.plan,
+      plan_source = new.plan_source,
+      plan_updated_at = new.plan_updated_at,
+      plan_is_trial = new.plan_is_trial,
+      trial_ends_at = new.trial_ends_at,
+      trial_previous_plan = new.trial_previous_plan
+    where organization_id = new.id;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists sync_organization_to_profiles on public.organizations;
+create trigger sync_organization_to_profiles
+after update on public.organizations
+for each row execute function public.sync_organization_to_profiles();
 
 -- 23d. Public head-count of confirmed collaborations, for the homepage stat
 -- (see security fix note on the removed "Public can view confirmed
@@ -1250,11 +1444,11 @@ as $$
 $$;
 
 -- 24. PLAN-BASED POSTING CAPS
--- Active job/project listing limits per tier: free=1, sme_small=5,
--- sme_medium=15, corporate/enterprise=unlimited (null = no cap). "Active"
--- means status in ('pending','live') — a listing awaiting admin review
--- still counts against the cap, otherwise a free member could queue up
--- unlimited pending listings and only ever have 1 live at a time.
+-- Active job/project listing limits per tier: free=1, sme=5, sme_large=15,
+-- corporate/partner/enterprise=unlimited (null = no cap). "Active" means
+-- status in ('pending','live') — a listing awaiting admin review still
+-- counts against the cap, otherwise a free member could queue up unlimited
+-- pending listings and only ever have 1 live at a time.
 
 create or replace function public.plan_listing_cap(p_plan text)
 returns int
@@ -1263,8 +1457,8 @@ immutable
 as $$
   select case p_plan
     when 'free' then 1
-    when 'sme_small' then 5
-    when 'sme_medium' then 15
+    when 'sme' then 5
+    when 'sme_large' then 15
     else null
   end
 $$;

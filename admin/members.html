@@ -19,6 +19,7 @@
     <a href="index.html" class="admin-nav-item">Dashboard</a>
     <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
     <a href="members.html" class="admin-nav-item active">Members</a>
+    <a href="organizations.html" class="admin-nav-item">Organizations</a>
     <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
     <a href="projects.html" class="admin-nav-item">Projects</a>
     <a href="articles.html" class="admin-nav-item">Articles</a>
@@ -59,7 +60,7 @@
     </div>
 
     <div class="filter-bar">
-      <div class="form-group"><label>Plan</label><select id="fPlan" onchange="searchMembers()"><option value="">All Plans</option><option value="free">Free</option><option value="sme_small">SME Small</option><option value="sme_medium">SME Medium</option><option value="corporate">Corporate</option><option value="enterprise">Enterprise</option></select></div>
+      <div class="form-group"><label>Plan</label><select id="fPlan" onchange="searchMembers()"><option value="">All Plans</option><option value="free">Free</option><option value="sme">SME</option><option value="sme_large">SME Large</option><option value="corporate">Corporate</option><option value="partner">Partner</option><option value="enterprise">Enterprise</option></select></div>
       <div class="form-group"><label>State</label><select id="fState" onchange="searchMembers()"><option value="">All States</option></select></div>
       <div class="form-group"><label>Status</label><select id="fStatus" onchange="searchMembers()"><option value="approved">Active</option><option value="denied">Suspended</option><option value="">All</option></select></div>
     </div>
@@ -95,12 +96,14 @@
       <label>Plan</label>
       <select id="pm_plan">
         <option value="free">Free</option>
-        <option value="sme_small">SME Small</option>
-        <option value="sme_medium">SME Medium</option>
+        <option value="sme">SME</option>
+        <option value="sme_large">SME Large</option>
         <option value="corporate">Corporate</option>
+        <option value="partner">Partner</option>
         <option value="enterprise">Enterprise</option>
       </select>
     </div>
+    <div class="text-xs text-muted mb-2" id="pm_org_warning" style="display:none">This member belongs to an organization — see the <a href="organizations.html" style="color:var(--cyan)">Organizations</a> page instead. Any business-tier plan set here will be immediately overwritten to match their org's plan.</div>
     <div class="form-group" id="pm_trial_wrap">
       <label class="checkbox-pill" style="border:none;padding:0;font-size:.85rem;color:var(--muted)">
         <input type="checkbox" id="pm_is_trial"> Start as a 30-day trial, then auto-revert to their current plan
@@ -110,10 +113,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
-<script src="../assets/js/main.js?v=6c071eaa"></script>
+<script src="../assets/js/nav-inject.js?v=2376f985"></script>
+<script src="../assets/js/main.js?v=1efd9019"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, updateMemberPlan, startMemberTrial, endMemberTrial, updatePassword } from '../assets/js/supabase.js?v=769a23b7';
+import { getAllApplications, approveApplication, denyApplication, updateMemberPlan, startMemberTrial, endMemberTrial, updatePassword } from '../assets/js/supabase.js?v=a8cc0499';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -151,8 +154,8 @@ function fmtDate(iso){
   return new Date(iso).toLocaleDateString('en-AU',{month:'short',year:'numeric'});
 }
 
-const PLAN_LABELS = {free:'Free',sme_small:'SME Small',sme_medium:'SME Medium',corporate:'Corporate',enterprise:'Enterprise'};
-const PLAN_TAGS = {free:'tag-gold',sme_small:'tag-sage',sme_medium:'tag-blue',corporate:'tag-rust',enterprise:'tag-purple'};
+const PLAN_LABELS = {free:'Free',sme:'SME',sme_large:'SME Large',corporate:'Corporate',partner:'Partner',enterprise:'Enterprise'};
+const PLAN_TAGS = {free:'tag-gold',sme:'tag-sage',sme_large:'tag-blue',corporate:'tag-rust',partner:'tag-purple',enterprise:'tag-gold'};
 
 function fmtDateTime(iso){
   if(!iso) return '—';
@@ -239,6 +242,8 @@ window.__openPlanModal = function(id){
   document.getElementById('pm_id').value = m.id;
   document.getElementById('pm_plan').value = m.plan_is_trial ? (m.trial_previous_plan || 'free') : (m.plan || 'free');
   document.getElementById('pm_is_trial').checked = false;
+  const orgWarning = document.getElementById('pm_org_warning');
+  if(orgWarning) orgWarning.style.display = m.organization_id ? '' : 'none';
 
   if(m.plan_is_trial && m.trial_ends_at){
     document.getElementById('planModalTitle').textContent = 'Manage Trial';

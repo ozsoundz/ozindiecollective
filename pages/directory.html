@@ -46,8 +46,9 @@
       <div class="form-group"><label>Plan</label>
         <select id="fPlan" onchange="filterDir()">
           <option value="">All Members</option>
-          <option value="sme_small">SME Small+</option>
+          <option value="sme">SME+</option>
           <option value="corporate">Corporate+</option>
+          <option value="partner">Partner+</option>
         </select>
       </div>
     </div>
@@ -93,10 +94,10 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
-<script src="../assets/js/main.js?v=6c071eaa"></script>
+<script src="../assets/js/nav-inject.js?v=2376f985"></script>
+<script src="../assets/js/main.js?v=1efd9019"></script>
 <script type="module">
-import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=769a23b7';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=a8cc0499';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -173,7 +174,7 @@ function expMatches(cardExp, range){
   return exp >= min && exp <= max;
 }
 
-const PLAN_RANK = {free:0,sme_small:1,sme_medium:2,corporate:3,enterprise:4};
+const PLAN_RANK = {free:0,sme:1,sme_large:2,corporate:3,partner:4,enterprise:5};
 window.filterDir = function() {
   const role = document.getElementById('fRole').value;
   const state = document.getElementById('fState').value;

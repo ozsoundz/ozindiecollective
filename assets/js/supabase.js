@@ -193,7 +193,7 @@ export async function getMembers({ role, state, availability, search } = {}) {
 // than via .order() since Supabase-JS can't express "order by a joined
 // row's column with a custom rank" without a raw SQL view. Ties (i.e. within
 // the same featured/not-featured group) keep newest-first.
-const FEATURED_PLANS = ['corporate', 'enterprise']
+const FEATURED_PLANS = ['corporate', 'partner', 'enterprise']
 function sortFeaturedFirst(rows) {
   return [...(rows || [])].sort((a, b) => {
     const aFeatured = FEATURED_PLANS.includes(a.profiles?.plan) ? 1 : 0
@@ -318,7 +318,12 @@ export async function getMyListings() {
 // friendly client-side messaging only; the real enforcement is server-side
 // RLS (can_post_listing()/can_post_project()), so this being out of sync
 // would at worst show a slightly wrong message, never a security gap.
-export const PLAN_LISTING_CAPS = { free: 1, sme_small: 5, sme_medium: 15, corporate: null, enterprise: null }
+export const PLAN_LISTING_CAPS = { free: 1, sme: 5, sme_large: 15, corporate: null, partner: null, enterprise: null }
+
+// Seats included per paid business tier — mirrors plan_seat_limit() in
+// schema.sql. Used client-side for the Organizations admin UI (e.g. "3 / 8
+// seats used") without a round trip for something that never changes.
+export const PLAN_SEAT_LIMITS = { sme: 1, sme_large: 3, corporate: 8, partner: 10, enterprise: 20 }
 
 // Active job listing count + cap for the current member, so post-job.html
 // can show "you've reached your limit" before/instead of a raw RLS error.
@@ -658,6 +663,107 @@ export async function endMemberTrial(userId, { keepPlan, trialPlan, previousPlan
     })
     .eq('id', userId)
   if (error) throw error
+}
+
+// ── ORGANIZATIONS (multi-seat business accounts) ────────
+// A paid business plan (sme/sme_large/corporate/partner/enterprise) belongs
+// to an organization, not an individual profile — profiles.organization_id
+// links a member in, and schema.sql's sync_profile_to_organization /
+// sync_organization_to_profiles triggers keep every linked profile's plan
+// fields mirroring the org's. Seat limits (plan_seat_limit() in schema.sql,
+// mirrored client-side as PLAN_SEAT_LIMITS above) are enforced server-side
+// by that same trigger — these functions don't need to re-check the count
+// themselves, they just surface the trigger's error if a seat cap is hit.
+
+export async function getOrganizations() {
+  const { data, error } = await supabase
+    .from('organizations')
+    .select('*, owner:owner_id(id, full_name, email)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createOrganization({ name, plan, ownerId }) {
+  const { data, error } = await supabase
+    .from('organizations')
+    .insert({ name, plan, plan_source: 'admin', owner_id: ownerId || null })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+// Admin: change an org's tier. Every linked member profile picks this up
+// automatically via sync_organization_to_profiles — no need to touch
+// profiles here.
+export async function updateOrganizationPlan(orgId, plan) {
+  const { error } = await supabase
+    .from('organizations')
+    .update({ plan, plan_source: 'admin', plan_updated_at: new Date().toISOString(), plan_is_trial: false, trial_ends_at: null, trial_previous_plan: null })
+    .eq('id', orgId)
+  if (error) throw error
+}
+
+export async function deleteOrganization(orgId) {
+  const { error } = await supabase.from('organizations').delete().eq('id', orgId)
+  if (error) throw error
+}
+
+// Attaches an existing member profile to an organization, adopting its plan.
+// Throws (surfacing the trigger's message) if the org is already at its seat
+// limit for its current plan.
+export async function addOrganizationMember(orgId, profileId) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ organization_id: orgId })
+    .eq('id', profileId)
+  if (error) throw error
+}
+
+// Detaches a member profile from its organization. The profile keeps
+// whatever plan it had at the moment of removal until an admin sets it
+// explicitly — it does not automatically drop to Free.
+export async function removeOrganizationMember(profileId) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ organization_id: null })
+    .eq('id', profileId)
+  if (error) throw error
+}
+
+export async function getOrganizationMembers(orgId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role, plan, status')
+    .eq('organization_id', orgId)
+  if (error) throw error
+  return data
+}
+
+// All org-linked members across every organization in one query, for the
+// Organizations admin list page to compute per-org seat usage without an
+// N+1 query per row.
+export async function getAllOrganizationMembers() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role, plan, status, organization_id')
+    .not('organization_id', 'is', null)
+  if (error) throw error
+  return data
+}
+
+// Approved members not currently linked to any organization — the pool
+// available to add as a seat, or to pick as a new org's owner.
+export async function getUnaffiliatedApprovedMembers() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role')
+    .eq('status', 'approved')
+    .is('organization_id', null)
+    .order('full_name', { ascending: true })
+  if (error) throw error
+  return data
 }
 
 // Permanently deletes a member's auth account (profile + everything that cascades

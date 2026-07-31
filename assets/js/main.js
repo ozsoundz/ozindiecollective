@@ -76,12 +76,14 @@ window.sanitizeUrl=sanitizeUrl;
    next to a member's name wherever their plan should be visually flagged
    (job/project listing cards, directory cards, profile header). Free plan
    members never get a badge — badges are a paid-tier perk. Both SME tiers
-   share the same "Verified Business" badge; Corporate and Enterprise each
-   get their own "Featured" medallion since that's a distinct paid perk. */
+   share the same "Verified Business" badge; Corporate, Partner and
+   Enterprise each get their own "Featured" medallion since that's a
+   distinct paid perk. */
 const TIER_BADGES={
-  sme_small:{icon:'verified-business.svg',label:'Verified Business'},
-  sme_medium:{icon:'verified-business.svg',label:'Verified Business'},
+  sme:{icon:'verified-business.svg',label:'Verified Business'},
+  sme_large:{icon:'verified-business.svg',label:'Verified Business'},
   corporate:{icon:'featured-corporate.svg',label:'Featured'},
+  partner:{icon:'featured-partner.svg',label:'Partner'},
   enterprise:{icon:'featured-enterprise.svg',label:'Enterprise Partner'}
 };
 /* isTrial: pass true (or an object with a truthy .plan_is_trial, e.g. a raw
@@ -128,7 +130,7 @@ function applyPageContent(){
   const els = [...document.querySelectorAll('[data-cms-key]')];
   if(!els.length) return;
   const keys = els.map(el => el.dataset.cmsKey);
-  import('/assets/js/supabase.js?v=769a23b7').then(async ({ getPageContent }) => {
+  import('/assets/js/supabase.js?v=a8cc0499').then(async ({ getPageContent }) => {
     try{
       const content = await getPageContent(keys);
       els.forEach(el => {
@@ -212,7 +214,7 @@ function initAuthUI(){
       e.preventDefault();
       Auth.clear();
       try{
-        const mod=await import('/assets/js/supabase.js?v=769a23b7');
+        const mod=await import('/assets/js/supabase.js?v=a8cc0499');
         await mod.signOut().catch(()=>{});
       }catch(err){/* not on a page with supabase.js reachable, ignore */}
       showToast('Signed out. See you soon!','info');
@@ -273,7 +275,7 @@ function buildIdleWarningModal(){
 async function performIdleLogout(){
   Auth.clear();
   try{
-    const mod=await import('/assets/js/supabase.js?v=769a23b7');
+    const mod=await import('/assets/js/supabase.js?v=a8cc0499');
     await mod.signOut().catch(()=>{});
   }catch(err){/* supabase.js unreachable — Auth.clear() above still logs the UI out */}
   window.location.href=rootPath()+'pages/login.html?timeout=1';

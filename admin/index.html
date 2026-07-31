@@ -21,6 +21,7 @@
     <a href="index.html" class="admin-nav-item active">Dashboard</a>
     <a href="applications.html" class="admin-nav-item">Applications <span class="admin-badge" id="navPendingBadge">…</span></a>
     <a href="members.html" class="admin-nav-item">Members</a>
+    <a href="organizations.html" class="admin-nav-item">Organizations</a>
     <a href="listings.html" class="admin-nav-item">Job Listings <span class="admin-badge">3</span></a>
     <a href="projects.html" class="admin-nav-item">Projects</a>
     <a href="articles.html" class="admin-nav-item">Articles</a>
@@ -137,10 +138,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
-<script src="../assets/js/main.js?v=6c071eaa"></script>
+<script src="../assets/js/nav-inject.js?v=2376f985"></script>
+<script src="../assets/js/main.js?v=1efd9019"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers, updatePassword } from '../assets/js/supabase.js?v=769a23b7';
+import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers, updatePassword } from '../assets/js/supabase.js?v=a8cc0499';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
