@@ -93,10 +93,10 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=daf19486"></script>
-<script src="../assets/js/main.js?v=dbc956c8"></script>
+<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
+<script src="../assets/js/main.js?v=6c071eaa"></script>
 <script type="module">
-import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=ba3abb76';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=769a23b7';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -135,7 +135,7 @@ function renderCard(m){
   return `
   <a href="profile.html?id=${e(m.id)}" class="member-card fade-in" style="position:relative" data-role="${e(m.role||'')}" data-state="${e(m.state||'')}" data-avail="${e(m.availability||'available')}" data-plan="${e(m.plan||'free')}" data-skills="${e((m.skills||[]).join('|').toLowerCase())}" data-exp="${expYears===null?'':expYears}">
     ${bookmarkBtnHtml(m.id)}
-    <div class="member-card-top"><div class="avatar avatar-md ${m.avatar_url?'':avatarClass(m.full_name)}">${m.avatar_url?`<img src="${e(m.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(m.full_name))}</div><div><div class="member-name">${e(m.full_name||'(no name)')}</div><div class="member-role">${e(m.role||'—')}</div></div></div>
+    <div class="member-card-top"><div class="avatar avatar-md ${m.avatar_url?'':avatarClass(m.full_name)}">${m.avatar_url?`<img src="${e(sanitizeUrl(m.avatar_url))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(m.full_name))}</div><div><div class="member-name">${e(m.full_name||'(no name)')}</div><div class="member-role">${e(m.role||'—')}</div></div></div>
     ${badge ? `<div class="mb-2">${badge}</div>` : ''}
     <div class="member-location">📍 ${e([m.city,m.state].filter(Boolean).join(', ')||'—')}</div>
     <div class="member-skills">${skills.map((s,i)=>`<span class="tag ${TAG_CLASSES[i%TAG_CLASSES.length]}">${e(s)}</span>`).join('')}</div>

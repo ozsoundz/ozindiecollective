@@ -1,5 +1,9 @@
 // assets/js/supabase.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+// Pinned to a specific version rather than the unpinned "@supabase/supabase-js/+esm"
+// (which silently resolves to whatever is newest on jsdelivr) — an unpinned CDN import
+// is a supply-chain risk: a compromised or breaking upstream release would ship to
+// every visitor immediately with no review. Bump this deliberately when upgrading.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.2/+esm'
 
 const SUPABASE_URL = 'https://ijkqayhbshftdofipmzg.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3FheWhic2hmdGRvZmlwbXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NTg1NzMsImV4cCI6MjA5NzIzNDU3M30.aXW4dWgNW9Ncmw3-SfaCzilUk_tZ36DQsQbffY_41Hg'
@@ -428,13 +432,19 @@ async function safeCount(query, label) {
 }
 
 export async function getHomeStats() {
-  const [members, projects, jobs, events, confirmedJobApps, confirmedProjectApps, sponsorships] = await Promise.all([
+  // Confirmed-collaboration count comes from a SECURITY DEFINER RPC, not a
+  // head:true select on applications/project_applications directly — those
+  // tables no longer grant anon/authenticated any SELECT on confirmed rows
+  // (that used to leak full row contents, including cover letters and
+  // portfolio links, to any visitor; see schema.sql's "SECURITY FIX" note
+  // near count_confirmed_collaborations()).
+  const [members, projects, jobs, events, collaborations, sponsorships] = await Promise.all([
     safeCount(supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'approved'), 'members'),
     safeCount(supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'live'), 'projects'),
     safeCount(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'live'), 'jobs'),
     safeCount(supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'published'), 'events'),
-    safeCount(supabase.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'), 'confirmed job applications'),
-    safeCount(supabase.from('project_applications').select('id', { count: 'exact', head: true }).eq('status', 'confirmed'), 'confirmed project applications'),
+    supabase.rpc('count_confirmed_collaborations')
+      .then(({ data, error }) => { if (error) { console.warn('getHomeStats: failed to load collaborations:', error.message); return 0; } return data || 0; }),
     supabase.from('sponsored_programs').select('amount').eq('status', 'live')
       .then(({ data, error }) => { if (error) { console.warn('getHomeStats: failed to load sponsorships:', error.message); return []; } return data || []; }),
   ])
@@ -443,7 +453,7 @@ export async function getHomeStats() {
     projects,
     jobs,
     events,
-    collaborations: confirmedJobApps + confirmedProjectApps,
+    collaborations,
     sponsorshipsFunded: sponsorships.reduce((sum, r) => sum + (Number(r.amount) || 0), 0),
   }
 }

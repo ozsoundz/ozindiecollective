@@ -65,10 +65,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=daf19486"></script>
-<script src="../assets/js/main.js?v=dbc956c8"></script>
+<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
+<script src="../assets/js/main.js?v=6c071eaa"></script>
 <script type="module">
-import { getNavMenu, updateNavGroup, createNavLink, updateNavLink, deleteNavLink, uploadAdminMedia, updatePassword } from '../assets/js/supabase.js?v=ba3abb76';
+import { getNavMenu, updateNavGroup, createNavLink, updateNavLink, deleteNavLink, uploadAdminMedia, updatePassword } from '../assets/js/supabase.js?v=769a23b7';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -129,7 +129,7 @@ function renderGroup(g){
     <div style="display:grid;grid-template-columns:180px 1fr;gap:1.5rem;margin-bottom:1.5rem">
       <div>
         <label class="text-xs text-muted mono">Panel Image</label>
-        <img src="${e(g.image_url||'')}" alt="" style="width:100%;height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--border-hi);margin:.4rem 0" data-group-field="image_preview">
+        <img src="${e(sanitizeUrl(g.image_url||''))}" alt="" style="width:100%;height:110px;object-fit:cover;border-radius:6px;border:1px solid var(--border-hi);margin:.4rem 0" data-group-field="image_preview">
         <input type="text" class="input" style="font-size:.72rem" value="${e(g.image_url||'')}" data-group-field="image_url" placeholder="Image URL">
         <input type="file" accept="image/*" style="display:none" data-group-image-file="${e(g.id)}">
         <button type="button" class="btn-ghost mt-1" style="font-size:.6rem;width:100%" data-group-action="upload-image" data-group-id="${e(g.id)}">Upload Image</button>

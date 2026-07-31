@@ -28,10 +28,10 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=daf19486"></script>
-<script src="../assets/js/main.js?v=dbc956c8"></script>
+<script src="../assets/js/nav-inject.js?v=a6639f56"></script>
+<script src="../assets/js/main.js?v=6c071eaa"></script>
 <script type="module">
-import { getMyBookmarks, removeBookmark, updateBookmarkNote, isPaidPlan } from '../assets/js/supabase.js?v=ba3abb76';
+import { getMyBookmarks, removeBookmark, updateBookmarkNote, isPaidPlan } from '../assets/js/supabase.js?v=769a23b7';
 
 function initials(name=''){
   return name.split(' ').slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?';
@@ -58,7 +58,7 @@ function savedCard(b){
   const badge = window.tierBadgeHtml ? window.tierBadgeHtml(p.plan) : '';
   return `
   <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;padding:1.25rem;display:flex;gap:1rem;align-items:flex-start" data-bookmark-row="${e(b.id)}">
-    <a href="profile.html?id=${e(p.id||'')}" class="avatar avatar-md ${p.avatar_url?'':avatarClass(p.full_name)}" style="flex-shrink:0;text-decoration:none">${p.avatar_url?`<img src="${e(p.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(p.full_name))}</a>
+    <a href="profile.html?id=${e(p.id||'')}" class="avatar avatar-md ${p.avatar_url?'':avatarClass(p.full_name)}" style="flex-shrink:0;text-decoration:none">${p.avatar_url?`<img src="${e(sanitizeUrl(p.avatar_url))}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:e(initials(p.full_name))}</a>
     <div style="flex:1">
       <div class="flex items-center gap-2">
         <a href="profile.html?id=${e(p.id||'')}" class="member-name" style="text-decoration:none;color:var(--cream);font-weight:600">${e(p.full_name||'(member removed)')}</a>

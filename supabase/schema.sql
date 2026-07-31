@@ -236,13 +236,15 @@ create policy "Applicants can confirm accepted applications"
   using (auth.uid() = applicant_id and status = 'accepted')
   with check (auth.uid() = applicant_id and status = 'confirmed');
 
--- Confirmed collaborations are countable publicly (head-count only, for the
--- homepage "Collaborations Formed" stat) — mirrors the public-live pattern
--- used elsewhere (listings, projects, events).
-create policy "Public can view confirmed applications"
-  on public.applications for select
-  using (status = 'confirmed');
-
+-- SECURITY FIX: this used to be a row-select policy ("using (status =
+-- 'confirmed')"), which — despite the comment's intent of "head-count only"
+-- — actually gave any anonymous caller full-row SELECT on every confirmed
+-- application, including cover_message and portfolio_link (not just a
+-- count). RLS has no per-column granularity, so "public can read this row"
+-- always means "public can read this row", full stop. Replaced with a
+-- SECURITY DEFINER function that returns only the number, and the anon-select
+-- policy removed entirely — see count_confirmed_collaborations() below,
+-- which getHomeStats() in supabase.js now calls instead of a head:true count.
 create policy "Admins can view all applications"
   on public.applications for select
   using (public.is_admin());
@@ -671,10 +673,9 @@ create policy "Applicants can confirm accepted project applications"
   using (auth.uid() = applicant_id and status = 'accepted')
   with check (auth.uid() = applicant_id and status = 'confirmed');
 
-create policy "Public can view confirmed project applications"
-  on public.project_applications for select
-  using (status = 'confirmed');
-
+-- SECURITY FIX: same issue as "Public can view confirmed applications"
+-- above — removed in favour of count_confirmed_collaborations() (below),
+-- which counts both tables together in one SECURITY DEFINER call.
 create policy "Admins can view all project applications"
   on public.project_applications for select
   using (public.is_admin());
@@ -1179,6 +1180,74 @@ begin
     perform cron.schedule('revert-expired-plan-trials', '0 3 * * *', 'select public.revert_expired_plan_trials();');
   end if;
 end $$;
+
+-- Only the pg_cron scheduler should ever run this — it's a blanket "revert
+-- everyone whose trial has expired" operation with no target parameter, so
+-- there's no legitimate reason for a client (anon or authenticated) to call
+-- it directly. Revoked explicitly rather than relying on it just not being
+-- referenced anywhere in supabase.js, since Postgres grants EXECUTE on new
+-- functions to PUBLIC by default.
+revoke execute on function public.revert_expired_plan_trials() from public, anon, authenticated;
+
+-- 23c. SECURITY FIX — profiles.plan / .status / .is_admin / trial fields were
+-- writable by their own owner via "Users can update own profile" (see policy
+-- above), which only checks auth.uid() = id with no restriction on *which*
+-- columns change. Postgres RLS has no per-column granularity, so any member
+-- could call supabase.from('profiles').update({is_admin:true, ...}).eq('id',
+-- <their own id>) directly — bypassing every admin-only UI on the site
+-- entirely, since none of that gating was ever enforced at the data layer.
+-- This closes it with a trigger rather than a WITH CHECK subquery on
+-- profiles, to avoid the same "infinite recursion" trap documented above for
+-- policies that query profiles from within a profiles policy — a trigger
+-- function doesn't have that restriction.
+create or replace function public.protect_privileged_profile_columns()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  -- Exception: the very first update to a brand-new row (handle_new_user()
+  -- inserts a bare row with only `id` set, so `full_name` is still null at
+  -- that point) is signUp()'s own follow-up call in supabase.js, which
+  -- legitimately sets the plan the applicant chose on the join form and
+  -- status='pending' — that's not a privilege change, it's completing their
+  -- own application. Every update after that first one is locked down.
+  if not public.is_admin() and old.full_name is not null then
+    new.is_admin := old.is_admin;
+    new.status := old.status;
+    new.plan := old.plan;
+    new.plan_source := old.plan_source;
+    new.plan_updated_at := old.plan_updated_at;
+    new.plan_is_trial := old.plan_is_trial;
+    new.trial_ends_at := old.trial_ends_at;
+    new.trial_previous_plan := old.trial_previous_plan;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_privileged_profile_columns on public.profiles;
+create trigger protect_privileged_profile_columns
+before update on public.profiles
+for each row execute function public.protect_privileged_profile_columns();
+
+-- 23d. Public head-count of confirmed collaborations, for the homepage stat
+-- (see security fix note on the removed "Public can view confirmed
+-- applications"/"...project applications" policies above). SECURITY DEFINER
+-- so it can count rows anon/authenticated callers otherwise have zero SELECT
+-- access to, without exposing any actual row data — it returns one integer.
+create or replace function public.count_confirmed_collaborations()
+returns integer
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select
+    (select count(*) from public.applications where status = 'confirmed')::int
+    + (select count(*) from public.project_applications where status = 'confirmed')::int;
+$$;
 
 -- 24. PLAN-BASED POSTING CAPS
 -- Active job/project listing limits per tier: free=1, sme_small=5,
