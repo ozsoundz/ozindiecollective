@@ -732,6 +732,27 @@ export async function removeOrganizationMember(profileId) {
   if (error) throw error
 }
 
+// Feature flag for self-serve Stripe checkout (pages/upgrade.html). Off by
+// default — flip to true only once a real Stripe account exists (business
+// registered, live-mode keys issued) AND the stripe-checkout/stripe-webhook
+// Edge Functions are deployed with STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET
+// set. Until then, pages/upgrade.html shows a "launching soon" state instead
+// of live Subscribe buttons — the checkout/webhook code is fully built and
+// safe to test end-to-end against Stripe TEST MODE keys before this flips,
+// it just isn't reachable by real visitors while it's false.
+export const STRIPE_ENABLED = false
+
+// Starts a self-serve annual Stripe Checkout for a business plan. Redirects
+// the browser to Stripe on success — the organization itself isn't created
+// until stripe-webhook's checkout.session.completed handler fires once
+// payment actually succeeds (see that function's header comment for why).
+export async function createCheckoutSession({ orgName, plan }) {
+  const { data, error } = await supabase.functions.invoke('stripe-checkout', { body: { orgName, plan } })
+  if (error) throw error
+  if (data?.error) throw new Error(data.error)
+  return data.url
+}
+
 export async function getOrganizationMembers(orgId) {
   const { data, error } = await supabase
     .from('profiles')

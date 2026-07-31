@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business Plans — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css?v=6e921d52">
+<style>
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem}
+@media(max-width:1000px){.plans-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.plans-grid{grid-template-columns:1fr}}
+.plan-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:1.75rem 1.5rem;display:flex;flex-direction:column}
+.plan-card.featured{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.05)}
+.plan-name{font-family:var(--font-display);font-size:1.25rem;color:var(--cream);margin-bottom:.25rem}
+.plan-price{font-family:var(--font-mono);font-size:1.6rem;color:var(--marigold);margin-bottom:.15rem}
+.plan-price span{font-size:.7rem;color:var(--muted);font-weight:400}
+.plan-seats{font-size:.75rem;color:var(--muted);margin-bottom:1.1rem}
+.plan-features{list-style:none;flex:1;margin-bottom:1.25rem}
+.plan-features li{font-size:.8rem;color:var(--muted);padding:.35rem 0;border-top:1px solid var(--border)}
+.plan-features li:first-child{border-top:none}
+.enterprise-card{background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:6px;padding:2rem;text-align:center;margin-bottom:2rem}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-upgrade/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Business Plans</div>
+    <h1 class="section-title">Bring Your <em>Whole Team</em></h1>
+    <p class="text-muted mt-2" style="max-width:560px;line-height:1.7">Give your business a home in the Collective — verified badge, higher listing caps, and seats for the people who work with you. Billed annually.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner" style="max-width:1100px">
+
+    <div id="comingSoonNotice" class="alert alert-info mb-4 hidden">
+      <span>🚧</span><span>Business plans aren't open for self-serve signup yet — we're finishing setup. In the meantime, <a href="contact.html" class="text-gold">get in touch</a> and we'll set your organization up manually.</span>
+    </div>
+
+    <div id="alreadyInOrgNotice" class="alert alert-info mb-4 hidden">
+      <span>ℹ️</span><span>You're already part of an organization. <a href="dashboard.html" class="text-gold">Go to your dashboard</a>, or contact an admin to change its plan.</span>
+    </div>
+
+    <div id="plansArea">
+      <div class="plans-grid">
+        <div class="plan-card">
+          <div class="plan-name">SME</div>
+          <div class="plan-price">$50<span> / yr</span></div>
+          <div class="plan-seats">1 seat</div>
+          <ul class="plan-features">
+            <li>5 active job/project listings</li>
+            <li>Verified Business badge</li>
+            <li>Direct messaging</li>
+          </ul>
+          <button class="btn-secondary w-full" data-plan-btn="sme">Subscribe</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">SME Large</div>
+          <div class="plan-price">$85<span> / yr</span></div>
+          <div class="plan-seats">3 seats</div>
+          <ul class="plan-features">
+            <li>15 active job/project listings</li>
+            <li>Verified Business badge</li>
+            <li>Direct messaging</li>
+          </ul>
+          <button class="btn-secondary w-full" data-plan-btn="sme_large">Subscribe</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Corporate</div>
+          <div class="plan-price">$350<span> / yr</span></div>
+          <div class="plan-seats">5 seats</div>
+          <ul class="plan-features">
+            <li>Unlimited active listings</li>
+            <li>Featured badge</li>
+            <li>Submit sponsored programs</li>
+          </ul>
+          <button class="btn-primary w-full" data-plan-btn="corporate">Subscribe</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Partner</div>
+          <div class="plan-price">$1,000<span> / yr</span></div>
+          <div class="plan-seats">10 seats</div>
+          <ul class="plan-features">
+            <li>Unlimited active listings</li>
+            <li>Featured badge</li>
+            <li>Submit sponsored programs</li>
+          </ul>
+          <button class="btn-primary w-full" data-plan-btn="partner">Subscribe</button>
+        </div>
+      </div>
+
+      <div class="enterprise-card">
+        <div class="text-xs mono text-gold mb-2" style="letter-spacing:.1em;text-transform:uppercase">Enterprise</div>
+        <div style="color:var(--cream);font-size:.95rem;margin-bottom:.75rem">20 seats, by agreement — priced around your organization's specific needs.</div>
+        <a href="contact.html" class="btn-secondary">Contact Us</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="modal-overlay" id="subscribeModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('subscribeModal')">✕</button>
+    <div class="modal-title" id="smTitle">Subscribe</div>
+    <div class="modal-sub">Name your organization — this is what your team and members will see.</div>
+    <div class="form-group"><label>Organization Name</label><input type="text" id="sm_org_name" placeholder="e.g. Sunset Studios Pty Ltd"></div>
+    <button class="btn-primary w-full btn-lg" id="smSubmitBtn" onclick="window.__submitSubscribe()">Continue to Payment</button>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=5b1ce4cd"></script>
+<script src="../assets/js/main.js?v=43ed9788"></script>
+<script type="module">
+import { getSession, getCurrentProfile, createCheckoutSession, STRIPE_ENABLED } from '../assets/js/supabase.js?v=c5014a39';
+
+let selectedPlan = null;
+
+async function init(){
+  const session = await getSession();
+  if(!session){ window.location.href = 'login.html'; return; }
+
+  if(!STRIPE_ENABLED){
+    document.getElementById('comingSoonNotice').classList.remove('hidden');
+    document.getElementById('plansArea').querySelectorAll('[data-plan-btn]').forEach(b => { b.disabled = true; b.textContent = 'Coming Soon'; });
+    return;
+  }
+
+  try{
+    const profile = await getCurrentProfile();
+    if(profile?.organization_id){
+      document.getElementById('alreadyInOrgNotice').classList.remove('hidden');
+      document.getElementById('plansArea').querySelectorAll('[data-plan-btn]').forEach(b => { b.disabled = true; });
+    }
+  }catch(err){
+    // Non-fatal — worst case a member who's already in an org sees the
+    // buttons enabled and gets stopped server-side by stripe-checkout's own
+    // organization_id check instead.
+    console.warn('Failed to check existing organization membership:', err.message);
+  }
+}
+
+document.getElementById('plansArea').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-plan-btn]');
+  if(!btn || btn.disabled) return;
+  selectedPlan = btn.dataset.planBtn;
+  document.getElementById('smTitle').textContent = `Subscribe — ${btn.closest('.plan-card').querySelector('.plan-name').textContent}`;
+  document.getElementById('sm_org_name').value = '';
+  openModal('subscribeModal');
+});
+
+window.__submitSubscribe = async function(){
+  const orgName = document.getElementById('sm_org_name').value.trim();
+  if(!orgName){ showToast('Organization name is required.','danger'); return; }
+  const btn = document.getElementById('smSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Redirecting to payment…';
+  try{
+    const url = await createCheckoutSession({ orgName, plan: selectedPlan });
+    window.location.href = url;
+  }catch(err){
+    showToast(err.message || 'Failed to start checkout.','danger');
+    btn.disabled = false; btn.textContent = 'Continue to Payment';
+  }
+};
+
+window.onReady(init);
+</script>
+</body>
+</html>

@@ -1294,6 +1294,35 @@ begin
   end if;
 end $$;
 
+-- 23f. STRIPE BILLING — self-serve checkout for sme/sme_large/corporate/
+-- partner (Enterprise stays admin-only/plan_source='admin' and never gets
+-- these columns populated — see stripe-checkout Edge Function, which
+-- rejects 'enterprise' outright). Null on every column here means "not a
+-- Stripe-billed org" (admin-created). Written only by the stripe-checkout
+-- and stripe-webhook Edge Functions using the service-role key — there's no
+-- RLS policy allowing clients to set these directly, since "Admins can
+-- manage organizations" (for) and "Members can view their own organization"
+-- (select-only) above are the only policies on this table.
+alter table public.organizations add column if not exists stripe_customer_id text;
+alter table public.organizations add column if not exists stripe_subscription_id text;
+alter table public.organizations add column if not exists stripe_status text;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'organizations_stripe_subscription_id_key') then
+    alter table public.organizations add constraint organizations_stripe_subscription_id_key unique (stripe_subscription_id);
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (select 1 from pg_constraint where conname = 'organizations_stripe_status_check') then
+    alter table public.organizations drop constraint organizations_stripe_status_check;
+  end if;
+  alter table public.organizations add constraint organizations_stripe_status_check
+    check (stripe_status is null or stripe_status in ('active','trialing','past_due','unpaid','canceled','incomplete'));
+end $$;
+
 -- Seats included per business tier — matches the pricing table in section 23
 -- above (sme=1, sme_large=3, corporate=5, partner=10, enterprise=20). Free
 -- isn't a valid organizations.plan value (individuals don't have orgs), so

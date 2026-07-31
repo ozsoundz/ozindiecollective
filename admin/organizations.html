@@ -65,9 +65,9 @@
 
     <div style="background:rgba(240,237,230,.03);border:1px solid var(--border);border-radius:4px;overflow-x:auto">
       <table class="data-table" id="orgsTable">
-        <thead><tr><th>Organization</th><th>Plan</th><th>Seats</th><th>Owner</th><th>Created</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Organization</th><th>Plan</th><th>Seats</th><th>Billing</th><th>Owner</th><th>Created</th><th>Actions</th></tr></thead>
         <tbody id="orgsTableBody">
-          <tr><td colspan="6" class="text-muted text-sm">Loading organizations…</td></tr>
+          <tr><td colspan="7" class="text-muted text-sm">Loading organizations…</td></tr>
         </tbody>
       </table>
     </div>
@@ -147,10 +147,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=54f4ce2e"></script>
-<script src="../assets/js/main.js?v=03b4284a"></script>
+<script src="../assets/js/nav-inject.js?v=5b1ce4cd"></script>
+<script src="../assets/js/main.js?v=43ed9788"></script>
 <script type="module">
-import { getOrganizations, createOrganization, updateOrganizationPlan, deleteOrganization, addOrganizationMember, removeOrganizationMember, getAllOrganizationMembers, getUnaffiliatedApprovedMembers, updatePassword, PLAN_SEAT_LIMITS } from '../assets/js/supabase.js?v=c667fb13';
+import { getOrganizations, createOrganization, updateOrganizationPlan, deleteOrganization, addOrganizationMember, removeOrganizationMember, getAllOrganizationMembers, getUnaffiliatedApprovedMembers, updatePassword, PLAN_SEAT_LIMITS } from '../assets/js/supabase.js?v=c5014a39';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -184,6 +184,16 @@ function fmtDate(iso){
   return new Date(iso).toLocaleDateString('en-AU',{month:'short',year:'numeric'});
 }
 
+const STRIPE_STATUS_TAGS = {active:'tag-approved',trialing:'tag-approved',past_due:'tag-denied',unpaid:'tag-denied',canceled:'tag-denied',incomplete:'tag-denied'};
+const STRIPE_STATUS_LABELS = {active:'Active',trialing:'Trialing',past_due:'Past Due',unpaid:'Unpaid',canceled:'Canceled',incomplete:'Incomplete'};
+function billingBadge(o){
+  const e = escapeHtml;
+  if(!o.stripe_subscription_id) return '<span class="text-xs text-muted">Manually managed</span>';
+  const tag = STRIPE_STATUS_TAGS[o.stripe_status] || 'tag-gold';
+  const label = STRIPE_STATUS_LABELS[o.stripe_status] || o.stripe_status || 'Unknown';
+  return `<span class="tag ${tag}" style="font-size:.55rem">Stripe: ${e(label)}</span>`;
+}
+
 function renderOrgRow(o){
   const e = escapeHtml;
   const used = (membersByOrg[o.id]||[]).length;
@@ -196,6 +206,7 @@ function renderOrgRow(o){
     <td style="color:var(--cream);font-weight:600">${e(o.name)}</td>
     <td><span class="tag ${planTag}" style="font-size:.55rem">${e(planLabel)}</span></td>
     <td><span class="org-seats${full?' full':''}">${used} / ${limit}</span></td>
+    <td>${billingBadge(o)}</td>
     <td>${e(ownerName)}</td>
     <td>${fmtDate(o.created_at)}</td>
     <td><div class="flex gap-1" style="flex-wrap:wrap">
@@ -209,7 +220,7 @@ function renderOrgRow(o){
 function renderTable(){
   document.getElementById('orgsTableBody').innerHTML = orgs.length
     ? orgs.map(renderOrgRow).join('')
-    : '<tr><td colspan="6" class="text-muted text-sm">No organizations yet — create one to assign a business plan.</td></tr>';
+    : '<tr><td colspan="7" class="text-muted text-sm">No organizations yet — create one to assign a business plan.</td></tr>';
 }
 
 async function populateOwnerPicker(){
@@ -376,7 +387,7 @@ async function load(){
     document.getElementById('orgSummary').textContent = `${orgs.length} organization${orgs.length===1?'':'s'} · ${usedSeats} / ${totalSeats} seats in use`;
     renderTable();
   }catch(err){
-    document.getElementById('orgsTableBody').innerHTML = `<tr><td colspan="6" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+    document.getElementById('orgsTableBody').innerHTML = `<tr><td colspan="7" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
   }
 }
 
