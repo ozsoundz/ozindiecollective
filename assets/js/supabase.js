@@ -323,7 +323,7 @@ export const PLAN_LISTING_CAPS = { free: 1, sme: 5, sme_large: 15, corporate: nu
 // Seats included per paid business tier — mirrors plan_seat_limit() in
 // schema.sql. Used client-side for the Organizations admin UI (e.g. "3 / 8
 // seats used") without a round trip for something that never changes.
-export const PLAN_SEAT_LIMITS = { sme: 1, sme_large: 3, corporate: 8, partner: 10, enterprise: 20 }
+export const PLAN_SEAT_LIMITS = { sme: 1, sme_large: 3, corporate: 5, partner: 10, enterprise: 20 }
 
 // Active job listing count + cap for the current member, so post-job.html
 // can show "you've reached your limit" before/instead of a raw RLS error.

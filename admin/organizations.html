@@ -96,7 +96,7 @@
       <select id="co_plan">
         <option value="sme">SME — $50/yr, 1 seat</option>
         <option value="sme_large">SME Large — $85/yr, 3 seats</option>
-        <option value="corporate">Corporate — $350/yr, 8 seats</option>
+        <option value="corporate">Corporate — $350/yr, 5 seats</option>
         <option value="partner">Partner — $1,000/yr, 10 seats</option>
         <option value="enterprise">Enterprise — by agreement, 20 seats</option>
       </select>
@@ -121,7 +121,7 @@
       <select id="op_plan">
         <option value="sme">SME — $50/yr, 1 seat</option>
         <option value="sme_large">SME Large — $85/yr, 3 seats</option>
-        <option value="corporate">Corporate — $350/yr, 8 seats</option>
+        <option value="corporate">Corporate — $350/yr, 5 seats</option>
         <option value="partner">Partner — $1,000/yr, 10 seats</option>
         <option value="enterprise">Enterprise — by agreement, 20 seats</option>
       </select>
@@ -147,10 +147,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=2376f985"></script>
-<script src="../assets/js/main.js?v=1efd9019"></script>
+<script src="../assets/js/nav-inject.js?v=54f4ce2e"></script>
+<script src="../assets/js/main.js?v=03b4284a"></script>
 <script type="module">
-import { getOrganizations, createOrganization, updateOrganizationPlan, deleteOrganization, addOrganizationMember, removeOrganizationMember, getAllOrganizationMembers, getUnaffiliatedApprovedMembers, updatePassword, PLAN_SEAT_LIMITS } from '../assets/js/supabase.js?v=a8cc0499';
+import { getOrganizations, createOrganization, updateOrganizationPlan, deleteOrganization, addOrganizationMember, removeOrganizationMember, getAllOrganizationMembers, getUnaffiliatedApprovedMembers, updatePassword, PLAN_SEAT_LIMITS } from '../assets/js/supabase.js?v=c667fb13';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;

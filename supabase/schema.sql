@@ -1098,7 +1098,7 @@ create policy "Admins can delete success stories" on public.success_stories for 
 -- free       — Individuals & indie artists. Always free, no Stripe product.
 -- sme        — $50/yr, single account (1 seat).
 -- sme_large  — $85/yr, up to 3 accounts (seats).
--- corporate  — $350/yr, up to 8 accounts (seats).
+-- corporate  — $350/yr, up to 5 accounts (seats).
 -- partner    — $1,000/yr, up to 10 accounts (seats).
 -- enterprise — By agreement. Admin-set only (plan_source = 'admin');
 --              deliberately excluded from Stripe entirely. Up to 20 seats.
@@ -1295,7 +1295,7 @@ begin
 end $$;
 
 -- Seats included per business tier — matches the pricing table in section 23
--- above (sme=1, sme_large=3, corporate=8, partner=10, enterprise=20). Free
+-- above (sme=1, sme_large=3, corporate=5, partner=10, enterprise=20). Free
 -- isn't a valid organizations.plan value (individuals don't have orgs), so
 -- there's no case for it here.
 create or replace function public.plan_seat_limit(p_plan text)
@@ -1306,7 +1306,7 @@ as $$
   select case p_plan
     when 'sme' then 1
     when 'sme_large' then 3
-    when 'corporate' then 8
+    when 'corporate' then 5
     when 'partner' then 10
     when 'enterprise' then 20
     else 1
