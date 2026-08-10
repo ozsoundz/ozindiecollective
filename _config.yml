@@ -11,10 +11,22 @@ theme: null
 plugins: []
 
 # Exclude from build
+# SECURITY (2026-08): supabase/ and scripts/ were NOT excluded here, which
+# means Jekyll was copying them straight into _site — the full DB schema
+# (every RLS policy, admin function definitions, plan/pricing logic) and the
+# edge function source were being served publicly at
+# ozindiecollective.com.au/supabase/schema.sql and /supabase/functions/*.
+# This is a stopgap for GitHub Pages while it's still live; the Cloudflare
+# migration handles this properly via .assetsignore instead (see wrangler
+# config), since backend source shouldn't be inside the deployed directory
+# at all long-term.
 exclude:
   - README.md
   - "*.sh"
+  - "*.py"
   - node_modules/
+  - supabase/
+  - scripts/
 
 # Include 404 page
 include:

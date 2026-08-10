@@ -1,0 +1,16 @@
+{
+  // Explicit static-assets config so Cloudflare's build doesn't try to
+  // auto-detect a framework. Without this file, wrangler's auto-config saw
+  // _config.yml (a leftover, unused GitHub Pages/Jekyll artifact — this
+  // site has no Jekyll templating in it) and guessed this was a Jekyll
+  // project, generating a build command of `npx bundle exec jekyll build`
+  // with no Gemfile/Jekyll installed anywhere — which is what failed.
+  // This is a plain static HTML/CSS/JS site: no build step, serve the
+  // repo directly (minus the exclusions in .assetsignore).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ozindiecollective",
+  "compatibility_date": "2026-08-10",
+  "assets": {
+    "directory": "."
+  }
+}

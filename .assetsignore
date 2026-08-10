@@ -1,0 +1,21 @@
+# Wrangler's static-assets ignore file (gitignore syntax) — controls what
+# gets uploaded and served from the "assets.directory" in wrangler.jsonc.
+#
+# SECURITY (2026-08): supabase/ and scripts/ must never be served as public
+# assets — supabase/schema.sql contains every RLS policy, admin function
+# definition, and plan/pricing business logic, and supabase/functions/
+# contains edge function source. These were accidentally publicly served
+# on GitHub Pages (see _config.yml) and are excluded here from day one on
+# Cloudflare instead of being caught after the fact.
+
+.git
+.github
+.DS_Store
+supabase/
+scripts/
+README.md
+_config.yml
+wrangler.jsonc
+*.py
+*.sh
+{assets/

@@ -1,0 +1,17 @@
+# Cloudflare Pages reads this file automatically and applies these headers
+# to every response. Harmless (ignored) on GitHub Pages, so safe to ship
+# ahead of the actual migration.
+#
+# A strict Content-Security-Policy is deliberately NOT included yet — this
+# site pulls from several third-party origins (Google Fonts, cdnjs, the
+# Supabase project URL, picsum.photos placeholder images, and eventually
+# Stripe.js once billing is enabled), and getting a CSP allowlist wrong
+# silently breaks the site rather than failing loudly. Worth doing as a
+# follow-up once the Supabase project URL and Stripe are both finalised.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
