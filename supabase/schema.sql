@@ -47,21 +47,6 @@ drop policy if exists "Users can update own profile" on public.profiles;
 drop policy if exists "Admins can view all profiles" on public.profiles;
 drop policy if exists "Admins can update all profiles" on public.profiles;
 
--- Anyone can read APPROVED profiles (needed for the public directory page)
-create policy "Public can view approved profiles"
-  on public.profiles for select
-  using (status = 'approved');
-
--- Users can always read their own profile, regardless of status
-create policy "Users can view own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
-
--- Users can update their own profile (but not flip their own status/is_admin — enforce that in the app layer / a trigger if needed later)
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
-
 -- Admins can read and update every profile (vetting queue).
 -- IMPORTANT: this must go through a security-definer function, not a raw
 -- subquery on profiles — a policy on `profiles` that queries `profiles`
@@ -78,6 +63,41 @@ stable
 as $$
   select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
 $$;
+
+-- Same security-definer pattern as is_admin() above, to avoid the same
+-- recursion trap: checks whether the CALLER is a logged-in, approved member.
+create or replace function public.is_approved_member()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce((select status = 'approved' from public.profiles where id = auth.uid()), false);
+$$;
+
+-- SECURITY CHANGE (2026-08): profiles used to be readable by ANY anonymous
+-- visitor once status='approved', which meant every member's email and other
+-- non-public fields (referral_source, goals, proud_project) were scrapable
+-- directly via the REST API, not just visible in the app UI — RLS is
+-- row-level only, so "public can read this row" always meant every column.
+-- Directory browsing and profile pages are now members-only: the viewer must
+-- be authenticated AND themselves an approved member. Anonymous visitors and
+-- pending/denied accounts see nothing here.
+drop policy if exists "Public can view approved profiles" on public.profiles;
+create policy "Approved members can view other approved profiles"
+  on public.profiles for select
+  using (auth.uid() is not null and public.is_approved_member() and status = 'approved');
+
+-- Users can always read their own profile, regardless of status
+create policy "Users can view own profile"
+  on public.profiles for select
+  using (auth.uid() = id);
+
+-- Users can update their own profile (but not flip their own status/is_admin — enforce that in the app layer / a trigger if needed later)
+create policy "Users can update own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
 
 create policy "Admins can view all profiles"
   on public.profiles for select
@@ -147,14 +167,53 @@ end $$;
 alter table public.listings enable row level security;
 
 drop policy if exists "Public can view live listings" on public.listings;
+drop policy if exists "Registered members can view live listings" on public.listings;
 drop policy if exists "Posters can view own listings" on public.listings;
 drop policy if exists "Authenticated users can create listings" on public.listings;
 drop policy if exists "Admins can view all listings" on public.listings;
 drop policy if exists "Admins can update all listings" on public.listings;
 
-create policy "Public can view live listings"
+-- SECURITY CHANGE (2026-08): this used to be `using (status = 'live')` with
+-- no auth check, so full listing rows — description, pay, contact_email —
+-- were readable by any anonymous caller via the REST API, even though the
+-- app UI only ever showed non-members a teaser. RLS is the real boundary;
+-- the app-level gating in opportunities.html can't stop a direct API call.
+-- Now requires a logged-in session — any registered member, approved or
+-- not, matching the "registered members only" gating decision.
+create policy "Registered members can view live listings"
   on public.listings for select
-  using (status = 'live');
+  using (status = 'live' and auth.uid() is not null);
+
+-- PUBLIC TEASER (2026-08): the board is discoverable to signed-out visitors
+-- for growth/SEO, but only a short, explicit allowlist of non-sensitive
+-- columns — no description, no contact_email, no poster identity (posted_by
+-- is deliberately omitted, so no profiles embed is even possible from this
+-- result set). SECURITY DEFINER so it runs as the function owner and
+-- bypasses the auth-required RLS policy above — safe here only because the
+-- column list is hardcoded in the function body, not caller-supplied, so
+-- there's no way to widen it into a *select from a request.
+create or replace function public.get_public_listings()
+returns table (
+  id uuid,
+  title text,
+  category text,
+  employment_type text,
+  city text,
+  state text,
+  pay text,
+  tags text[],
+  created_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select id, title, category, employment_type, city, state, pay, tags, created_at
+  from public.listings
+  where status = 'live'
+  order by created_at desc;
+$$;
 
 create policy "Posters can view own listings"
   on public.listings for select
@@ -591,14 +650,44 @@ end $$;
 alter table public.projects enable row level security;
 
 drop policy if exists "Public can view live projects" on public.projects;
+drop policy if exists "Registered members can view live projects" on public.projects;
 drop policy if exists "Posters can view own projects" on public.projects;
 drop policy if exists "Authenticated users can create projects" on public.projects;
 drop policy if exists "Admins can view all projects" on public.projects;
 drop policy if exists "Admins can update all projects" on public.projects;
 
-create policy "Public can view live projects"
+-- SECURITY CHANGE (2026-08): same fix as listings above — requires a
+-- logged-in session so full project rows aren't readable via a direct API
+-- call by an anonymous visitor.
+create policy "Registered members can view live projects"
   on public.projects for select
-  using (status = 'live');
+  using (status = 'live' and auth.uid() is not null);
+
+-- PUBLIC TEASER (2026-08): same pattern as get_public_listings() above —
+-- fixed, non-sensitive column allowlist only, no description, no poster
+-- identity (posted_by omitted).
+create or replace function public.get_public_projects()
+returns table (
+  id uuid,
+  title text,
+  category text,
+  project_type text,
+  discipline_needed text,
+  city text,
+  state text,
+  timeframe text,
+  created_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select id, title, category, project_type, discipline_needed, city, state, timeframe, created_at
+  from public.projects
+  where status = 'live'
+  order by created_at desc;
+$$;
 
 create policy "Posters can view own projects"
   on public.projects for select
@@ -1051,14 +1140,21 @@ $$;
 
 drop policy if exists "Public can view listings behind confirmed collaborations" on public.listings;
 drop policy if exists "Public can view projects behind confirmed collaborations" on public.projects;
+drop policy if exists "Registered members can view listings behind confirmed collaborations" on public.listings;
+drop policy if exists "Registered members can view projects behind confirmed collaborations" on public.projects;
 
-create policy "Public can view listings behind confirmed collaborations"
+-- SECURITY CHANGE (2026-08): profile pages that surface this collab history
+-- are now members-only (see profiles RLS above), so this no longer needs to
+-- serve anonymous visitors either — added the same auth.uid() check as the
+-- live-listing/project policies above, for consistency and to close the
+-- same direct-API-call gap.
+create policy "Registered members can view listings behind confirmed collaborations"
   on public.listings for select
-  using (public.listing_has_confirmed_collab(listings.id));
+  using (auth.uid() is not null and public.listing_has_confirmed_collab(listings.id));
 
-create policy "Public can view projects behind confirmed collaborations"
+create policy "Registered members can view projects behind confirmed collaborations"
   on public.projects for select
-  using (public.project_has_confirmed_collab(projects.id));
+  using (auth.uid() is not null and public.project_has_confirmed_collab(projects.id));
 
 -- 22. SUCCESS STORIES TABLE (homepage "Real Stories" showcase, admin-curated)
 create table if not exists public.success_stories (
@@ -1699,6 +1795,15 @@ create table if not exists public.profile_views (
 alter table public.profile_views add column if not exists viewer_id uuid references auth.users(id) on delete set null;
 alter table public.profile_views add column if not exists viewed_id uuid references auth.users(id) on delete cascade;
 alter table public.profile_views add column if not exists created_at timestamptz default now();
+
+-- PostgREST can only auto-embed profiles:viewer_id(...) if there's a direct FK
+-- from profile_views to public.profiles. viewer_id only pointed at auth.users,
+-- so the embed in getProfileViewInsights() failed with "Could not find a
+-- relationship between 'profile_views' and 'viewer_id'". profiles.id is a 1:1
+-- mirror of auth.users.id, so this FK is safe to add against existing data.
+alter table public.profile_views drop constraint if exists profile_views_viewer_id_profiles_fkey;
+alter table public.profile_views add constraint profile_views_viewer_id_profiles_fkey
+  foreign key (viewer_id) references public.profiles(id) on delete set null;
 
 alter table public.profile_views enable row level security;
 

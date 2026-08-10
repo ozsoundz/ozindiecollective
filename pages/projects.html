@@ -68,7 +68,7 @@
 <script src="../assets/js/nav-inject.js?v=5b1ce4cd"></script>
 <script src="../assets/js/main.js?v=43ed9788"></script>
 <script type="module">
-import { getProjects, applyToProject, sendConnectionEmail } from '../assets/js/supabase.js?v=c5014a39';
+import { getProjects, getPublicProjects, applyToProject, sendConnectionEmail } from '../assets/js/supabase.js?v=892f030b';
 
 const CARD_COLORS = ['c-gold','c-rust','c-sage','c-purple'];
 let projects = [];
@@ -91,16 +91,28 @@ function timeAgo(iso){
 
 function cardHtml(p){
   const e = escapeHtml;
+  const loggedIn = !!Auth.get();
   const meta = [p.category, p.project_type].filter(Boolean).join(' / ');
   const loc = [p.city, p.state].filter(Boolean).join(', ') || '—';
-  const badge = window.tierBadgeHtml ? window.tierBadgeHtml(p.profiles?.plan) : '';
+  // Poster tier badge and full description are members-only, same as the
+  // job/gig board — profiles RLS (schema.sql) already blocks anonymous
+  // callers from reading p.profiles at all, so this just makes the
+  // signed-out copy intentional instead of a blank fallback.
+  const badge = loggedIn && window.tierBadgeHtml ? window.tierBadgeHtml(p.profiles?.plan) : '';
+  const posterLine = loggedIn ? '' : `<p class="text-xs text-muted mb-2">Posted by a verified member</p>`;
+  const detailHtml = loggedIn
+    ? `<p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">${e(p.description||'')}</p>`
+    : `<p class="text-sm mb-2" style="line-height:1.6;margin-bottom:1.1rem"><a href="login.html" style="color:var(--cyan)">Sign in to view full details →</a></p>`;
+  const applyHtml = loggedIn
+    ? `<a href="#" data-action="apply" data-id="${e(p.id)}" data-title="${e(p.title||'this project')}" class="apply-link">Apply Now →</a>`
+    : `<a href="login.html" class="apply-link">Sign in to apply →</a>`;
   return `<div class="pcard ${colorFor(p.id)} fade-in" data-id="${e(p.id)}">
     <div class="tag tag-gold mb-2">${e(meta||'Project')}</div>
     <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.4rem;line-height:1.25">${e(p.title||'(untitled)')}</h3>
-    ${badge ? `<div class="mb-2">${badge}</div>` : ''}
+    ${badge ? `<div class="mb-2">${badge}</div>` : posterLine}
     <p class="text-xs text-muted mb-2">📍 ${e(loc)} · ${e(p.timeframe || timeAgo(p.created_at))}</p>
-    <p class="text-sm text-muted" style="line-height:1.6;margin-bottom:1.1rem">${e(p.description||'')}</p>
-    <a href="#" data-action="apply" data-id="${e(p.id)}" data-title="${e(p.title||'this project')}" class="apply-link">Apply Now →</a>
+    ${detailHtml}
+    ${applyHtml}
   </div>`;
 }
 
@@ -149,8 +161,12 @@ window.submitProj = async function() {
 };
 
 async function load(){
+  const loggedIn = !!Auth.get();
   try {
-    projects = await getProjects();
+    // Signed-out visitors get the public teaser (title/category/location
+    // only, via get_public_projects() — see schema.sql); logged-in members
+    // get the full row including description and poster identity.
+    projects = loggedIn ? await getProjects() : await getPublicProjects();
     render();
   } catch(err) {
     document.getElementById('projGrid').innerHTML = `<p class="text-muted text-sm">Failed to load projects: ${err.message}</p>`;

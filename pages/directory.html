@@ -97,7 +97,7 @@
 <script src="../assets/js/nav-inject.js?v=5b1ce4cd"></script>
 <script src="../assets/js/main.js?v=43ed9788"></script>
 <script type="module">
-import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=c5014a39';
+import { getMembers, getSavedSearches, createSavedSearch, deleteSavedSearch, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark } from '../assets/js/supabase.js?v=892f030b';
 
 const AVATAR_CLASSES = ['av-gold','av-rust','av-sage','av-blue','av-purple'];
 function avatarClass(seed=''){
@@ -304,6 +304,20 @@ window.saveCurrentSearch = async function(){
 async function load(){
   const grid = document.getElementById('dirGrid');
   const user = Auth.get();
+
+  // Directory is members-only: profiles RLS now requires the caller to be a
+  // logged-in, approved member (see schema.sql), so an anonymous or
+  // pending/denied visitor would just get an empty result from getMembers().
+  // Redirect them to login instead of showing a confusing "0 members found".
+  if(!user){
+    window.location.href = 'login.html';
+    return;
+  }
+  if(!Auth.isApproved()){
+    grid.innerHTML = '<p class="text-muted text-sm">The member directory is available once your account is approved. We\'ll email you when that happens.</p>';
+    return;
+  }
+
   if(isPaidPlan(user?.plan)){
     document.getElementById('advancedFiltersBox').classList.remove('hidden');
     loadSavedSearches();

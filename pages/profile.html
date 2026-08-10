@@ -211,7 +211,7 @@ function saveProfile() {
 }
 </script>
 <script type="module">
-import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=c5014a39';
+import { getSession, getMemberEpk, updateOwnEpk, getProfileById, updateOwnProfile, uploadOwnMedia, getPublicCollaborations, isPaidPlan, getMyBookmarks, addBookmark, removeBookmark, logProfileView, getProfileViewInsights, getMyConversations, startConversation } from '../assets/js/supabase.js?v=892f030b';
 
 let pendingAvatarUrl = null;
 let bookmarkRecordId = null;
@@ -429,6 +429,21 @@ window.onReady(async () => {
 
   const isOwnProfile = !!(session && session.user.id === viewedId);
   const currentUser = window.Auth ? Auth.get() : null;
+
+  // Profiles are members-only: viewing someone else's profile requires being
+  // logged in AND approved (matches the "Approved members can view other
+  // approved profiles" RLS policy in schema.sql). Own-profile viewing is
+  // always allowed regardless of approval status.
+  if (!isOwnProfile) {
+    if (!session) {
+      window.location.href = 'login.html';
+      return;
+    }
+    if (!Auth.isApproved()) {
+      document.getElementById('ph_name').textContent = 'Member profiles are visible to approved members only';
+      return;
+    }
+  }
 
   if (!isOwnProfile) logProfileView(viewedId);
 

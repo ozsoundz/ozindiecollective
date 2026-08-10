@@ -93,7 +93,7 @@
 <script src="../assets/js/nav-inject.js?v=5b1ce4cd"></script>
 <script src="../assets/js/main.js?v=43ed9788"></script>
 <script type="module">
-import { getListings, getListingById, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=c5014a39';
+import { getListings, getPublicListings, getListingById, applyToListing, sendConnectionEmail } from '../assets/js/supabase.js?v=892f030b';
 
 let listings = [];
 let currentListingId = null;
@@ -104,20 +104,39 @@ function posterBadge(plan){
   return badge ? ` &nbsp;·&nbsp; ${badge}` : '';
 }
 
+// Poster identity (name + tier badge) is only shown to logged-in members —
+// signed-out visitors see a generic "Posted by a verified member" line.
+// This matches profiles RLS (schema.sql), which no longer lets anonymous
+// callers read poster names at all, so job.profiles will already be null
+// for them here — this just makes the public-facing copy intentional
+// rather than an accidental blank/fallback.
+function posterLine(job){
+  const e = escapeHtml;
+  if(!Auth.get()) return 'Posted by a verified member';
+  return e(job.profiles?.full_name || 'Oz Indie Collective Member') + posterBadge(job.profiles?.plan);
+}
+
 function renderCard(job, i){
   const e = escapeHtml;
-  const posterName = job.profiles?.full_name || 'Oz Indie Collective Member';
-  const posterPlan = job.profiles?.plan;
+  const loggedIn = !!Auth.get();
+  // Signed-out visitors get a teaser card only — title, category, location,
+  // pay range — with the full description and apply flow gated behind
+  // login. This keeps the board discoverable for growth/SEO without giving
+  // away listing details (and applicant contact) to anyone who isn't a
+  // registered member.
+  const detailHtml = loggedIn
+    ? `<p class="text-sm text-muted mb-2" style="line-height:1.6">${e(job.description||'')}</p>`
+    : `<p class="text-sm mb-2" style="line-height:1.6"><a href="login.html" style="color:var(--cyan)">Sign in to view full details →</a></p>`;
   return `
   <div class="job-card ${ACCENTS[i%ACCENTS.length]}" data-cat="${e(job.category||'')}" data-type="${e(job.employment_type||'')}" data-loc="${e(job.state||'')}">
     <div class="job-card-header">
       <div>
-        <a href="opportunities.html?id=${e(job.id)}" class="job-title">${e(job.title||'(untitled listing)')}</a>
-        <div class="job-company">${e(posterName)}${posterBadge(posterPlan)}</div>
+        <a href="${loggedIn ? `opportunities.html?id=${e(job.id)}` : 'login.html'}" class="job-title">${e(job.title||'(untitled listing)')}</a>
+        <div class="job-company">${posterLine(job)}</div>
       </div>
       <span class="tag tag-gold">${e(job.employment_type||'—')}</span>
     </div>
-    <p class="text-sm text-muted mb-2" style="line-height:1.6">${e(job.description||'')}</p>
+    ${detailHtml}
     <div class="job-tags">${(job.tags||[]).map(t=>`<span class="tag tag-sage">${e(t)}</span>`).join('')}</div>
     <div class="job-footer">
       <span class="job-location">📍 ${e([job.city,job.state].filter(Boolean).join(', ')||'—')}</span>
@@ -184,8 +203,13 @@ window.submitApplication = async function() {
 
 async function load(){
   const container = document.getElementById('jobListings');
+  const loggedIn = !!Auth.get();
   try{
-    listings = await getListings();
+    // Signed-out visitors get the public teaser (title/category/location/pay
+    // only, via get_public_listings() — see schema.sql) so the board stays
+    // discoverable; logged-in members get the full row including
+    // description and poster identity, subject to their own RLS.
+    listings = loggedIn ? await getListings() : await getPublicListings();
     container.innerHTML = listings.length ? listings.map(renderCard).join('') : '<p class="text-muted text-sm">No live opportunities right now — check back soon.</p>';
     populateCategoryFilter();
     document.getElementById('jobCount').textContent = listings.length;
@@ -198,16 +222,26 @@ async function renderDetail(id){
   document.getElementById('listings').classList.add('hidden');
   document.getElementById('jobDetailSection').classList.remove('hidden');
   const body = document.getElementById('jobDetailBody');
+
+  // Full listing details (description, poster identity, apply flow) are
+  // members-only — don't even fetch the listing for a signed-out visitor,
+  // just point them to login.
+  if(!Auth.get()){
+    body.innerHTML = `
+      <div class="alert alert-info"><span>🔒</span><span class="text-sm">Full opportunity details — including the description and how to apply — are visible to registered Oz Indie Collective members. <a href="login.html" style="color:var(--cyan)">Sign in</a> or <a href="join.html" style="color:var(--cyan)">join</a> to view.</span></div>
+    `;
+    return;
+  }
+
   try{
     const job = await getListingById(id);
     const e = escapeHtml;
-    const posterName = job.profiles?.full_name || 'Oz Indie Collective Member';
     body.innerHTML = `
       <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:1rem">
         <div>
           <span class="tag tag-gold mb-2">${e(job.employment_type||'—')}</span>
           <h1 style="font-family:var(--font-display);font-size:2rem;color:var(--cream);margin:.5rem 0 .5rem;line-height:1.2">${e(job.title||'(untitled listing)')}</h1>
-          <div class="text-sm text-muted">${e(posterName)}${posterBadge(job.profiles?.plan)}</div>
+          <div class="text-sm text-muted">${posterLine(job)}</div>
         </div>
         <button class="btn-primary btn-lg" data-apply-id="${e(job.id)}" data-apply-title="${e(job.title||'')}">Apply Now</button>
       </div>

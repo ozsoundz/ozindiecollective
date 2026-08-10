@@ -323,7 +323,7 @@
 <script src="assets/js/nav-inject.js?v=5b1ce4cd"></script>
 <script src="assets/js/main.js?v=43ed9788"></script>
 <script type="module">
-import { getProjects, getListings, getHomeStats, getSuccessStories, getEvents } from './assets/js/supabase.js?v=c5014a39';
+import { getProjects, getPublicProjects, getListings, getPublicListings, getHomeStats, getSuccessStories, getEvents } from './assets/js/supabase.js?v=892f030b';
 
 const PCARD_COLORS = ['pm','pp','pv','pe'];
 function colorFor(seed=''){
@@ -349,31 +349,43 @@ function fmtMoney(n){
 
 function projectCard(p){
   const e = window.escapeHtml;
+  // p.description is only present when logged in (getProjects()) — the
+  // signed-out teaser (getPublicProjects(), schema.sql) never includes it.
+  const loggedIn = !!Auth.get();
+  const descHtml = loggedIn ? `<div class="pcard-desc">${e((p.description||'').slice(0,140))}${(p.description||'').length>140?'…':''}</div>` : '';
   return `
   <div class="pcard ${colorFor(p.id)} fade-in">
     <div class="tag tag-gold">${e(p.discipline_needed||p.category||'Project')}</div>
     <div class="pcard-title">${e(p.title||'(untitled)')}</div>
     <div class="pcard-meta">📍 ${e([p.city,p.state].filter(Boolean).join(', ')||'—')} &nbsp;·&nbsp; ${e(p.project_type||'—')} &nbsp;·&nbsp; ${e(timeAgo(p.created_at))}</div>
-    <div class="pcard-desc">${e((p.description||'').slice(0,140))}${(p.description||'').length>140?'…':''}</div>
-    <a href="pages/projects.html" class="apply-link">Apply Now →</a>
+    ${descHtml}
+    <a href="pages/projects.html" class="apply-link">${loggedIn?'Apply Now →':'Sign in to view →'}</a>
   </div>`;
 }
 
 function jobCard(j){
   const e = window.escapeHtml;
+  // j.description is only present when logged in (getListings()) — the
+  // signed-out teaser (getPublicListings(), schema.sql) never includes it.
+  const loggedIn = !!Auth.get();
+  const descHtml = loggedIn ? `<div class="pcard-desc">${e((j.description||'').slice(0,140))}${(j.description||'').length>140?'…':''}</div>` : '';
   return `
   <div class="pcard ${colorFor(j.id)} fade-in">
     <div class="tag tag-gold">${e(j.category||'Opportunity')}</div>
     <div class="pcard-title">${e(j.title||'(untitled)')}</div>
     <div class="pcard-meta">📍 ${e([j.city,j.state].filter(Boolean).join(', ')||'—')} &nbsp;·&nbsp; ${e(j.employment_type||'—')} &nbsp;·&nbsp; ${e(timeAgo(j.created_at))}</div>
-    <div class="pcard-desc">${e((j.description||'').slice(0,140))}${(j.description||'').length>140?'…':''}</div>
-    <a href="pages/opportunities.html" class="apply-link">Apply Now →</a>
+    ${descHtml}
+    <a href="pages/opportunities.html" class="apply-link">${loggedIn?'Apply Now →':'Sign in to view →'}</a>
   </div>`;
 }
 
 async function loadFeatured(){
+  const loggedIn = !!Auth.get();
+  // Signed-out visitors get the public teaser (title/location/type only,
+  // via get_public_projects()/get_public_listings() — see schema.sql);
+  // logged-in members get the full row including description.
   try{
-    const projects = await getProjects();
+    const projects = loggedIn ? await getProjects() : await getPublicProjects();
     document.getElementById('featuredProjectsGrid').innerHTML = projects.length
       ? projects.slice(0,6).map(projectCard).join('')
       : '<p class="text-muted text-sm">No live projects right now — check back soon.</p>';
@@ -381,7 +393,7 @@ async function loadFeatured(){
     document.getElementById('featuredProjectsGrid').innerHTML = `<p class="text-muted text-sm">Failed to load projects: ${err.message}</p>`;
   }
   try{
-    const jobs = await getListings();
+    const jobs = loggedIn ? await getListings() : await getPublicListings();
     document.getElementById('featuredJobsGrid').innerHTML = jobs.length
       ? jobs.slice(0,6).map(jobCard).join('')
       : '<p class="text-muted text-sm">No live opportunities right now — check back soon.</p>';

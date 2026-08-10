@@ -219,6 +219,17 @@ export async function getListings({ category, type, state } = {}) {
   return sortFeaturedFirst(data)
 }
 
+// Public teaser for signed-out visitors: title/category/location/pay only —
+// no description, no poster identity. Backed by the get_public_listings()
+// SECURITY DEFINER function (see schema.sql) rather than a select on
+// 'listings' directly, since that table's RLS now requires a logged-in
+// session for any row at all.
+export async function getPublicListings() {
+  const { data, error } = await supabase.rpc('get_public_listings')
+  if (error) throw error
+  return data
+}
+
 // Public: a single live listing for the job-detail view (opportunities.html?id=).
 export async function getListingById(id) {
   const { data, error } = await supabase
@@ -481,6 +492,15 @@ export async function getProjects({ projectType, discipline, state } = {}) {
   const { data, error } = await query
   if (error) throw error
   return sortFeaturedFirst(data)
+}
+
+// Public teaser for signed-out visitors — same rationale as
+// getPublicListings() above: no description, no poster identity, backed by
+// the get_public_projects() SECURITY DEFINER function.
+export async function getPublicProjects() {
+  const { data, error } = await supabase.rpc('get_public_projects')
+  if (error) throw error
+  return data
 }
 
 export async function createProject(projectData) {
