@@ -33,9 +33,19 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const RESEND_FROM = Deno.env.get('RESEND_FROM') ?? 'Oz Indie Collective <onboarding@resend.dev>'
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://ozindiecollective.com.au'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// SECURITY: restrict CORS to our own site instead of '*' — these endpoints
+// still require a valid bearer token, but a wildcard origin let any website
+// make the call. Only the production domain (and its www alias) is allowed.
+const ALLOWED_ORIGINS = new Set([
+  'https://ozindiecollective.com.au',
+  'https://www.ozindiecollective.com.au',
+])
+function buildCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? ''
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://ozindiecollective.com.au',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -48,6 +58,7 @@ async function sendEmail(to: string, subject: string, html: string) {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {

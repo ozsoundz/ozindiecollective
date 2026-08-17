@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Policy — Oz Indie Collective</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css?v=6e921d52">
+<style>
+.prose{max-width:760px}
+.prose h2{font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin:2.5rem 0 .75rem}
+.prose h3{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--marigold);margin:1.5rem 0 .5rem}
+.prose p{color:var(--muted);line-height:1.8;margin-bottom:.95rem;font-size:.92rem}
+.prose ul{list-style:none;margin-bottom:1rem;display:flex;flex-direction:column;gap:.45rem}
+.prose ul li{font-size:.88rem;color:var(--muted);line-height:1.65;padding-left:1.2rem;position:relative}
+.prose ul li::before{content:'·';position:absolute;left:0;color:var(--marigold);font-weight:700}
+</style>
+<link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-hero" data-cms-key="security_policy.hero_image" data-cms-bg="true" style="background-image:linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85)),url('https://picsum.photos/seed/oic-security/1600/500');background-size:cover;background-position:center">
+  <div class="inner">
+    <div class="section-label">Legal</div>
+    <h1 class="section-title">Security <em>Policy</em></h1>
+    <p class="text-muted mt-2">Last updated: 16 August 2026. How to report a security vulnerability, and how we handle it.</p>
+  </div>
+</div>
+<section style="background:var(--ink)">
+  <div class="inner">
+    <div class="prose">
+      <div class="alert alert-info mb-4"><span>🔒</span><span>If you've found a genuine security vulnerability, we want to know. This page tells you how to report it and what to expect from us.</span></div>
+
+      <h2>1. Reporting a Vulnerability</h2>
+      <p>If you believe you've found a security vulnerability affecting Oz Indie Collective (our website, platform, or associated infrastructure), please report it to us privately before disclosing it publicly.</p>
+      <p>Email <a href="mailto:security@ozindiecollective.com.au" class="text-gold">security@ozindiecollective.com.au</a> with as much detail as you can provide:</p>
+      <ul>
+        <li>A description of the vulnerability and its potential impact</li>
+        <li>Steps to reproduce it, including any affected URLs, endpoints or account states</li>
+        <li>Any proof-of-concept code, screenshots or logs that help us understand the issue</li>
+        <li>Your assessment of severity, if you have one</li>
+      </ul>
+
+      <h2>2. What to Expect From Us</h2>
+      <ul>
+        <li>Acknowledgement of your report within 3 business days</li>
+        <li>An initial assessment of severity and validity within 7 business days</li>
+        <li>Regular updates as we work through remediation, until the issue is resolved</li>
+        <li>Credit in our acknowledgements (see below), if you'd like it — we're also happy to keep you anonymous</li>
+      </ul>
+
+      <h2>3. Scope</h2>
+      <p>In scope:</p>
+      <ul>
+        <li>ozindiecollective.com.au and its subdomains</li>
+        <li>Our public API and Edge Functions used by the platform</li>
+        <li>Authentication, authorisation and account/session handling</li>
+        <li>Data exposure issues, including any way member data could be accessed without proper authorisation</li>
+      </ul>
+      <p>Out of scope:</p>
+      <ul>
+        <li>Third-party services we integrate with (e.g. Stripe, our email provider) — please report those directly to the provider</li>
+        <li>Social engineering, physical attacks, or denial-of-service testing against our infrastructure</li>
+        <li>Issues that require unlikely user interaction combined with a non-standard or outdated browser</li>
+        <li>Missing security headers or best-practice suggestions with no demonstrated exploit (we still welcome these as feedback via <a href="contact.html" class="text-gold">our contact form</a>, just not as a formal vulnerability report)</li>
+      </ul>
+
+      <h2>4. Ground Rules</h2>
+      <p>We ask that you:</p>
+      <ul>
+        <li>Give us a reasonable amount of time to investigate and fix an issue before disclosing it publicly</li>
+        <li>Avoid accessing, modifying or deleting data that isn't your own</li>
+        <li>Avoid any action that could degrade the platform's availability for other members</li>
+        <li>Only interact with test accounts you control, or your own account, when demonstrating an issue</li>
+      </ul>
+      <p>Good-faith security research that follows this policy will not result in legal action from us.</p>
+
+      <h2>5. Our Approach to Data Security</h2>
+      <p>All member data is protected by row-level security policies at the database layer, not just application-level checks. Privileged operations (such as account deletion or administrative actions) are handled through authenticated, server-side functions rather than being exposed directly to the browser. Secrets and API keys are never stored in client-side code. All traffic to the platform is served over HTTPS.</p>
+
+      <h2>6. Acknowledgements</h2>
+      <p>We're grateful to researchers who help keep Oz Indie Collective and our members safe. With permission, we'll list contributors who report a valid vulnerability here.</p>
+
+      <h2>7. Contact</h2>
+      <p>Security reports: <a href="mailto:security@ozindiecollective.com.au" class="text-gold">security@ozindiecollective.com.au</a></p>
+      <p>General enquiries: use our <a href="contact.html" class="text-gold">contact form</a> instead — this address is for security reports only.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="footer-placeholder"></div>
+<script src="../assets/js/nav-inject.js?v=8f063986"></script>
+<script src="../assets/js/main.js?v=218719f4"></script>
+</body>
+</html>

@@ -85,8 +85,8 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=4c3fe6d0"></script>
-<script src="../assets/js/main.js?v=6a9fcf38"></script>
+<script src="../assets/js/nav-inject.js?v=8f063986"></script>
+<script src="../assets/js/main.js?v=218719f4"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js" integrity="sha256-3oYBiGm16EW9wQH8G1VhGh43XgivbO5KaB10RhA9phE=" crossorigin="anonymous"></script>
 <script type="module">
 import { getAllPageContent, savePageContent, updatePassword } from '../assets/js/supabase.js?v=892f030b';
@@ -172,6 +172,57 @@ const CONTENT_REGISTRY = [
     default: `Whether you have a question, want to partner with us, pitch for the podcast or host an OIC event — we'd love to hear from you.` },
   { page: 'Contact', key: 'contact.reach_us', label: '"Other Ways to Reach Us" block',
     default: `<div class="contact-method"><div class="contact-icon">✉️</div><div><div class="contact-label">General</div><div class="contact-value">hello@ozindiecollective.com.au</div><div class="contact-sub">General enquiries and support</div></div></div><div class="contact-method"><div class="contact-icon">🤝</div><div><div class="contact-label">Partnerships</div><div class="contact-value">partners@ozindiecollective.com.au</div><div class="contact-sub">Sponsorship, brand and industry partnerships</div></div></div><div class="contact-method"><div class="contact-icon">🎙️</div><div><div class="contact-label">Podcast</div><div class="contact-value">podcast@ozindiecollective.com.au</div><div class="contact-sub">Guest pitches and media enquiries</div></div></div><div class="contact-method"><div class="contact-icon">📍</div><div><div class="contact-label">Based In</div><div class="contact-value">Australia-wide</div><div class="contact-sub">Sydney HQ · Community across all states</div></div></div>` },
+
+  // ── Hero banner images ──────────────────────────────────────────────
+  // Every inner page has a full-width background image at the top. These
+  // are plain image-URL fields (not rich text) rendered via the data-cms-bg
+  // mechanism in main.js's applyPageContent() — paste any image URL here
+  // and it goes live immediately, no HTML editing required. `default` is
+  // the placeholder image currently live on each page.
+  { page: 'About Us', key: 'about.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-about/1600/500` },
+  { page: 'Community Guidelines', key: 'guidelines.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-guidelines/1600/500` },
+  { page: 'Privacy Policy', key: 'privacy.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-privacy/1600/500` },
+  { page: 'Contact', key: 'contact.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-contact/1600/500` },
+  { page: 'Security Policy', key: 'security_policy.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-security/1600/500` },
+  { page: 'Join', key: 'join.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-join/1600/500` },
+  { page: 'Community', key: 'community.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-community/1600/500` },
+  { page: 'Articles', key: 'articles.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-articles-hero/1600/500` },
+  { page: 'Post a Sponsorship', key: 'post_sponsorship.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-sponsor/1600/500` },
+  { page: 'Opportunities', key: 'opportunities.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-opportunities/1600/500` },
+  { page: 'Directory', key: 'directory.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-directory/1600/500` },
+  { page: 'Post a Project', key: 'post_project.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-postproj/1600/500` },
+  { page: 'Sponsored Programs', key: 'sponsored_programs.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-sponsor-hero/1600/500` },
+  { page: 'Projects', key: 'projects.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-projects/1600/500` },
+  { page: 'Resources', key: 'resources.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-resources/1600/500` },
+  { page: 'Upgrade', key: 'upgrade.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-upgrade/1600/500` },
+  { page: 'Post a Job', key: 'post_job.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-postjob/1600/500` },
+  { page: 'Saved Members', key: 'saved_members.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-saved/1600/400` },
+  { page: 'Events', key: 'events.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-events/1600/500` },
+  { page: 'Highlights', key: 'highlights.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-highlights-hero/1600/500` },
+  { page: 'Podcast', key: 'podcast.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-podcast/1600/500` },
+  { page: 'Connections', key: 'connections.hero_image', label: 'Hero — Background Image URL', plain: true,
+    default: `https://picsum.photos/seed/oic-connections/1600/500` },
 ];
 
 let savedContent = {};

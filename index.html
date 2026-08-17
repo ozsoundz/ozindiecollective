@@ -106,6 +106,9 @@
 .plan-cta-outline:hover{border-color:var(--cream);background:rgba(240,237,230,.06)}
 .plan-cta-filled{display:block;width:100%;text-align:center;padding:.85rem;border-radius:2px;font-family:var(--font-mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;background:var(--marigold);color:var(--ink);border:none;transition:.2s;cursor:pointer}
 .plan-cta-filled:hover{background:#ffb83f}
+.plan.locked{opacity:.55;filter:grayscale(.6)}
+.plan.locked:hover{border-color:var(--border)}
+.plan.locked .plan-cta-outline,.plan.locked .plan-cta-filled{opacity:.8}
 @media(max-width:900px){
   .why-grid{grid-template-columns:1fr;gap:2.5rem}
   .orbit-wrap{display:none}
@@ -282,7 +285,7 @@
         <ul class="plan-feats"><li>Create your member profile</li><li>Access the community feed</li><li>Apply to unlimited jobs &amp; projects</li><li>Browse the member directory</li><li>Full resource &amp; grant library</li><li>Post 1 active job/project listing</li></ul>
         <a href="pages/join.html" class="plan-cta-outline">Apply Free</a>
       </div>
-      <div class="plan fade-in">
+      <div class="plan locked fade-in">
         <div class="plan-soon">🚧 Billing launching soon</div>
         <div class="plan-name">SME Small</div>
         <div class="plan-price">$29 <span>/ month</span></div>
@@ -290,7 +293,7 @@
         <ul class="plan-feats"><li>Everything in Free</li><li>Verified Business badge</li><li>Post up to 5 active listings</li><li>Applicant management tools</li></ul>
         <a href="pages/join.html" class="plan-cta-outline">Join Free — Upgrade Soon</a>
       </div>
-      <div class="plan fade-in">
+      <div class="plan locked fade-in">
         <div class="plan-soon">🚧 Billing launching soon</div>
         <div class="plan-name">SME Medium</div>
         <div class="plan-price">$49 <span>/ month</span></div>
@@ -298,7 +301,7 @@
         <ul class="plan-feats"><li>Everything in SME Small</li><li>Post up to 15 active listings</li></ul>
         <a href="pages/join.html" class="plan-cta-outline">Join Free — Upgrade Soon</a>
       </div>
-      <div class="plan featured fade-in">
+      <div class="plan featured locked fade-in">
         <div class="plan-badge">Corporate</div>
         <div class="plan-soon" style="margin-top:1.5rem">🚧 Billing launching soon</div>
         <div class="plan-name">Corporate</div>
@@ -307,7 +310,8 @@
         <ul class="plan-feats"><li>Everything in SME Medium</li><li>Unlimited job &amp; project listings</li><li>Submit Sponsored Programs</li><li>Featured/boosted placement</li><li>Priority support, named contact</li></ul>
         <a href="pages/join.html" class="plan-cta-filled">Join Free — Upgrade Soon</a>
       </div>
-      <div class="plan fade-in">
+      <div class="plan locked fade-in">
+        <div class="plan-soon">🚧 Billing launching soon</div>
         <div class="plan-name">Enterprise</div>
         <div class="plan-price" style="font-size:1.6rem">By Agreement</div>
         <div class="plan-tag">For national brands and institutional partners.</div>
@@ -320,8 +324,8 @@
 </section>
 
 <div id="footer-placeholder"></div>
-<script src="assets/js/nav-inject.js?v=4c3fe6d0"></script>
-<script src="assets/js/main.js?v=6a9fcf38"></script>
+<script src="assets/js/nav-inject.js?v=8f063986"></script>
+<script src="assets/js/main.js?v=218719f4"></script>
 <script type="module">
 import { getProjects, getPublicProjects, getListings, getPublicListings, getHomeStats, getSuccessStories, getEvents } from './assets/js/supabase.js?v=892f030b';
 

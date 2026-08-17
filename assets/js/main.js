@@ -4,11 +4,11 @@
 (function(){
 'use strict';
 
-/* AUTH (localStorage simulation — replace with real backend) */
-/* TODO: assets/js/supabase.js was added on GitHub for real Supabase-backed auth,
-   but the accompanying main.js edit was invalid (an HTML <script type="module">
-   tag pasted into a .js file) and has been dropped here to avoid breaking the
-   site. Wire up supabase.js properly in a follow-up pass. */
+/* AUTH: real authentication happens in assets/js/supabase.js (signIn/signUp/
+   getSession etc., backed by Supabase Auth + RLS). This Auth object is just a
+   lightweight localStorage mirror of the current user, used by pages for
+   quick synchronous UI checks (e.g. nav state) without an async round-trip.
+   It is not the security boundary — Row Level Security on the database is. */
 const Auth={
   key:'oic_user',
   get(){try{return JSON.parse(localStorage.getItem(this.key))}catch{return null}},
@@ -125,7 +125,14 @@ document.addEventListener('DOMContentLoaded',()=>{
    been saved are left completely untouched, so the existing hardcoded copy
    already in the HTML acts as the fallback/default — nothing breaks before
    an admin edits anything, and a failed fetch (offline, RLS issue, etc.)
-   just silently leaves the static content in place. */
+   just silently leaves the static content in place.
+
+   Elements can also carry data-cms-bg="true" to opt into background-image
+   mode instead of innerHTML mode — used for the full-width hero banners.
+   In that mode the saved value is treated as a plain image URL (not HTML)
+   and is layered under the site's standard dark hero gradient so text stays
+   readable regardless of what image an admin picks. */
+const HERO_GRADIENT = 'linear-gradient(rgba(10,10,12,.72),rgba(10,10,12,.85))';
 function applyPageContent(){
   const els = [...document.querySelectorAll('[data-cms-key]')];
   if(!els.length) return;
@@ -134,8 +141,13 @@ function applyPageContent(){
     try{
       const content = await getPageContent(keys);
       els.forEach(el => {
-        const html = content[el.dataset.cmsKey];
-        if(html) el.innerHTML = html;
+        const val = content[el.dataset.cmsKey];
+        if(!val) return;
+        if(el.dataset.cmsBg){
+          el.style.backgroundImage = `${HERO_GRADIENT},url('${val.replace(/'/g,"%27")}')`;
+        } else {
+          el.innerHTML = val;
+        }
       });
     }catch(err){ /* leave static fallback content in place */ }
   }).catch(()=>{ /* supabase.js unreachable — leave static fallback content in place */ });
@@ -283,6 +295,22 @@ async function performIdleLogout(){
 
 function initIdleTimeout(){
   if(!Auth.isLoggedIn()) return;
+
+  // BUG FIX: markActivity() used to be called unconditionally here, which
+  // stamped "now" as the last-activity time on every single page load —
+  // including the very first load after reopening a closed browser. That
+  // silently wiped out however long the member had actually been away and
+  // restarted the idle clock from zero, so a session that should have timed
+  // out (computer shut down overnight, tab closed for hours) looked freshly
+  // active the moment the site was reopened and the timeout never fired.
+  // Now: check the stored timestamp first — if it's already older than the
+  // timeout, treat this page load as the trigger and log out immediately
+  // instead of quietly resetting the clock.
+  const lastStored = parseInt(localStorage.getItem(IDLE_LAST_ACTIVITY_KEY)||'0',10);
+  if(lastStored && (Date.now()-lastStored) >= IDLE_TIMEOUT_MS){
+    performIdleLogout();
+    return;
+  }
 
   buildIdleWarningModal();
   markActivity();

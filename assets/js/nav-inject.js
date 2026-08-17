@@ -153,6 +153,7 @@
         <li><a href="${root}pages/join.html">Apply to Join</a></li>
         <li><a href="${root}pages/contact.html">Contact</a></li>
         <li><a href="${root}pages/privacy.html">Privacy Policy</a></li>
+        <li><a href="${root}pages/security-policy.html">Security Policy</a></li>
       </ul>
     </div>
   </div>
