@@ -28,6 +28,11 @@ alter table public.profiles add column if not exists skills text[] default '{}';
 alter table public.profiles add column if not exists experience text;
 alter table public.profiles add column if not exists availability text default 'available';
 alter table public.profiles add column if not exists created_at timestamptz default now();
+-- Set by approveApplication()/denyApplication() (see supabase.js) whenever
+-- status changes — used by the admin dashboard's Recent Activity feed so it
+-- can show "approved 2h ago" accurately instead of falling back to
+-- created_at (which is signup time, not decision time).
+alter table public.profiles add column if not exists status_updated_at timestamptz;
 
 do $$
 begin
@@ -155,6 +160,10 @@ alter table public.listings add column if not exists visibility text default 'al
 alter table public.listings add column if not exists posted_by uuid references public.profiles(id) on delete cascade;
 alter table public.listings add column if not exists status text default 'pending';
 alter table public.listings add column if not exists created_at timestamptz default now();
+-- Set by approveListing()/denyListing() (see supabase.js) whenever status
+-- changes — same purpose as profiles.status_updated_at, for the admin
+-- dashboard's Recent Activity feed.
+alter table public.listings add column if not exists status_updated_at timestamptz;
 
 do $$
 begin

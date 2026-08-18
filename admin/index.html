@@ -116,12 +116,8 @@
     <!-- Recent Activity -->
     <div>
       <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Recent Activity</h2>
-      <div style="display:flex;flex-direction:column;gap:.6rem">
-        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-approved" style="font-size:.55rem">Approved</span> Jordan Mackay joined as Professional Member <span style="margin-left:auto;font-size:.72rem">2h ago</span></div>
-        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-gold" style="font-size:.55rem">New Post</span> Listing "Mix Engineer — Indie Studio" went live <span style="margin-left:auto;font-size:.72rem">4h ago</span></div>
-        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-approved" style="font-size:.55rem">Approved</span> Nina Rashid joined as Professional Member <span style="margin-left:auto;font-size:.72rem">6h ago</span></div>
-        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-denied" style="font-size:.55rem">Denied</span> Application from fake-profile@spam.com rejected <span style="margin-left:auto;font-size:.72rem">8h ago</span></div>
-        <div class="flex items-center gap-2 text-sm text-muted"><span class="tag tag-gold" style="font-size:.55rem">Event</span> Sydney Networking Night — 48 registrations <span style="margin-left:auto;font-size:.72rem">1d ago</span></div>
+      <div style="display:flex;flex-direction:column;gap:.6rem" id="recentActivity">
+        <p class="text-muted text-sm">Loading…</p>
       </div>
     </div>
   </main>
@@ -138,10 +134,10 @@
   </div>
 </div>
 
-<script src="../assets/js/nav-inject.js?v=24ef7705"></script>
-<script src="../assets/js/main.js?v=e759fbb9"></script>
+<script src="../assets/js/nav-inject.js?v=b3cfdcc5"></script>
+<script src="../assets/js/main.js?v=cf6306dc"></script>
 <script type="module">
-import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers, updatePassword } from '../assets/js/supabase.js?v=afe46375';
+import { getAllApplications, approveApplication, denyApplication, getAllListings, approveListing, denyListing, getNewsletterSubscribers, updatePassword } from '../assets/js/supabase.js?v=6b52f7eb';
 
 window.submitChangePassword = async function(){
   const pw = document.getElementById('cpNewPassword').value;
@@ -209,11 +205,11 @@ function renderTable(){
 }
 
 window.__adminApprove = async function(id){
-  try{ await approveApplication(id); const a=applications.find(x=>x.id===id); if(a)a.status='approved'; showToast((a?.full_name||'Applicant')+' approved!','success'); renderTable(); }
+  try{ await approveApplication(id); const a=applications.find(x=>x.id===id); if(a){a.status='approved';a.status_updated_at=new Date().toISOString();} showToast((a?.full_name||'Applicant')+' approved!','success'); renderTable(); renderRecentActivity(); }
   catch(err){ showToast(err.message||'Failed to approve.','danger'); }
 };
 window.__adminDeny = async function(id){
-  try{ await denyApplication(id); const a=applications.find(x=>x.id===id); if(a)a.status='denied'; showToast((a?.full_name||'Applicant')+' denied.','danger'); renderTable(); }
+  try{ await denyApplication(id); const a=applications.find(x=>x.id===id); if(a){a.status='denied';a.status_updated_at=new Date().toISOString();} showToast((a?.full_name||'Applicant')+' denied.','danger'); renderTable(); renderRecentActivity(); }
   catch(err){ showToast(err.message||'Failed to deny.','danger'); }
 };
 
@@ -248,11 +244,11 @@ function renderListingTable(){
 }
 
 window.__adminApproveListing = async function(id){
-  try{ await approveListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='live'; showToast('Listing approved and live!','success'); renderListingTable(); }
+  try{ await approveListing(id); const l=listings.find(x=>x.id===id); if(l){l.status='live';l.status_updated_at=new Date().toISOString();} showToast('Listing approved and live!','success'); renderListingTable(); renderRecentActivity(); }
   catch(err){ showToast(err.message||'Failed to approve listing.','danger'); }
 };
 window.__adminDenyListing = async function(id){
-  try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l)l.status='denied'; showToast('Listing denied.','danger'); renderListingTable(); }
+  try{ await denyListing(id); const l=listings.find(x=>x.id===id); if(l){l.status='denied';l.status_updated_at=new Date().toISOString();} showToast('Listing denied.','danger'); renderListingTable(); renderRecentActivity(); }
   catch(err){ showToast(err.message||'Failed to deny listing.','danger'); }
 };
 
@@ -286,6 +282,48 @@ function renderNewsletterTable(){
   document.getElementById('statNewsletterWeek').textContent = '+'+subscribers.filter(s => new Date(s.created_at).getTime() > weekAgo).length;
 }
 
+// Builds the Recent Activity feed from data already loaded for the tables
+// above — no separate query needed. Previously this section was five
+// hardcoded fake entries (a demo member, a demo listing, a spam address that
+// never existed) left over from before Supabase was wired in; they never
+// corresponded to anything that actually happened. Real entries here need a
+// timestamp for *when the status changed*, not when the row was created —
+// approvals/denials/listing-approvals stamp profiles.status_updated_at /
+// listings.status_updated_at now (see approveApplication() etc. in
+// supabase.js); older rows from before that column existed will have it as
+// null and are simply excluded rather than showing a misleading time.
+function renderRecentActivity(){
+  const items = [];
+
+  applications.forEach(a => {
+    if(a.status === 'approved' && a.status_updated_at){
+      items.push({ ts: a.status_updated_at, tag: 'tag-approved', label: 'Approved', text: `${a.full_name || 'A member'} joined as ${a.role || 'a member'}` });
+    } else if(a.status === 'denied' && a.status_updated_at){
+      items.push({ ts: a.status_updated_at, tag: 'tag-denied', label: 'Denied', text: `Application from ${a.email || 'an applicant'} denied` });
+    }
+  });
+
+  listings.forEach(l => {
+    if(l.status === 'live' && l.status_updated_at){
+      items.push({ ts: l.status_updated_at, tag: 'tag-gold', label: 'New Post', text: `Listing "${l.title || 'Untitled'}" went live` });
+    } else if(l.status === 'denied' && l.status_updated_at){
+      items.push({ ts: l.status_updated_at, tag: 'tag-denied', label: 'Denied', text: `Listing "${l.title || 'Untitled'}" denied` });
+    }
+  });
+
+  subscribers.forEach(s => {
+    items.push({ ts: s.created_at, tag: 'tag-blue', label: 'Newsletter', text: `${s.email || 'Someone'} subscribed to the newsletter` });
+  });
+
+  items.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+  const top = items.slice(0, 8);
+  const e = escapeHtml;
+
+  document.getElementById('recentActivity').innerHTML = top.length
+    ? top.map(i => `<div class="flex items-center gap-2 text-sm text-muted"><span class="tag ${i.tag}" style="font-size:.55rem">${e(i.label)}</span> ${e(i.text)} <span style="margin-left:auto;font-size:.72rem">${timeAgo(i.ts)}</span></div>`).join('')
+    : '<p class="text-muted text-sm">No activity yet.</p>';
+}
+
 async function load(){
   try{
     applications = await getAllApplications();
@@ -304,6 +342,11 @@ async function load(){
     renderNewsletterTable();
   }catch(err){
     document.getElementById('newsletterTableBody').innerHTML = `<tr><td colspan="3" class="text-muted text-sm">Failed to load: ${err.message}</td></tr>`;
+  }
+  try{
+    renderRecentActivity();
+  }catch(err){
+    document.getElementById('recentActivity').innerHTML = '<p class="text-muted text-sm">Failed to load recent activity.</p>';
   }
 }
 

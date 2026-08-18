@@ -290,12 +290,12 @@ export async function getAllListingApplications() {
 }
 
 export async function approveListing(listingId) {
-  const { error } = await supabase.from('listings').update({ status: 'live' }).eq('id', listingId)
+  const { error } = await supabase.from('listings').update({ status: 'live', status_updated_at: new Date().toISOString() }).eq('id', listingId)
   if (error) throw error
 }
 
 export async function denyListing(listingId) {
-  const { error } = await supabase.from('listings').update({ status: 'denied' }).eq('id', listingId)
+  const { error } = await supabase.from('listings').update({ status: 'denied', status_updated_at: new Date().toISOString() }).eq('id', listingId)
   if (error) throw error
 }
 
@@ -605,7 +605,7 @@ export async function getAllApplications() {
 export async function approveApplication(userId) {
   const { error } = await supabase
     .from('profiles')
-    .update({ status: 'approved' })
+    .update({ status: 'approved', status_updated_at: new Date().toISOString() })
     .eq('id', userId)
   if (error) throw error
   // Best-effort: trigger a notification email via Edge Function. Failure here
@@ -620,7 +620,7 @@ export async function approveApplication(userId) {
 export async function denyApplication(userId, emailType = 'denied') {
   const { error } = await supabase
     .from('profiles')
-    .update({ status: 'denied' })
+    .update({ status: 'denied', status_updated_at: new Date().toISOString() })
     .eq('id', userId)
   if (error) throw error
   try {
