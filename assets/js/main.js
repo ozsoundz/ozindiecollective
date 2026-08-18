@@ -12,8 +12,16 @@
 const Auth={
   key:'oic_user',
   get(){try{return JSON.parse(localStorage.getItem(this.key))}catch{return null}},
-  set(u){localStorage.setItem(this.key,JSON.stringify(u))},
-  clear(){localStorage.removeItem(this.key)},
+  // BUG FIX: set() used to only write the user record. That left the idle-
+  // timeout's last-activity timestamp untouched — so after any idle logout
+  // (which clears Auth but never touched that timestamp), the very next
+  // successful login would immediately look "already idle" again on its
+  // first page load and get instantly logged back out, over and over. Every
+  // fresh login now stamps a fresh activity time too.
+  set(u){localStorage.setItem(this.key,JSON.stringify(u));try{localStorage.setItem('oic_last_activity',Date.now().toString())}catch(e){}},
+  // Also clear the activity timestamp on any logout (manual or idle) so a
+  // stale value never lingers into the next session.
+  clear(){localStorage.removeItem(this.key);try{localStorage.removeItem('oic_last_activity')}catch(e){}},
   isLoggedIn(){return!!this.get()},
   isApproved(){const u=this.get();return u&&u.status==='approved'}
 };
