@@ -76,8 +76,8 @@
   </div>
 </section>
 <div id="footer-placeholder"></div>
-<script src="../assets/js/nav-inject.js?v=8f063986"></script>
-<script src="../assets/js/main.js?v=581d3942"></script>
+<script src="../assets/js/nav-inject.js?v=24ef7705"></script>
+<script src="../assets/js/main.js?v=e759fbb9"></script>
 <script>
 window.onReady(() => {
   if(!Auth.get()) {
@@ -88,11 +88,11 @@ window.onReady(() => {
 </script>
 <script type="module">
 import {
-  getCommunityPosts, createCommunityPost, deleteCommunityPost,
+  getCommunityPosts, createCommunityPost, deleteCommunityPost, updateCommunityPost,
   getCommunityComments, createCommunityComment,
   toggleCommunityLike, getMyLikedPostIds, reportCommunityContent,
   getMembers, getSession
-} from '../assets/js/supabase.js?v=892f030b';
+} from '../assets/js/supabase.js?v=afe46375';
 
 let posts = [];
 let likedPostIds = new Set();
@@ -133,13 +133,20 @@ function postCardHtml(p){
       <div><div style="font-size:.85rem;font-weight:600;color:var(--cream)">${e(author.full_name||'Member')}</div><div class="text-xs mono text-muted">${e(author.role||'')}${author.role?' · ':''}${e([author.city,author.state].filter(Boolean).join(', '))} · ${timeAgo(p.created_at)}</div></div>
       ${p.tag && TAG_LABELS[p.tag] ? `<span class="tag ${TAG_CLASSES[p.tag]}" style="margin-left:auto;font-size:.55rem">${e(TAG_LABELS[p.tag])}</span>` : ''}
     </div>
-    <div class="post-body">${e(p.body)}</div>
+    <div class="post-body" data-post-body>${e(p.body)}</div>
+    <div class="hidden" data-edit-wrap style="margin-bottom:.85rem">
+      <textarea data-edit-input rows="3" style="width:100%;background:rgba(240,237,230,.04);border:1px solid var(--border);border-radius:3px;padding:.6rem .75rem;color:var(--cream);font-family:var(--font-body);font-size:.88rem;line-height:1.6;resize:vertical;outline:none"></textarea>
+      <div class="flex gap-2 mt-2">
+        <button class="btn-primary" style="font-size:.62rem;padding:.4rem .9rem" data-action="save-edit">Save</button>
+        <button class="post-action" data-action="cancel-edit">Cancel</button>
+      </div>
+    </div>
     <div class="post-actions">
       <button class="post-action" data-action="like" style="${liked?'color:var(--marigold)':''}">♥ ${likeCount} ${likeCount===1?'Like':'Likes'}</button>
       <button class="post-action" data-action="comments">💬 <span data-comment-count>${commentCount}</span> ${commentCount===1?'Comment':'Comments'}</button>
       <button class="post-action" data-action="share">↗ Share</button>
       <button class="post-action" data-action="report">⚑ Report</button>
-      ${isOwn ? `<button class="post-action" data-action="delete" style="color:var(--rust)">Delete</button>` : ''}
+      ${isOwn ? `<button class="post-action" data-action="edit">Edit</button><button class="post-action" data-action="delete" style="color:var(--rust)">Delete</button>` : ''}
     </div>
     <div class="hidden" data-comments-wrap style="margin-top:.85rem;border-top:1px solid var(--border);padding-top:.85rem">
       <div data-comments-list style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.75rem"></div>
@@ -299,6 +306,40 @@ document.getElementById('feedPosts').addEventListener('click', async (e) => {
       showToast('Post deleted.','info');
     } catch(err) {
       showToast(err.message || 'Failed to delete post.','danger');
+    }
+  }
+
+  else if (action === 'edit') {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    card.querySelector('[data-post-body]').classList.add('hidden');
+    const wrap = card.querySelector('[data-edit-wrap]');
+    const input = card.querySelector('[data-edit-input]');
+    wrap.classList.remove('hidden');
+    input.value = post.body; // raw text — textarea value doesn't need escaping
+    input.focus();
+  }
+
+  else if (action === 'cancel-edit') {
+    card.querySelector('[data-post-body]').classList.remove('hidden');
+    card.querySelector('[data-edit-wrap]').classList.add('hidden');
+  }
+
+  else if (action === 'save-edit') {
+    const input = card.querySelector('[data-edit-input]');
+    const newBody = input.value.trim();
+    if (!newBody) { showToast('Post can\'t be empty.','danger'); return; }
+    try {
+      await updateCommunityPost(postId, newBody);
+      const post = posts.find(p => p.id === postId);
+      if (post) post.body = newBody;
+      const bodyEl = card.querySelector('[data-post-body]');
+      bodyEl.textContent = newBody; // textContent, not innerHTML — avoids re-escaping/XSS risk
+      bodyEl.classList.remove('hidden');
+      card.querySelector('[data-edit-wrap]').classList.add('hidden');
+      showToast('Post updated.','success');
+    } catch(err) {
+      showToast(err.message || 'Failed to update post.','danger');
     }
   }
 });

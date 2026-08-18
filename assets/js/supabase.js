@@ -1202,6 +1202,20 @@ export async function deleteCommunityPost(id) {
   if (error) throw error
 }
 
+// Author-only (RLS also allows admins) — edit a post's own text after
+// publishing. Community posts have no approval queue (unlike job/project
+// listings), so this is the only way to fix a typo or mistake after the
+// fact short of deleting and reposting.
+export async function updateCommunityPost(id, body) {
+  const { data, error } = await supabase
+    .from('community_posts')
+    .update({ body })
+    .eq('id', id)
+    .select('*, profiles(full_name, role, city, state, avatar_url)')
+  if (error) throw error
+  return data[0]
+}
+
 export async function getCommunityComments(postId) {
   const { data, error } = await supabase
     .from('community_comments')
