@@ -19,3 +19,5 @@ wrangler.jsonc
 *.py
 *.sh
 {assets/
+.wrangler/
+node_modules/
